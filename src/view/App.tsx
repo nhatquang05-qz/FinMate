@@ -18,15 +18,18 @@ const App = () => {
   }
   return (
   //Sau khi SplashScreen xong sẽ tới trang chủ
-  <Text>Welcome to Finmate</Text> 
+  <Text style={styles.mainContainer}>Welcome to Finmate</Text> 
   );
 };
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    paddingVertical: 15,
+    backgroundColor: 'rgba(52, 152, 219, 0.8)',
   }
 });
 
