@@ -1,20 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native'; // Thêm StyleSheet
 
-export default function App() {
+// Splash Screen
+import SplashScreen from '../screen/SplashScreen';
+
+const App = () => {
+  const [isAppReady, setIsAppReady] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsAppReady(true);
+    }, 3000); 
+  }, []);
+
+  if (!isAppReady) {
+    return <SplashScreen />;
+  }
   return (
-    <View style={styles.container}>
-      <Text>lo</Text>
-      <StatusBar style="auto" />
-    </View>
+  //Sau khi SplashScreen xong sẽ tới trang chủ
+  <Text>Welcome to Finmate</Text> 
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
-  },
+    alignItems: 'center',
+  }
 });
+
+export default App;
