@@ -12,24 +12,28 @@ import {
     Platform,
 } from "react-native";
 
-const guestImage = require('./guest.png'); 
 const backgroundImage = require('../../assets/images/background.png')
 const logoImage = require('../../assets/images/logo.png')
 
-type LoginScreenProps = {
-  onNavigateToRegister: () => void;
+type RegisterScreenProps = {
+  onNavigateToLogin: () => void;
 };
 
-const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
+const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleLogin = () => {
-        console.log('Login attempt with:', { username, password });
-        if(username && password) {
-            alert(`Đăng nhập với tài khoản: ${username}`);
+    const handleRegister = () => {
+        console.log('Register attempt with:', { username, password, confirmPassword });
+        if(username && password && confirmPassword) {
+            if (password !== confirmPassword) {
+                alert('Mật khẩu nhập lại không khớp. Vui lòng thử lại.');
+                return;
+            }
+            alert(`Đăng ký thành công với tài khoản: ${username}`);
         } else {
-            alert('Vui lòng nhập tài khoản và mật khẩu.');
+            alert('Vui lòng nhập đầy đủ thông tin.');
         }
     };
 
@@ -49,7 +53,7 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                         />
                         <View style={styles.formContainer}>
                             <Text style={styles.title}>
-                                {"Đăng nhập"}
+                                {"Đăng ký"}
                             </Text>
                             <Text style={styles.label}>
                                 {"Tài khoản"}
@@ -76,25 +80,28 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                                     secureTextEntry={true}
                                 />
                             </View>
-                            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                             <Text style={styles.label}>
+                                {"Nhập lại mật khẩu"}
+                            </Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    placeholder="Nhập lại mật khẩu của bạn"
+                                    placeholderTextColor="#BDBDBD" 
+                                    secureTextEntry={true}
+                                />
+                            </View>
+                            <TouchableOpacity style={styles.button} onPress={handleRegister}>
                                 <Text style={styles.buttonText}>
-                                    {"Đăng nhập"}
+                                    {"Đăng ký"}
                                 </Text>
                             </TouchableOpacity>
                             <View style={styles.footer}>
-                                <TouchableOpacity style={styles.guestLink}>                                
-                                    <Image
-                                        source={guestImage} 
-                                        resizeMode={"contain"}
-                                        style={styles.guestIcon}
-                                    />
+                                <TouchableOpacity onPress={onNavigateToLogin}>
                                     <Text style={styles.footerText}>
-                                        {"Guest"}
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={onNavigateToRegister}>
-                                    <Text style={styles.footerText}>
-                                        {"Tạo tài khoản"}
+                                        {"Đã có tài khoản"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -132,13 +139,13 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         width: '100%',
-        height: '63%',
+        height: '70%', 
         backgroundColor: "#FFFF",
         borderRadius: 25,
         shadowRadius: 35,
         paddingHorizontal: 24, 
         paddingTop: 35,   
-        paddingBottom: 25,
+        paddingBottom: 15,
         ...Platform.select({
             ios: {
                 shadowColor: "#000",
@@ -167,7 +174,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         width: '95%',
-        height: '12%', 
+        height: '9%', 
         backgroundColor: "#FFFFFF",
         borderRadius: 57, 
         marginBottom: 20, 
@@ -194,13 +201,13 @@ const styles = StyleSheet.create({
     button: {
         alignSelf: 'center',
         width: '70%',
-        height: '12%',
+        height: '9%',
         backgroundColor: "#04D1C1",
         borderRadius: 25, 
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 15,
-        marginBottom: 35,
+        marginBottom: 25,
     },
     buttonText: {
         color: "#FFFFFF",
@@ -209,13 +216,9 @@ const styles = StyleSheet.create({
     },
     footer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center', 
         alignItems: 'center',
         paddingHorizontal: 10, 
-    },
-    guestLink: {
-        flexDirection: 'row',
-        alignItems: 'center',
     },
     footerText: {
         color: "#04D1C1",
@@ -223,11 +226,6 @@ const styles = StyleSheet.create({
         fontWeight: '600', 
         fontFamily: 'BeVietnamPro-SemiBold', 
     },
-    guestIcon: {
-        width: 18, 
-        height: 18, 
-        marginRight: 8, 
-    },
 });
 
-export default LoginScreen;
+export default RegisterScreen;
