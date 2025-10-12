@@ -11,6 +11,7 @@ import {
     StyleSheet,
     Platform,
 } from "react-native";
+import { scale } from '../../scaling'; // <-- IMPORT HÀM SCALE
 
 const backgroundImage = require('../../assets/images/background.png')
 const logoImage = require('../../assets/images/logo.png')
@@ -25,7 +26,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const handleRegister = () => {
-        console.log('Register attempt with:', { username, password, confirmPassword });
         if(username && password && confirmPassword) {
             if (password !== confirmPassword) {
                 alert('Mật khẩu nhập lại không khớp. Vui lòng thử lại.');
@@ -126,75 +126,77 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: scale(20),
     },
     mainContent: {
         alignItems: 'center',
     },
     logo: {
-        marginTop: 50,
-        width: 220, 
-        height: 60,  
-        marginBottom: 40, 
+        marginTop: scale(50),
+        width: scale(220), 
+        height: scale(60),  
+        marginBottom: scale(40), 
     },
     formContainer: {
         width: '100%',
         height: '70%', 
         backgroundColor: "#FFFF",
-        borderRadius: 25,
-        shadowRadius: 35,
-        paddingHorizontal: 24, 
-        paddingTop: 35,   
-        paddingBottom: 15,
+        borderWidth: 1, 
+        borderColor: '#E0E0E0',
+        borderRadius: scale(25),
+        shadowRadius: scale(35),
+        paddingHorizontal: scale(24), 
+        paddingTop: scale(35),   
+        paddingBottom: scale(15),
         ...Platform.select({
             ios: {
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.1,
-                shadowRadius: 2,
+                shadowRadius: scale(2),
             },
             android: {
-                elevation: 12,
+                elevation: scale(12),
             },
         }),
     },
     title: {
         color: "#04D1C1",
-        fontSize: 35, 
+        fontSize: scale(35), 
         textAlign: 'center',
-        marginBottom: 10, 
+        marginBottom: scale(10), 
         fontFamily: 'Coiny-Regular',
     },
     label: {
         color: "#04D1C1",
-        fontSize: 18, 
-        marginBottom: 10,
-        marginLeft: 10, 
+        fontSize: scale(18), 
+        marginBottom: scale(10),
+        marginLeft: scale(10), 
         fontFamily: 'BeVietnamPro-Bold',
     },
     inputContainer: {
         width: '95%',
         height: '9%', 
         backgroundColor: "#FFFFFF",
-        borderRadius: 57, 
-        marginBottom: 20, 
+        borderRadius: scale(57), 
+        marginBottom: scale(20), 
         justifyContent: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: scale(20),
         alignSelf: 'center',
         ...Platform.select({
             ios: {
                 shadowColor: "rgba(0, 0, 0, 0.1)",
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 1,
-                shadowRadius: 5,
+                shadowRadius: scale(5),
             },
             android: {
-                elevation: 5,
+                elevation: scale(5),
             },
         }),
     },
     input: {
-        fontSize: 16,
+        fontSize: scale(16),
         color: '#333',
         fontFamily: 'BeVietnamPro-Regular', 
     },
@@ -203,26 +205,26 @@ const styles = StyleSheet.create({
         width: '70%',
         height: '9%',
         backgroundColor: "#04D1C1",
-        borderRadius: 25, 
+        borderRadius: scale(25), 
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 15,
-        marginBottom: 25,
+        marginTop: scale(15),
+        marginBottom: scale(25),
     },
     buttonText: {
         color: "#FFFFFF",
-        fontSize: 20, 
+        fontSize: scale(20), 
         fontFamily: 'Coiny-Regular',
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'center', 
         alignItems: 'center',
-        paddingHorizontal: 10, 
+        paddingHorizontal: scale(10), 
     },
     footerText: {
         color: "#04D1C1",
-        fontSize: 16, 
+        fontSize: scale(16), 
         fontWeight: '600', 
         fontFamily: 'BeVietnamPro-SemiBold', 
     },
