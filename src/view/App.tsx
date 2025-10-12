@@ -1,36 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native'; // Thêm StyleSheet
-
-// Splash Screen
+import React, { useCallback } from 'react';
+import { View } from 'react-native';
+import * as ExpoSplashScreen from 'expo-splash-screen';
+import { useCustomFonts } from '../hooks/useCustomFonts'; 
 import SplashScreen from '../screen/SplashScreen';
+import LoginScreen from '../screen/Login/Login';
+
+ExpoSplashScreen.preventAutoHideAsync();
 
 const App = () => {
-  const [isAppReady, setIsAppReady] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsAppReady(true);
-    }, 3000); 
-  }, []);
-
-  if (!isAppReady) {
+  const fontsLoaded = useCustomFonts();
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await ExpoSplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+  if (!fontsLoaded) {
     return <SplashScreen />;
   }
   return (
-  //Sau khi SplashScreen xong sẽ tới trang chủ
-  <Text style={styles.mainContainer}>Welcome to Finmate</Text> 
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <LoginScreen />
+    </View>
   );
 };
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    paddingVertical: 15,
-    backgroundColor: 'rgba(52, 152, 219, 0.8)',
-  }
-});
-
 export default App;
+
