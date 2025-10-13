@@ -1,19 +1,60 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCustomFonts } from '../hooks/useCustomFonts';
 import SplashScreen from '../screen/SplashScreen';
 import LoginScreen from '../screen/Login/Login';
 import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
+import AddTransaction from '../screen/AddTransaction';
+import Navbar from '../components/Navbar/Navbar';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
+const MainApp = () => {
+  const [activeScreen, setActiveScreen] = useState('Home');
+
+  const PlaceholderScreen = ({ routeName }: { routeName: string }) => (
+    <View style={styles.placeholderContainer}>
+      <Text style={styles.placeholderText}>{routeName} Screen</Text>
+    </View>
+  );
+
+  const renderScreen = () => {
+    switch (activeScreen) {
+      case 'Home':
+        return <HomeScreen />;
+      case 'Money':
+        return <AddTransaction />;
+      case 'Calendar':
+        return <PlaceholderScreen routeName="Calendar" />;
+      case 'Chart':
+        return <PlaceholderScreen routeName="Chart" />;
+      case 'User':
+        return <PlaceholderScreen routeName="User" />;
+      default:
+        return <HomeScreen />;
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={{ flex: 1 }}>
+        {renderScreen()}
+      </SafeAreaView>
+
+      <Navbar 
+        activeTab={activeScreen} 
+        onTabPress={setActiveScreen} 
+      />
+    </View>
+  );
+};
+
 const App = () => {
   const fontsLoaded = useCustomFonts();
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
-  const [currentScreen, setCurrentScreen] = useState('Login');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -26,11 +67,11 @@ const App = () => {
   }
 
   const navigateToRegister = () => {
-    setCurrentScreen('Register');
+    setCurrentAuthScreen('Register');
   };
 
   const navigateToLogin = () => {
-    setCurrentScreen('Login');
+    setCurrentAuthScreen('Login');
   };
 
   const handleLoginSuccess = () => {
@@ -39,10 +80,10 @@ const App = () => {
 
   const renderContent = () => {
     if (isLoggedIn) {
-      return <HomeScreen />;
+      return <MainApp />;
     }
 
-    if (currentScreen === 'Login') {
+    if (currentAuthScreen === 'Login') {
       return (
         <LoginScreen
           onNavigateToRegister={navigateToRegister}
@@ -68,6 +109,15 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 
