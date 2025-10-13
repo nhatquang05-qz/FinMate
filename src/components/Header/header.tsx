@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: scale(35),
     color: "#04D1C1",
+    lineHeight: scale(60),
   },
   rightIconContainer: {
     flex: 1,
