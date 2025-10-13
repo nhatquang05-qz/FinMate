@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
+
 const tempIcon = require('../Home/bike.png');
 
-const incomeCategories = [
-  { id: '1', name: 'Lương', icon: tempIcon },
-  { id: '2', name: 'Phụ cấp', icon: tempIcon },
-  { id: '3', name: 'Thưởng', icon: tempIcon },
-  { id: '4', name: 'Đầu tư', icon: tempIcon },
-  { id: '5', name: 'Bán đồ', icon: tempIcon },
+const IncomeCategories = [
+  { id: '1', name: 'Ăn uống', icon: tempIcon },
+  { id: '2', name: 'Di chuyển', icon: tempIcon },
+  { id: '3', name: 'Hóa đơn', icon: tempIcon },
+  { id: '4', name: 'Mua sắm', icon: tempIcon },
+  { id: '5', name: 'Giải trí', icon: tempIcon },
   { id: '6', name: 'Khác', icon: tempIcon },
 ];
 
 const AddTransactionIncome = () => {
-  const [selectedCategory, setSelectedCategory] = useState(incomeCategories[0]);
+  const [selectedCategory, setSelectedCategory] = useState(IncomeCategories[0]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -49,13 +50,13 @@ const AddTransactionIncome = () => {
             />
           </View>
         </View>
-
-        <View style={styles.categorySection}>
-          <View style={styles.categoryTitleContainer}>
+  <View style={styles.categoryTitleContainer}>
             <Text style={styles.categoryTitleText}>Danh mục</Text>
           </View>
+        <View style={styles.categorySection}>
+        
           <View style={styles.categoryGrid}>
-            {incomeCategories.map((category) => {
+            {IncomeCategories.map((category) => {
               const isSelected = selectedCategory.id === category.id;
               return (
                 <TouchableOpacity
@@ -119,12 +120,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: verticalScale(18),
+    paddingVertical: verticalScale(12),
   },
   label: {
     fontFamily: 'Coiny-Regular',
     fontSize: moderateScale(16),
     color: '#0F172A',
+    lineHeight: scale(25),
   },
   valueText: {
     fontFamily: 'BeVietnamPro-Regular',
@@ -143,32 +145,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
   },
   categorySection: {
-    marginTop: verticalScale(25),
+    marginTop: verticalScale(10),
     paddingHorizontal: scale(15),
-  },
-
-  categoryTitleContainer: {
-    width: '35%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ffffffff',
-    borderRadius: moderateScale(20),
-    paddingHorizontal: scale(15),
-    paddingVertical: verticalScale(12),
-    marginBottom: verticalScale(15),
-    shadowColor: '#000',
+    backgroundColor: '#FFFF',
+    borderWidth: scale(0.05),
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 3,
+    borderRadius: moderateScale(16),
+    marginHorizontal: scale(15),
+    shadowColor: '#000',
+  },
+  categoryTitleContainer: {
+    width: '40%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: moderateScale(20),
+    paddingVertical: verticalScale(8),
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
+    marginTop: verticalScale(25),
+    paddingHorizontal: scale(15),
+    backgroundColor: '#FFFF',
+    borderWidth: scale(0.05),
+    shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: scale(15),
   },
   categoryTitleText: {
     fontFamily: 'Coiny-Regular',
-    fontSize: moderateScale(18),
+    fontSize: moderateScale(17),
     color: '#000000ff',
   },
   categoryGrid: {
+    alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
@@ -178,12 +191,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#83dad2ff',
+    backgroundColor: '#b4e2deff',
     borderRadius: moderateScale(16),
     marginBottom: verticalScale(15),
   },
   selectedCategoryItem: {
-    backgroundColor: '#27b8acff',
+    backgroundColor: '#4cc9beff',
     borderColor: '#179ad6ff',
   },
   categoryIcon: {
@@ -204,7 +217,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   saveButtonContainer: {
-    bottom: scale(90),
+    bottom: scale(100),
     width: '40%',
     alignSelf: 'center',
     paddingHorizontal: scale(15),

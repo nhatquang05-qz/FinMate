@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Coiny-Regular',
-    fontSize: moderateScale(17),
+    fontSize: moderateScale(16),
     color: '#0F172A',
     lineHeight: scale(25),
   },
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
   },
   categoryTitleContainer: {
-    width: '30%',
+    width: '40%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   categoryTitleText: {
     fontFamily: 'Coiny-Regular',
-    fontSize: moderateScale(15),
+    fontSize: moderateScale(17),
     color: '#000000ff',
   },
   categoryGrid: {
