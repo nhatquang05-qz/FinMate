@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, ImageBackground } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCustomFonts } from '../hooks/useCustomFonts';
 import SplashScreen from '../screen/SplashScreen';
@@ -8,6 +8,7 @@ import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
 import AddTransaction from '../screen/AddTransaction';
 import Navbar from '../components/Navbar/Navbar';
+import Header from '../components/Header/header';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
@@ -39,14 +40,21 @@ const MainApp = () => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={{ flex: 1 }}>
-        {renderScreen()}
-      </SafeAreaView>
-
-      <Navbar 
-        activeTab={activeScreen} 
-        onTabPress={setActiveScreen} 
+      <StatusBar barStyle="dark-content" />
+      <ImageBackground 
+        source={require('../assets/images/background.png')}
+        style={StyleSheet.absoluteFillObject}
       />
+      <SafeAreaView style={styles.safeArea}>
+        <Header activeTab={activeScreen} />
+        <View style={{ flex: 1 }}>
+            {renderScreen()}
+        </View>
+        <Navbar 
+          activeTab={activeScreen} 
+          onTabPress={setActiveScreen} 
+        />
+      </SafeAreaView>
     </View>
   );
 };
@@ -109,6 +117,10 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFF',
   },
   placeholderContainer: {
     flex: 1,

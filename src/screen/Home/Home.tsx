@@ -1,5 +1,3 @@
-// src/screen/Home/Home.tsx
-
 import React from 'react';
 import {
     SafeAreaView,

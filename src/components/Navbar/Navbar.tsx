@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     width: scale(70),
     height: scale(70),
     borderRadius: scale(35), 
-    top: scale(-25), 
+    top: scale(-15), 
     marginLeft: -(scale(70) / 2), 
     backgroundColor: '#ffffff',
 
