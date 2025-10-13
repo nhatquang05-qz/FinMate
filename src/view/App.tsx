@@ -25,7 +25,6 @@ const MainApp = () => {
   const renderScreen = () => {
     switch (activeScreen) {
       case 'Home':
-        // Pass the setActiveScreen function as the navigateTo prop
         return <HomeScreen navigateTo={setActiveScreen} />;
       case 'Money':
         return <AddTransaction />;
@@ -35,7 +34,6 @@ const MainApp = () => {
         return <PlaceholderScreen routeName="Chart" />;
       case 'User':
         return <PlaceholderScreen routeName="User" />;
-      // Add placeholders for other screens so they don't crash the app
       case 'History':
         return <PlaceholderScreen routeName="History" />;
       case 'Statistic':
@@ -43,7 +41,6 @@ const MainApp = () => {
       case 'Setting':
         return <PlaceholderScreen routeName="Setting" />;
       default:
-        // Also pass it here for the default case
         return <HomeScreen navigateTo={setActiveScreen} />;
     }
   };
@@ -71,7 +68,7 @@ const MainApp = () => {
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Set to true for easier testing
+  const [isLoggedIn, setIsLoggedIn] = useState(true); 
   const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
 
   const onLayoutRootView = useCallback(async () => {

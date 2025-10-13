@@ -10,12 +10,10 @@ import {
 } from "react-native";
 import { scale } from '../../utils/scaling';
 
-// Define the type for the component's props to fix TypeScript warning
 type HomeScreenProps = {
   navigateTo: (screenName: string) => void;
 };
 
-// Apply the defined type to the component
 const HomeScreen = ({ navigateTo }: HomeScreenProps) => { 
     return (
         <SafeAreaView style={styles.container}>
@@ -24,12 +22,10 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                 contentContainerStyle={styles.scrollViewContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Management Section */}
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Quản lý</Text>
                     <View style={styles.card}>
                         <View style={styles.managementIconsContainer}>
-                            {/* Use the navigateTo function passed from App.tsx */}
                             <TouchableOpacity onPress={() => navigateTo('Money')}>
                                 <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
                             </TouchableOpacity>
@@ -46,7 +42,6 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                     </View>
                 </View>
 
-                {/* Statistics Section */}
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Thống kê</Text>
                     <ScrollView 
@@ -57,24 +52,23 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                             <Image source={require('./food.png')} style={styles.statisticIcon} />
                             <View style={styles.statisticTextContainer}>
                                 <Text style={styles.statisticCategory}>Ăn uống</Text>
-                                <Text style={styles.statisticAmount}>999.999 vnd</Text>
+                                <Text style={styles.statisticAmount}>3.500.000 vnd</Text>
                             </View>
                         </View>
                         <View style={styles.statisticCard}>
                             <Image source={require('./bike.png')} style={styles.statisticIcon} />
                             <View style={styles.statisticTextContainer}>
                                 <Text style={styles.statisticCategory}>Đi lại</Text>
-                                <Text style={styles.statisticAmount}>999.999 vnd</Text>
+                                <Text style={styles.statisticAmount}>600.000 vnd</Text>
                             </View>
                         </View>
                     </ScrollView>
                 </View>
 
-                {/* Spending Chart Section */}
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
                     <View style={[styles.card, styles.chartCard]}>
-                        {/* You can add a chart component here later */}
+                        {/* Thêm chart vào sau */}
                     </View>
                 </View>
 
@@ -105,7 +99,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         color: '#04D1C1',
         marginBottom: scale(10),
-        marginLeft: scale(5)
+        marginLeft: scale(5),
+        lineHeight: scale(25),
     },
     card: {
         backgroundColor: 'white',
@@ -152,6 +147,7 @@ const styles = StyleSheet.create({
         fontSize: scale(14),
         fontFamily: 'Coiny-Regular',
         color: '#333',
+        lineHeight: scale(20),
     },
     statisticAmount: {
         fontSize: scale(16),
