@@ -1,6 +1,7 @@
 import React from 'react'; 
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { scale } from '../../utils/scaling';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const moneyIcon = require('./money.png');
 const calendarIcon = require('./calendar.png');
@@ -14,9 +15,10 @@ type NavbarProps = {
 };
 
 const Navbar = ({ activeTab, onTabPress }: NavbarProps) => {
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.containerWrapper}>
+     <View style={[styles.containerWrapper, { bottom: insets.bottom + scale(20) }]}>
       <View style={styles.container}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -27,7 +29,7 @@ const Navbar = ({ activeTab, onTabPress }: NavbarProps) => {
           onPress={() => onTabPress('Home')}
         >
           <Image source={homeIcon} style={styles.homeIcon} />
-        </TouchableOpacity>              
+        </TouchableOpacity>          
         <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('Money')}>
           <Image source={moneyIcon} style={styles.tabIcon} />
           {activeTab === 'Money' && <View style={styles.underline} />}
@@ -55,7 +57,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     position: 'absolute',
-    bottom: scale(20)    
   },
   container: {
     flexDirection: 'row',

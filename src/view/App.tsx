@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ImageBackground } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCustomFonts } from '../hooks/useCustomFonts';
 import SplashScreen from '../screen/SplashScreen';
@@ -9,7 +9,8 @@ import HomeScreen from '../screen/Home/Home';
 import AddTransaction from '../screen/AddTransaction';
 import Navbar from '../components/Navbar/Navbar';
 import Header from '../components/Header/header';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { scale } from '../utils/scaling';
 ExpoSplashScreen.preventAutoHideAsync();
 
 const MainApp = () => {
@@ -24,7 +25,8 @@ const MainApp = () => {
   const renderScreen = () => {
     switch (activeScreen) {
       case 'Home':
-        return <HomeScreen />;
+        // Pass the setActiveScreen function as the navigateTo prop
+        return <HomeScreen navigateTo={setActiveScreen} />;
       case 'Money':
         return <AddTransaction />;
       case 'Calendar':
@@ -33,19 +35,27 @@ const MainApp = () => {
         return <PlaceholderScreen routeName="Chart" />;
       case 'User':
         return <PlaceholderScreen routeName="User" />;
+      // Add placeholders for other screens so they don't crash the app
+      case 'History':
+        return <PlaceholderScreen routeName="History" />;
+      case 'Statistic':
+        return <PlaceholderScreen routeName="Statistic" />;
+      case 'Setting':
+        return <PlaceholderScreen routeName="Setting" />;
       default:
-        return <HomeScreen />;
+        // Also pass it here for the default case
+        return <HomeScreen navigateTo={setActiveScreen} />;
     }
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
       <ImageBackground 
         source={require('../assets/images/background.png')}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safeArea}>
+      <View style={styles.safeArea}>
         <Header activeTab={activeScreen} />
         <View style={{ flex: 1 }}>
             {renderScreen()}
@@ -54,14 +64,14 @@ const MainApp = () => {
           activeTab={activeScreen} 
           onTabPress={setActiveScreen} 
         />
-      </SafeAreaView>
+      </View>
     </View>
   );
 };
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Set to true for easier testing
   const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
 
   const onLayoutRootView = useCallback(async () => {
@@ -108,9 +118,11 @@ const App = () => {
   };
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      {renderContent()}
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container} onLayout={onLayoutRootView}>
+        {renderContent()}
+      </View>
+    </SafeAreaProvider>
   );
 };
 
@@ -120,7 +132,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFF',
+    backgroundColor: 'transparent',
   },
   placeholderContainer: {
     flex: 1,
@@ -128,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   placeholderText: {
-    fontSize: 24,
+    fontSize: scale(24),
     fontWeight: 'bold',
   },
 });

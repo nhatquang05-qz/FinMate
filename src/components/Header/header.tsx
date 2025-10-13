@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { scale } from '../../utils/scaling';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const screenTitles: { [key: string]: string } = {
   Home: 'Trang chủ',
@@ -16,9 +17,16 @@ interface HeaderProps {
 
 const Header = ({ activeTab }: HeaderProps) => {
   const title = screenTitles[activeTab] || 'Trang chủ';
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.headerContainer}>
+    <View style={[
+      styles.headerContainer,
+      { 
+        height: scale(60) + insets.top,
+        paddingTop: insets.top
+      }
+    ]}>
       <View style={styles.placeholder} />
       <Text style={styles.headerTitle}>{title}</Text>
       <View style={styles.rightIconContainer}>
@@ -35,19 +43,18 @@ const Header = ({ activeTab }: HeaderProps) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: scale(60),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFF',
     paddingHorizontal: scale(10),
   },
   placeholder: {
     flex: 1,
   },
   headerTitle: {
+    flex: 2,
     fontFamily: 'Coiny-Regular',
-    lineHeight: scale(45),
     textAlign: 'center',
     fontSize: scale(35),
     color: "#04D1C1",
@@ -59,7 +66,7 @@ const styles = StyleSheet.create({
   iconWrapper: {
     backgroundColor: '#FFFFFF',
     borderRadius: scale(12),
-    padding: scale(8),
+    padding: scale(10),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.1,

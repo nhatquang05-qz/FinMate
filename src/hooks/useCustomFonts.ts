@@ -17,6 +17,9 @@ export const useCustomFonts = () => {
     'BeVietnamPro-SemiBold': require('../assets/fonts/Be-Vietnam/BeVietnamPro-SemiBold.ttf'),
     'BeVietnamPro-Thin': require('../assets/fonts/Be-Vietnam/BeVietnamPro-Thin.ttf'),
     'Coiny-Regular': require('../assets/fonts/Coiny-Regular.ttf'),
+    'BalooTammudu2-Regular': require('../assets/fonts/BalooTammudu2-Regular.ttf'),
+    'BalooTammudu2-Bold': require('../assets/fonts/BalooTammudu2-Bold.ttf'),
+    'BalooTammudu2-Medium': require('../assets/fonts/BalooTammudu2-Medium.ttf'),
   });
 
   // Bạn cũng có thể xử lý lỗi tải font ở đây nếu cần
