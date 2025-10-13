@@ -10,26 +10,55 @@ import {
     TextInput,
     StyleSheet,
     Platform,
+    Alert,
 } from "react-native";
 import { scale } from '../../utils/scaling';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const guestImage = require('./guest.png'); 
+const guestImage = require('./guest.png');
 const backgroundImage = require('../../assets/images/background.png')
 const logoImage = require('../../assets/images/logo.png')
 
 type LoginScreenProps = {
   onNavigateToRegister: () => void;
+  onLoginSuccess: () => void;
 };
 
-const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
+const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = () => {
-        if(username && password) {
-            alert(`Đăng nhập với tài khoản: ${username}`);
-        } else {
-            alert('Vui lòng nhập tài khoản và mật khẩu.');
+    const handleLogin = async () => {
+        if (!username || !password) {
+            Alert.alert('Lỗi', 'Vui lòng nhập tài khoản và mật khẩu.');
+            return;
+        }
+
+        try {
+            const storedUsers = await AsyncStorage.getItem('users');
+            if (!storedUsers) {
+                Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
+                return;
+            }
+
+            const users = JSON.parse(storedUsers);
+            const user = users.find((u: any) => u.username === username);
+
+            if (!user) {
+                Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
+                return;
+            }
+
+            if (user.password !== password) {
+                Alert.alert('Lỗi', 'Sai mật khẩu. Vui lòng thử lại.');
+                return;
+            }
+
+            onLoginSuccess();
+
+        } catch (error) {
+            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập.');
+            console.error(error);
         }
     };
 
@@ -37,14 +66,14 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
         <SafeAreaView style={styles.container}>
             <ImageBackground
                 source={backgroundImage}
-                resizeMode='cover' 
+                resizeMode='cover'
                 style={styles.backgroundImage}
             >
                 <ScrollView contentContainerStyle={styles.scrollViewContent}>
                     <View style={styles.mainContent}>
                         <Image
                             source={logoImage}
-                            resizeMode={"contain"} 
+                            resizeMode={"contain"}
                             style={styles.logo}
                         />
                         <View style={styles.formContainer}>
@@ -60,7 +89,7 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                                     value={username}
                                     onChangeText={setUsername}
                                     placeholder="Nhập tài khoản của bạn"
-                                    placeholderTextColor="#BDBDBD" 
+                                    placeholderTextColor="#BDBDBD"
                                 />
                             </View>
                             <Text style={styles.label}>
@@ -72,7 +101,7 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                                     value={password}
                                     onChangeText={setPassword}
                                     placeholder="Nhập mật khẩu của bạn"
-                                    placeholderTextColor="#BDBDBD" 
+                                    placeholderTextColor="#BDBDBD"
                                     secureTextEntry={true}
                                 />
                             </View>
@@ -82,9 +111,9 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                                 </Text>
                             </TouchableOpacity>
                             <View style={styles.footer}>
-                                <TouchableOpacity style={styles.guestLink}>                                
+                                <TouchableOpacity style={styles.guestLink}>
                                     <Image
-                                        source={guestImage} 
+                                        source={guestImage}
                                         resizeMode={"contain"}
                                         style={styles.guestIcon}
                                     />
@@ -113,7 +142,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFFFFF",
     },
     backgroundImage: {
-        justifyContent: 'center', 
+        justifyContent: 'center',
         flex: 1,
     },
     scrollViewContent: {
@@ -126,20 +155,20 @@ const styles = StyleSheet.create({
     },
     logo: {
         marginTop: scale(50),
-        width: scale(220), 
-        height: scale(60),  
-        marginBottom: scale(40), 
+        width: scale(220),
+        height: scale(60),
+        marginBottom: scale(40),
     },
     formContainer: {
         width: '100%',
         height: '63%',
         backgroundColor: "#FFFF",
-        borderWidth: 1, 
+        borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: scale(25),
         shadowRadius: scale(35),
-        paddingHorizontal: scale(24), 
-        paddingTop: scale(35),   
+        paddingHorizontal: scale(24),
+        paddingTop: scale(35),
         paddingBottom: scale(25),
         ...Platform.select({
             ios: {
@@ -155,24 +184,24 @@ const styles = StyleSheet.create({
     },
     title: {
         color: "#04D1C1",
-        fontSize: scale(35), 
+        fontSize: scale(35),
         textAlign: 'center',
-        marginBottom: scale(10), 
+        marginBottom: scale(10),
         fontFamily: 'Coiny-Regular',
     },
     label: {
         color: "#04D1C1",
-        fontSize: scale(18), 
+        fontSize: scale(18),
         marginBottom: scale(10),
-        marginLeft: scale(10), 
+        marginLeft: scale(10),
         fontFamily: 'BeVietnamPro-Bold',
     },
     inputContainer: {
         width: '95%',
-        height: '12%', 
+        height: '12%',
         backgroundColor: "#ffffffff",
-        borderRadius: scale(57), 
-        marginBottom: scale(20), 
+        borderRadius: scale(57),
+        marginBottom: scale(20),
         justifyContent: 'center',
         paddingHorizontal: scale(20),
         alignSelf: 'center',
@@ -191,14 +220,14 @@ const styles = StyleSheet.create({
     input: {
         fontSize: scale(16),
         color: '#333',
-        fontFamily: 'BeVietnamPro-Regular', 
+        fontFamily: 'BeVietnamPro-Regular',
     },
     button: {
         alignSelf: 'center',
         width: '70%',
         height: '12%',
         backgroundColor: "#04D1C1",
-        borderRadius: scale(25), 
+        borderRadius: scale(25),
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: scale(15),
@@ -206,14 +235,14 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: "#FFFFFF",
-        fontSize: scale(20), 
+        fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: scale(10), 
+        paddingHorizontal: scale(10),
     },
     guestLink: {
         flexDirection: 'row',
@@ -221,14 +250,14 @@ const styles = StyleSheet.create({
     },
     footerText: {
         color: "#04D1C1",
-        fontSize: scale(16), 
-        fontWeight: '600', 
-        fontFamily: 'BeVietnamPro-SemiBold', 
+        fontSize: scale(16),
+        fontWeight: '600',
+        fontFamily: 'BeVietnamPro-SemiBold',
     },
     guestIcon: {
-        width: scale(18), 
-        height: scale(18), 
-        marginRight: scale(8), 
+        width: scale(18),
+        height: scale(18),
+        marginRight: scale(8),
     },
 });
 
