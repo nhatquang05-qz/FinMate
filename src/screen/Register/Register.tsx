@@ -12,6 +12,8 @@ import {
     Platform,
 } from "react-native";
 import { scale } from '../../utils/scaling'; 
+import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
+import PopupRegisterFailedAccount from '../../components/popups/PopupRegisterFailedAccount';
 
 const backgroundImage = require('../../assets/images/background.png')
 const logoImage = require('../../assets/images/logo.png')
@@ -24,6 +26,8 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showRegisterSuccessPopup, setShowRegisterSuccessPopup] = useState(false);
+    const [showRegisterFailedAccountPopup, setShowRegisterFailedAccountPopup] = useState(false) 
 
     const handleRegister = () => {
         if(username && password && confirmPassword) {
@@ -31,9 +35,9 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                 alert('Mật khẩu nhập lại không khớp. Vui lòng thử lại.');
                 return;
             }
-            alert(`Đăng ký thành công với tài khoản: ${username}`);
+            setShowRegisterSuccessPopup(true);
         } else {
-            alert('Vui lòng nhập đầy đủ thông tin.');
+            setShowRegisterFailedAccountPopup(true);
         }
     };
 
@@ -108,6 +112,14 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                         </View>
                     </View>
                 </ScrollView>
+                <PopupRegisterSuccess
+                    visible={showRegisterSuccessPopup}
+                    onClose={() => setShowRegisterSuccessPopup(false)}
+                />
+                <PopupRegisterFailedAccount
+                    visible={showRegisterFailedAccountPopup}
+                    onClose={() => setShowRegisterFailedAccountPopup(false)}
+                />
             </ImageBackground>
         </SafeAreaView>
     );

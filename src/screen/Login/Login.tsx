@@ -12,6 +12,9 @@ import {
     Platform,
 } from "react-native";
 import { scale } from '../../utils/scaling';
+import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
+import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
+import PopupLoginFailed from '../../components/popups/PopupLoginFailed';
 
 const guestImage = require('./guest.png'); 
 const backgroundImage = require('../../assets/images/background.png')
@@ -24,12 +27,18 @@ type LoginScreenProps = {
 const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showWrongPasswordPopup, setShowWrongPasswordPopup] = useState(false);
+    const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
+    const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
 
     const handleLogin = () => {
-        if(username && password) {
-            alert(`Đăng nhập với tài khoản: ${username}`);
+        if (!username || !password) {
+            setShowLoginFailedPopup(true);
+        }
+        else if (username == "admin" && password == "admin") {
+            setShowLoginSuccessPopup(true);
         } else {
-            alert('Vui lòng nhập tài khoản và mật khẩu.');
+            setShowWrongPasswordPopup(true);
         }
     };
 
@@ -101,6 +110,18 @@ const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
                         </View>
                     </View>
                 </ScrollView>
+                <PopupWrongPassword 
+                    visible={showWrongPasswordPopup}
+                    onClose={() => setShowWrongPasswordPopup(false)}
+                />
+                <PopupLoginSuccess
+                    visible={showLoginSuccessPopup}
+                    onClose={() => setShowLoginSuccessPopup(false)}
+                />
+                <PopupLoginFailed
+                    visible={showLoginFailedPopup}
+                    onClose={() => setShowLoginFailedPopup(false)}
+                />
             </ImageBackground>
         </SafeAreaView>
     );
