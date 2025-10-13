@@ -6,9 +6,9 @@ import {
     Text,
     View,
 } from "react-native";
-import { scale } from '../utils/scaling';
+import { scale } from '../../utils/scaling';
 
-const backgroundImage = require('../assets/images/background.png');
+const backgroundImage = require('../../assets/images/background.png');
 
 const AddTransaction = () => {
     return (

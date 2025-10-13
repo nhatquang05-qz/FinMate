@@ -6,7 +6,8 @@ import {
     View,
     Image,
     TouchableOpacity,
-    ScrollView
+    ScrollView,
+    ImageBackground 
 } from "react-native";
 import { scale } from '../../utils/scaling';
 
@@ -16,70 +17,79 @@ type HomeScreenProps = {
 
 const HomeScreen = ({ navigateTo }: HomeScreenProps) => { 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView 
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollViewContent}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Quản lý</Text>
-                    <View style={styles.card}>
-                        <View style={styles.managementIconsContainer}>
-                            <TouchableOpacity onPress={() => navigateTo('Money')}>
-                                <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigateTo('History')}>
-                                <Image source={require('./History.png')} style={styles.managementIcon} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigateTo('Statistic')}>
-                                <Image source={require('./Statistic.png')} style={styles.managementIcon} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigateTo('Setting')}>
-                                <Image source={require('./Setting.png')} style={styles.managementIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Thống kê</Text>
-                    <ScrollView 
-                        horizontal={true} 
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        <View style={styles.statisticCard}>
-                            <Image source={require('./food.png')} style={styles.statisticIcon} />
-                            <View style={styles.statisticTextContainer}>
-                                <Text style={styles.statisticCategory}>Ăn uống</Text>
-                                <Text style={styles.statisticAmount}>3.500.000 vnd</Text>
+        <ImageBackground 
+            source={require('../../assets/images/background.png')} 
+            style={styles.backgroundImage}
+        >
+            <SafeAreaView style={styles.container}>
+                <ScrollView 
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollViewContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>Quản lý</Text>
+                        <View style={styles.card}>
+                            <View style={styles.managementIconsContainer}>
+                                <TouchableOpacity onPress={() => navigateTo('Money')}>
+                                    <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('History')}>
+                                    <Image source={require('./History.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('Statistic')}>
+                                    <Image source={require('./Statistic.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('Setting')}>
+                                    <Image source={require('./Setting.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
                             </View>
                         </View>
-                        <View style={styles.statisticCard}>
-                            <Image source={require('./bike.png')} style={styles.statisticIcon} />
-                            <View style={styles.statisticTextContainer}>
-                                <Text style={styles.statisticCategory}>Đi lại</Text>
-                                <Text style={styles.statisticAmount}>600.000 vnd</Text>
-                            </View>
-                        </View>
-                    </ScrollView>
-                </View>
-
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
-                    <View style={[styles.card, styles.chartCard]}>
-                        {/* Thêm chart vào sau */}
                     </View>
-                </View>
 
-            </ScrollView>
-        </SafeAreaView>
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>Thống kê</Text>
+                        <ScrollView 
+                            horizontal={true} 
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            <View style={styles.statisticCard}>
+                                <Image source={require('./food.png')} style={styles.statisticIcon} />
+                                <View style={styles.statisticTextContainer}>
+                                    <Text style={styles.statisticCategory}>Ăn uống</Text>
+                                    <Text style={styles.statisticAmount}>3.500.000 vnd</Text>
+                                </View>
+                            </View>
+                            <View style={styles.statisticCard}>
+                                <Image source={require('./bike.png')} style={styles.statisticIcon} />
+                                <View style={styles.statisticTextContainer}>
+                                    <Text style={styles.statisticCategory}>Đi lại</Text>
+                                    <Text style={styles.statisticAmount}>600.000 vnd</Text>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </View>
+
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
+                        <View style={[styles.card, styles.chartCard]}>
+                            {/* Thêm chart vào sau */}
+                        </View>
+                    </View>
+
+                </ScrollView>
+            </SafeAreaView>
+        </ImageBackground>
     );
 }
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+    backgroundImage: {
+        flex: 1,
+        resizeMode: 'cover',
+    },
     container: {
         flex: 1,
         backgroundColor: 'transparent',

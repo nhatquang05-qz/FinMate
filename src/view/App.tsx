@@ -6,7 +6,8 @@ import SplashScreen from '../screen/SplashScreen';
 import LoginScreen from '../screen/Login/Login';
 import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
-import AddTransaction from '../screen/AddTransaction';
+import AddTransactionIncome from '../screen/AddTransaction/AddTransactionIncome';
+import AddTransactionScreen from '../screen/AddTransaction/AddTransactionScreen';
 import Navbar from '../components/Navbar/Navbar';
 import Header from '../components/Header/header';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -27,7 +28,7 @@ const MainApp = () => {
       case 'Home':
         return <HomeScreen navigateTo={setActiveScreen} />;
       case 'Money':
-        return <AddTransaction />;
+        return <AddTransactionScreen />;
       case 'Calendar':
         return <PlaceholderScreen routeName="Calendar" />;
       case 'Chart':
@@ -68,7 +69,7 @@ const MainApp = () => {
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
-  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
 
   const onLayoutRootView = useCallback(async () => {
