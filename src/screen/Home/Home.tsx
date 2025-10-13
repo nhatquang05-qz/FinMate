@@ -1,25 +1,29 @@
+// src/screen/Home/Home.tsx
+
 import React from 'react';
 import {
     SafeAreaView,
     ImageBackground,
     StyleSheet,
     Text,
+    View,
 } from "react-native";
 import { scale } from '../../utils/scaling';
 
-const backgroundImage = require('../../assets/images/background.png')
+const backgroundImage = require('../../assets/images/background.png');
 
 const HomeScreen = () => {
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ImageBackground
                 source={backgroundImage}
                 resizeMode='cover'
-                style={styles.backgroundImage}
-            >
+                style={StyleSheet.absoluteFillObject} 
+            />
+            <View style={styles.mainContent}>
                 <Text style={styles.welcomeText}>Chào mừng bạn!</Text>
-            </ImageBackground>
-        </SafeAreaView>
+            </View>
+        </View>
     );
 }
 
@@ -29,10 +33,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    backgroundImage: {
+    mainContent: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        flex: 1,
     },
     welcomeText: {
         fontSize: scale(30),
