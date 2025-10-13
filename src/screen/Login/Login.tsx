@@ -11,7 +11,7 @@ import {
     StyleSheet,
     Platform,
 } from "react-native";
-import { scale } from '../../scaling'; // <-- IMPORT HÀM SCALE
+import { scale } from '../../utils/scaling';
 
 const guestImage = require('./guest.png'); 
 const backgroundImage = require('../../assets/images/background.png')
