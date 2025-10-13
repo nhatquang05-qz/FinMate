@@ -1,5 +1,5 @@
 import React from 'react'; 
-import { View, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { scale } from '../../utils/scaling';
 
 const moneyIcon = require('./money.png');
@@ -7,7 +7,6 @@ const calendarIcon = require('./calendar.png');
 const homeIcon = require('./Home.png');
 const chartIcon = require('./chart.png');
 const userIcon = require('./user.png');
-const circleBackground = require('./circle.png');
 
 type NavbarProps = {
   activeTab: string;
@@ -19,20 +18,15 @@ const Navbar = ({ activeTab, onTabPress }: NavbarProps) => {
   return (
     <View style={styles.containerWrapper}>
       <View style={styles.container}>
-        <TouchableOpacity 
-          style={styles.centerButtonContainer} 
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[
+            styles.centerButtonContainer,
+            activeTab === 'Home' && styles.activeHomeBorder, 
+          ]}
           onPress={() => onTabPress('Home')}
         >
-          <ImageBackground
-            source={circleBackground}
-            style={[
-              styles.centerButtonBackground,
-              activeTab === 'Home' && styles.activeHomeBorder 
-            ]}
-            imageStyle={styles.circleImageStyle}
-          >
-            <Image source={homeIcon} style={styles.homeIcon} />
-          </ImageBackground>
+          <Image source={homeIcon} style={styles.homeIcon} />
         </TouchableOpacity>              
         <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('Money')}>
           <Image source={moneyIcon} style={styles.tabIcon} />
@@ -96,23 +90,21 @@ const styles = StyleSheet.create({
   },
   centerButtonContainer: {
     position: 'absolute',
-    top: scale(-20),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1, 
     left: '50%',
-    marginLeft: -(scale(75) / 2),
     alignSelf: 'center',
-  },
-  centerButtonBackground: {
-    width: scale(75),
-    height: scale(75),
-    justifyContent: 'center',
-    alignItems: 'center',
+    
+    width: scale(70),
+    height: scale(70),
+    borderRadius: scale(35), 
+    top: scale(-25), 
+    marginLeft: -(scale(70) / 2), 
+    backgroundColor: '#ffffff',
+
     borderWidth: scale(5),
-    borderColor: '#c1c2c2ff',
-    borderRadius: scale(40),
-    alignSelf: 'center',
+    borderColor: '#E0E0E0', 
   },
   homeIcon: {
     width: scale(40),
@@ -120,12 +112,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   activeHomeBorder: {
-    borderWidth: scale(5),
     borderColor: '#04D1C1',
-    borderRadius: scale(40),
-  },
-  circleImageStyle: {
-    borderRadius: scale(38),
   },
   underline: {
     position: 'absolute',
