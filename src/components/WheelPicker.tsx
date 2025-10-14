@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     top: (VISIBLE_ITEMS - 1) / 2 * ITEM_HEIGHT,
     width: '100%',
     height: ITEM_HEIGHT,
-    backgroundColor: 'rgba(4, 209, 193, 0.1)',
+    backgroundColor: '#04d1c11a',
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#04d1c14d',

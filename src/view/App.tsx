@@ -12,6 +12,7 @@ import Navbar from '../components/Navbar/Navbar';
 import Header from '../components/Header/header';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scale } from '../utils/scaling';
+import CalendarInfoScreen from '../screen/CalendarInfo';
 ExpoSplashScreen.preventAutoHideAsync();
 
 const MainApp = () => {
@@ -30,7 +31,7 @@ const MainApp = () => {
       case 'Money':
         return <AddTransactionScreen />;
       case 'Calendar':
-        return <PlaceholderScreen routeName="Calendar" />;
+        return <CalendarInfoScreen />;
       case 'Chart':
         return <PlaceholderScreen routeName="Chart" />;
       case 'User':
