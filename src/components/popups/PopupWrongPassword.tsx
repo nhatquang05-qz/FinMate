@@ -9,8 +9,6 @@ import {
 } from 'react-native';
 import { scale } from '../../utils/scaling';
 
-// Bạn có thể thêm một icon thất bại vào assets/images nếu muốn
-// const failIcon = require('../../assets/images/fail-icon.png');
 
 type PopupProps = {
     visible: boolean;
@@ -27,7 +25,6 @@ const PopupWrongPassword = ({ visible, onClose }: PopupProps) => {
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    {/* <Image source={failIcon} style={styles.icon} /> */}
                     <Text style={styles.modalTitle}>Đăng nhập thất bại</Text>
                     <Text style={styles.modalText}>
                         Sai tài khoản hoặc mật khẩu. Vui lòng thử lại!

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import AddTransactionExpense from './AddTransactionExpense';
 import AddTransactionIncome from './AddTransactionIncome';
-import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle'; // <-- Import component
+import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle'; 
 
 type TransactionType = 'expense' | 'income';
 

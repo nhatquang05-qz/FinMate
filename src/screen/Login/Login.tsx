@@ -17,6 +17,7 @@ import { scale } from '../../utils/scaling';
 import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
 import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
 import PopupLoginFailed from '../../components/popups/PopupLoginFailed';
+import PopupAccountNotExist from '../../components/popups/PopupAccountNotExist';
 
 const guestImage = require('./guest.png');
 const backgroundImage = require('../../assets/images/background.png')
@@ -33,6 +34,7 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
     const [showWrongPasswordPopup, setShowWrongPasswordPopup] = useState(false);
     const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
     const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
+    const [showAccountNotExistPopup, setShowAccountNotExistPopup] = useState(false);
 
     const handleLogin = async () => {
         if (!username || !password) {
@@ -44,7 +46,7 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
             const storedUsers = await AsyncStorage.getItem('users');
 
             if (!storedUsers) {
-                setShowWrongPasswordPopup(true);
+                setShowAccountNotExistPopup(true);
                 return;
             }
 
@@ -53,15 +55,18 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                 (user: any) => user.username === username
             );
 
-            if (foundUser && foundUser.password === password) {
-                setShowLoginSuccessPopup(true);
-                // Optional: You can call onLoginSuccess() after a delay
-                // setTimeout(() => {
-                //    setShowLoginSuccessPopup(false);
-                //    onLoginSuccess();
-                // }, 1500);
+            if (foundUser) {
+                if (foundUser.password === password) {
+                    setShowLoginSuccessPopup(true);
+                    setTimeout(() => {
+                       setShowLoginSuccessPopup(false);
+                       onLoginSuccess();
+                    }, 1500);
+                } else {
+                    setShowWrongPasswordPopup(true);
+                }
             } else {
-                setShowWrongPasswordPopup(true);
+                setShowAccountNotExistPopup(true);
             }
         } catch (error) {
             console.error("Login Error: ", error);
@@ -145,12 +150,16 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                     visible={showLoginSuccessPopup}
                     onClose={() => {
                         setShowLoginSuccessPopup(false);
-                        onLoginSuccess(); // Navigate after closing the popup
+                        onLoginSuccess();
                     }}
                 />
                 <PopupLoginFailed
                     visible={showLoginFailedPopup}
                     onClose={() => setShowLoginFailedPopup(false)}
+                />
+                <PopupAccountNotExist
+                    visible={showAccountNotExistPopup}
+                    onClose={() => setShowAccountNotExistPopup(false)}
                 />
             </ImageBackground>
         </SafeAreaView>
@@ -229,7 +238,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         ...Platform.select({
             ios: {
-                shadowColor: "rgba(0, 0, 0, 0.1)",
+                shadowColor: "#0000001a",
                 shadowOffset: { width: 2, height: 4 },
                 shadowOpacity: 1,
                 shadowRadius: scale(5),
