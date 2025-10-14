@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { scale } from '../utils/scaling';
 
-const Calendar = () => {
-    const [date, setDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(new Date());
+type CalendarProps = {
+    onDateSelect: (date: Date) => void;
+};
+
+const Calendar = ({ onDateSelect }: CalendarProps) => {
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(0, 0, 0, 0);
+
+    const [displayDate, setDisplayDate] = useState(todayUTC);
+    const [selectedDate, setSelectedDate] = useState(todayUTC);
+
+    const handleSelectDate = (date: Date) => {
+        setSelectedDate(date);
+        onDateSelect(date);
+    };
 
     const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     const monthNames = [
@@ -12,16 +24,16 @@ const Calendar = () => {
         'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
     ];
 
-    const year = date.getFullYear();
-    const month = date.getMonth();
+    const year = displayDate.getUTCFullYear();
+    const month = displayDate.getUTCMonth();
 
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(Date.UTC(year, month, 1)).getUTCDay();
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
     const changeMonth = (offset: number) => {
-        const newDate = new Date(date);
-        newDate.setMonth(date.getMonth() + offset);
-        setDate(newDate);
+        const newDate = new Date(displayDate);
+        newDate.setUTCMonth(displayDate.getUTCMonth() + offset);
+        setDisplayDate(newDate);
     };
 
     const renderDays = () => {
@@ -31,15 +43,15 @@ const Calendar = () => {
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const currentDate = new Date(year, month, i);
-            const isSelected = selectedDate.toDateString() === currentDate.toDateString();
-            const isToday = new Date().toDateString() === currentDate.toDateString();
+            const currentDate = new Date(Date.UTC(year, month, i));
+            const isSelected = selectedDate.getTime() === currentDate.getTime();
+            const isToday = todayUTC.getTime() === currentDate.getTime();
 
             days.push(
                 <TouchableOpacity
                     key={i}
                     style={styles.dayCell}
-                    onPress={() => setSelectedDate(currentDate)}
+                    onPress={() => handleSelectDate(currentDate)}
                 >
                     <View style={[
                         styles.dayContainer,
@@ -160,12 +172,11 @@ const styles = StyleSheet.create({
     },
     selectedDayContainer: {
         backgroundColor: '#04D1C1',
-        borderRadius: scale(25),
-
+        borderRadius: scale(100),
     },
     dayText: {
         fontFamily: 'Coiny-Regular',
-        fontSize: scale(17),
+        fontSize: scale(16),
         color: '#333',
     },
     selectedDayText: {
