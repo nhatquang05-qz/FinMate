@@ -12,15 +12,16 @@ import {
     Platform,
     Alert,
 } from "react-native";
-import { scale } from '../../utils/scaling'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale } from '../../utils/scaling';
 import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
 import PopupRegisterFailedAccount from '../../components/popups/PopupRegisterFailedAccount';
 
-const backgroundImage = require('../../assets/images/background.png')
-const logoImage = require('../../assets/images/logo.png')
+const backgroundImage = require('../../assets/images/background.png');
+const logoImage = require('../../assets/images/logo.png');
 
 type RegisterScreenProps = {
-  onNavigateToLogin: () => void;
+    onNavigateToLogin: () => void;
 };
 
 const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
@@ -28,7 +29,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showRegisterSuccessPopup, setShowRegisterSuccessPopup] = useState(false);
-    const [showRegisterFailedAccountPopup, setShowRegisterFailedAccountPopup] = useState(false) 
+    const [showRegisterFailedAccountPopup, setShowRegisterFailedAccountPopup] = useState(false);
 
     const handleRegister = async () => {
         if (!username || !password || !confirmPassword) {
@@ -46,12 +47,21 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
             const users = storedUsers ? JSON.parse(storedUsers) : [];
 
             const userExists = users.some((user: any) => user.username === username);
+
             if (userExists) {
                 Alert.alert('Lỗi', 'Tài khoản đã tồn tại. Vui lòng chọn tên khác.');
                 return;
             }
+
+            const newUser = { username, password };
+            const updatedUsers = [...users, newUser];
+
+            await AsyncStorage.setItem('users', JSON.stringify(updatedUsers));
+
             setShowRegisterSuccessPopup(true);
-        } else {
+
+        } catch (error) {
+            console.error('Lỗi khi đăng ký:', error);
             setShowRegisterFailedAccountPopup(true);
         }
     };

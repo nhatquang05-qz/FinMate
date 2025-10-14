@@ -12,6 +12,7 @@ import {
     Platform,
     Alert,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scale } from '../../utils/scaling';
 import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
 import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
@@ -33,14 +34,38 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
     const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
     const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (!username || !password) {
             setShowLoginFailedPopup(true);
+            return;
         }
-        else if (username == "admin" && password == "admin") {
-            setShowLoginSuccessPopup(true);
-        } else {
-            setShowWrongPasswordPopup(true);
+
+        try {
+            const storedUsers = await AsyncStorage.getItem('users');
+
+            if (!storedUsers) {
+                setShowWrongPasswordPopup(true);
+                return;
+            }
+
+            const users = JSON.parse(storedUsers);
+            const foundUser = users.find(
+                (user: any) => user.username === username
+            );
+
+            if (foundUser && foundUser.password === password) {
+                setShowLoginSuccessPopup(true);
+                // Optional: You can call onLoginSuccess() after a delay
+                // setTimeout(() => {
+                //    setShowLoginSuccessPopup(false);
+                //    onLoginSuccess();
+                // }, 1500);
+            } else {
+                setShowWrongPasswordPopup(true);
+            }
+        } catch (error) {
+            console.error("Login Error: ", error);
+            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập.');
         }
     };
 
@@ -112,13 +137,16 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                         </View>
                     </View>
                 </ScrollView>
-                <PopupWrongPassword 
+                <PopupWrongPassword
                     visible={showWrongPasswordPopup}
                     onClose={() => setShowWrongPasswordPopup(false)}
                 />
                 <PopupLoginSuccess
                     visible={showLoginSuccessPopup}
-                    onClose={() => setShowLoginSuccessPopup(false)}
+                    onClose={() => {
+                        setShowLoginSuccessPopup(false);
+                        onLoginSuccess(); // Navigate after closing the popup
+                    }}
                 />
                 <PopupLoginFailed
                     visible={showLoginFailedPopup}
