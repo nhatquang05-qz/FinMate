@@ -15,9 +15,9 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scale } from '../../utils/scaling';
 import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
-import PopupAccountExisted from '../../components/popups/PopupAccountExisted'; // <-- ĐIỀN ĐƯỜNG DẪN TỚI POPUP CỦA BẠN VÀO ĐÂY
-import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch'; // <-- ĐIỀN ĐƯỜNG DẪN TỚI POPUP CỦA BẠN VÀO ĐÂY
-import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo'; // <-- ĐIỀN ĐƯỜNG DẪN TỚI POPUP CỦA BẠN VÀO ĐÂY
+import PopupAccountExisted from '../../components/popups/PopupAccountExisted'; 
+import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch'; 
+import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo'; 
 
 const backgroundImage = require('../../assets/images/background.png');
 const logoImage = require('../../assets/images/logo.png');

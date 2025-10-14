@@ -64,7 +64,7 @@ const CalendarInfoScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: 'transparent',
     },
     content: {
         flex: 1,
@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     statBox: {
         width: '80%',
         marginVertical: scale(8),
-        backgroundColor: '#FFFF',
         borderRadius: scale(20),
         shadowColor: '#000',
         shadowOffset: {

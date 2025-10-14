@@ -6,9 +6,9 @@ type CalendarProps = {
     onDateSelect: (date: Date) => void;
 };
 
-const Calendar = ({ onDateSelect }: CalendarProps) => {
-    const todayUTC = new Date();
-    todayUTC.setUTCHours(0, 0, 0, 0);
+const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
+    const localToday = new Date();
+    const todayUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
 
     const [displayDate, setDisplayDate] = useState(todayUTC);
     const [selectedDate, setSelectedDate] = useState(todayUTC);
@@ -26,44 +26,41 @@ const Calendar = ({ onDateSelect }: CalendarProps) => {
 
     const year = displayDate.getUTCFullYear();
     const month = displayDate.getUTCMonth();
+    const monthName = monthNames[month];
 
-    const firstDayOfMonth = new Date(Date.UTC(year, month, 1)).getUTCDay();
+    const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
+    const startingDayOfWeek = firstDayOfMonth.getUTCDay();
     const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
-    const changeMonth = (offset: number) => {
-        const newDate = new Date(displayDate);
-        newDate.setUTCMonth(displayDate.getUTCMonth() + offset);
-        setDisplayDate(newDate);
+    const changeMonth = (delta: number) => {
+        setDisplayDate(prevDate => {
+            const newMonth = prevDate.getUTCMonth() + delta;
+            return new Date(Date.UTC(prevDate.getUTCFullYear(), newMonth, 1));
+        });
     };
 
     const renderDays = () => {
         const days = [];
-        for (let i = 0; i < firstDayOfMonth; i++) {
+        for (let i = 0; i < startingDayOfWeek; i++) {
             days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
         }
 
-        for (let i = 1; i <= daysInMonth; i++) {
-            const currentDate = new Date(Date.UTC(year, month, i));
-            const isSelected = selectedDate.getTime() === currentDate.getTime();
-            const isToday = todayUTC.getTime() === currentDate.getTime();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(Date.UTC(year, month, day));
+            const isSelected = selectedDate.getTime() === date.getTime();
+            const isToday = todayUTC.getTime() === date.getTime();
 
             days.push(
-                <TouchableOpacity
-                    key={i}
-                    style={styles.dayCell}
-                    onPress={() => handleSelectDate(currentDate)}
-                >
+                <TouchableOpacity key={day} style={styles.dayCell} onPress={() => handleSelectDate(date)}>
                     <View style={[
                         styles.dayContainer,
-                        isToday && !isSelected && styles.todayContainer,
+                        isToday && styles.todayContainer,
                         isSelected && styles.selectedDayContainer,
                     ]}>
                         <Text style={[
                             styles.dayText,
                             isSelected && styles.selectedDayText
-                        ]}>
-                            {i}
-                        </Text>
+                        ]}>{day}</Text>
                     </View>
                 </TouchableOpacity>
             );
@@ -72,24 +69,18 @@ const Calendar = ({ onDateSelect }: CalendarProps) => {
     };
 
     return (
-        <View style={styles.shadowBox}>
+        <View style={styles.calendarContainer}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => changeMonth(-1)}>
                     <Text style={styles.arrow}>{'<'}</Text>
                 </TouchableOpacity>
-                <Text style={styles.monthText}>
-                    {`${monthNames[month]} ${year}`}
-                </Text>
+                <Text style={styles.monthText}>{`${monthName} ${year}`}</Text>
                 <TouchableOpacity onPress={() => changeMonth(1)}>
                     <Text style={styles.arrow}>{'>'}</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.daysOfWeekContainer}>
-                {daysOfWeek.map(day => (
-                    <Text key={day} style={styles.dayOfWeekText}>
-                        {day}
-                    </Text>
-                ))}
+                {daysOfWeek.map(day => <Text key={day} style={styles.dayOfWeekText}>{day}</Text>)}
             </View>
             <View style={styles.daysContainer}>
                 {renderDays()}
@@ -99,29 +90,24 @@ const Calendar = ({ onDateSelect }: CalendarProps) => {
 };
 
 const styles = StyleSheet.create({
-    shadowBox: {
-        width: '95%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#FFFF',
+    calendarContainer: {
+        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(15),
+        marginHorizontal: scale(10),
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
-        alignSelf: 'center',
-        marginTop: 20,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '100%',
         marginBottom: scale(15),
     },
     arrow: {
@@ -168,14 +154,16 @@ const styles = StyleSheet.create({
         borderRadius: scale(100),
     },
     todayContainer: {
-        backgroundColor: '#04d1c11a',
+        borderColor: '#04D1C1',
+        borderWidth: 2,
     },
     selectedDayContainer: {
         backgroundColor: '#04D1C1',
         borderRadius: scale(100),
+
     },
     dayText: {
-        fontFamily: 'Coiny-Regular',
+        fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(16),
         color: '#333',
     },
