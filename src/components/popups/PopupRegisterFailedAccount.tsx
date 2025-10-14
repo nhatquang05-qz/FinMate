@@ -17,7 +17,7 @@ type PopupProps = {
     onClose: () => void;
 };
 
-const PopupLoginSuccess = ({ visible, onClose }: PopupProps) => {
+const PopupRegisterFailedAccount = ({ visible, onClose }: PopupProps) => {
     return (
         <Modal
             animationType="fade"
@@ -28,15 +28,15 @@ const PopupLoginSuccess = ({ visible, onClose }: PopupProps) => {
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     {/* <Image source={failIcon} style={styles.icon} /> */}
-                    <Text style={styles.modalTitle}>Đăng nhập thành công</Text>
+                    <Text style={styles.modalTitle}>Đăng ký thất bại</Text>
                     <Text style={styles.modalText}>
-                        Bạn đã đăng nhập thành công!
+                        Tên tài khoản đã tồn tại! {"\n"} Vui lòng thử lại.
                     </Text>
                     <TouchableOpacity
                         style={styles.button}
                         onPress={onClose}
                     >
-                        <Text style={styles.buttonText}>Tiếp tục</Text>
+                        <Text style={styles.buttonText}>Thử lại</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: scale(22),
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#1cf3a1ff', 
+        color: '#ff4d4f', 
     },
     modalText: {
         marginBottom: scale(20),
@@ -101,4 +101,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PopupLoginSuccess;
+export default PopupRegisterFailedAccount;

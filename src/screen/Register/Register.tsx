@@ -12,8 +12,9 @@ import {
     Platform,
     Alert,
 } from "react-native";
-import { scale } from '../../utils/scaling';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale } from '../../utils/scaling'; 
+import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
+import PopupRegisterFailedAccount from '../../components/popups/PopupRegisterFailedAccount';
 
 const backgroundImage = require('../../assets/images/background.png')
 const logoImage = require('../../assets/images/logo.png')
@@ -26,6 +27,8 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showRegisterSuccessPopup, setShowRegisterSuccessPopup] = useState(false);
+    const [showRegisterFailedAccountPopup, setShowRegisterFailedAccountPopup] = useState(false) 
 
     const handleRegister = async () => {
         if (!username || !password || !confirmPassword) {
@@ -47,19 +50,9 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                 Alert.alert('Lỗi', 'Tài khoản đã tồn tại. Vui lòng chọn tên khác.');
                 return;
             }
-
-            const newUser = { username, password };
-            users.push(newUser);
-
-            await AsyncStorage.setItem('users', JSON.stringify(users));
-
-            Alert.alert('Thành công', `Đăng ký thành công tài khoản: ${username}`, [
-                { text: 'OK', onPress: onNavigateToLogin }
-            ]);
-
-        } catch (error) {
-            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng ký.');
-            console.error(error);
+            setShowRegisterSuccessPopup(true);
+        } else {
+            setShowRegisterFailedAccountPopup(true);
         }
     };
 
@@ -134,6 +127,14 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                         </View>
                     </View>
                 </ScrollView>
+                <PopupRegisterSuccess
+                    visible={showRegisterSuccessPopup}
+                    onClose={() => setShowRegisterSuccessPopup(false)}
+                />
+                <PopupRegisterFailedAccount
+                    visible={showRegisterFailedAccountPopup}
+                    onClose={() => setShowRegisterFailedAccountPopup(false)}
+                />
             </ImageBackground>
         </SafeAreaView>
     );

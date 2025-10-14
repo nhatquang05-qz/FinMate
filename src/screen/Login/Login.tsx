@@ -13,7 +13,9 @@ import {
     Alert,
 } from "react-native";
 import { scale } from '../../utils/scaling';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
+import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
+import PopupLoginFailed from '../../components/popups/PopupLoginFailed';
 
 const guestImage = require('./guest.png');
 const backgroundImage = require('../../assets/images/background.png')
@@ -27,38 +29,18 @@ type LoginScreenProps = {
 const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showWrongPasswordPopup, setShowWrongPasswordPopup] = useState(false);
+    const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
+    const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
 
-    const handleLogin = async () => {
+    const handleLogin = () => {
         if (!username || !password) {
-            Alert.alert('Lỗi', 'Vui lòng nhập tài khoản và mật khẩu.');
-            return;
+            setShowLoginFailedPopup(true);
         }
-
-        try {
-            const storedUsers = await AsyncStorage.getItem('users');
-            if (!storedUsers) {
-                Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
-                return;
-            }
-
-            const users = JSON.parse(storedUsers);
-            const user = users.find((u: any) => u.username === username);
-
-            if (!user) {
-                Alert.alert('Lỗi', 'Tài khoản không tồn tại.');
-                return;
-            }
-
-            if (user.password !== password) {
-                Alert.alert('Lỗi', 'Sai mật khẩu. Vui lòng thử lại.');
-                return;
-            }
-
-            onLoginSuccess();
-
-        } catch (error) {
-            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập.');
-            console.error(error);
+        else if (username == "admin" && password == "admin") {
+            setShowLoginSuccessPopup(true);
+        } else {
+            setShowWrongPasswordPopup(true);
         }
     };
 
@@ -130,6 +112,18 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                         </View>
                     </View>
                 </ScrollView>
+                <PopupWrongPassword 
+                    visible={showWrongPasswordPopup}
+                    onClose={() => setShowWrongPasswordPopup(false)}
+                />
+                <PopupLoginSuccess
+                    visible={showLoginSuccessPopup}
+                    onClose={() => setShowLoginSuccessPopup(false)}
+                />
+                <PopupLoginFailed
+                    visible={showLoginFailedPopup}
+                    onClose={() => setShowLoginFailedPopup(false)}
+                />
             </ImageBackground>
         </SafeAreaView>
     );
