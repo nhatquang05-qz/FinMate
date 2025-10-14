@@ -1,43 +1,62 @@
 import React, { useState } from 'react';
-import DatePicker from 'react-native-date-picker';
-import { scale } from '../../utils/scaling';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 
-type DatePickerPopupProps = {
-    visible: boolean;
-    onClose: () => void;
-    onConfirm: (date: Date) => void;
-    initialDate?: Date;
+type DatePickerProps = {
+  date: Date;
+  onDateChange: (newDate: Date) => void;
 };
 
-const PopupDatePicker = ({
-    visible,
-    onClose,
-    onConfirm,
-    initialDate = new Date(), 
-}: DatePickerPopupProps) => {
+const DatePicker = ({ date, onDateChange }: DatePickerProps) => {
+  const [open, setOpen] = useState(false);
 
-    const [date, setDate] = useState(initialDate);
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
+    setOpen(false); 
 
-    const handleConfirm = () => {
-        onConfirm(date);
-        onClose();
-    };
+    if (event.type === 'set' && selectedDate) {
+      onDateChange(selectedDate);
+    }
+  };
 
-    return (
-        <DatePicker
-            modal
-            open={visible}
-            date={date}
-            mode="date"
-            locale="vi-VN" 
-            title="Chọn ngày"
-            confirmText="Tiếp tục"
-            cancelText="Bỏ qua"
-            onConfirm={handleConfirm}
-            onCancel={onClose}
-            onDateChange={setDate}
+  return (
+    <View>
+      <TouchableOpacity style={styles.row} onPress={() => setOpen(true)}>
+        <Text style={styles.label}>Ngày</Text>
+        <Text style={styles.valueText}>{date.toLocaleDateString('vi-VN')}</Text>
+      </TouchableOpacity>
+
+      {open && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="spinner"
+          onChange={handleDateChange}
         />
-    );
+      )}
+    </View>
+  );
 };
 
-export default PopupDatePicker;
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: verticalScale(15),
+  },
+  label: {
+    fontWeight: 'bold',
+    fontSize: moderateScale(17),
+    color: '#0F172A',
+  },
+  valueText: {
+    fontSize: moderateScale(16),
+    color: '#64748B',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: scale(10),
+  },
+});
+
+export default DatePicker;

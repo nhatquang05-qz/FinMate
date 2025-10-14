@@ -54,7 +54,7 @@ const AddTransactionExpense = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffff',
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
@@ -94,13 +94,13 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: '#04D1C1',
     borderRadius: moderateScale(30),
-    paddingVertical: verticalScale(5),
+    paddingVertical: verticalScale(8),
     alignItems: 'center',
     justifyContent: 'center',
   },
   saveButtonText: {
     color: '#ffffff',
-    fontSize: moderateScale(20),
+    fontSize: scale(20),
     fontFamily: 'Coiny-Regular',
   },
 });

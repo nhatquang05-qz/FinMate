@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { verticalScale, moderateScale, scale } from '../../utils/scaling';
+import { scale, verticalScale, moderateScale } from '../../utils/scaling';
+import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
 const Detail = () => {
+  const [date, setDate] = useState(new Date());
+  const [isPickerVisible, setPickerVisible] = useState(false);
+
+  const handleConfirmDate = (newDate: Date) => {
+    setDate(newDate);
+  };
+
   return (
     <View style={styles.boxContainer}>
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity style={styles.row} onPress={() => setPickerVisible(true)}>
         <Text style={styles.label}>Ngày</Text>
-        <Text style={styles.valueText}>Hôm nay, 14/10</Text>
+        <Text style={styles.valueText}>{date.toLocaleDateString('vi-VN')}</Text>
       </TouchableOpacity>
+
       <View style={styles.separator} />
       <TouchableOpacity style={styles.row}>
         <Text style={styles.label}>Số tiền</Text>
@@ -19,6 +28,7 @@ const Detail = () => {
           keyboardType="numeric"
         />
       </TouchableOpacity>
+
       <View style={styles.separator} />
       <TouchableOpacity style={styles.row}>
         <Text style={styles.label}>Ghi chú</Text>
@@ -28,54 +38,54 @@ const Detail = () => {
           placeholderTextColor="#c0c0c0"
         />
       </TouchableOpacity>
+
+      <CustomDatePickerModal
+        visible={isPickerVisible}
+        initialDate={date}
+        onClose={() => setPickerVisible(false)}
+        onConfirm={handleConfirmDate}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  boxContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: moderateScale(16),
-    marginTop: verticalScale(10),
-    paddingHorizontal: scale(20),
+    boxContainer: {
+    backgroundColor: 'white',
+    borderRadius: scale(20),
+    padding: scale(15),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: verticalScale(10),
-  },
-  label: {
-    fontFamily: 'Coiny-Regular',
-    fontSize: moderateScale(17),
-    color: '#0F172A',
-    lineHeight: scale(25),
-  },
-  valueText: {
-    fontFamily: 'BeVietnamPro-Regular',
-    fontSize: moderateScale(16),
-    color: '#64748B',
-    textAlign: 'right',
-    flex: 1,
-  },
-  input: {
-    fontFamily: 'BeVietnamPro-Regular',
-    fontSize: moderateScale(16),
-    color: '#0F172A',
-    flex: 1,
-    marginLeft: scale(10),
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-  },
-})
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: verticalScale(5),
+    },
+    label: {
+      fontSize: moderateScale(17),
+      color: '#182033ff',
+      fontFamily: 'Coiny-Regular',
+      lineHeight: scale(30),
+    },
+    valueText: {
+      fontSize: moderateScale(16),
+      color: '#64748B',
+      textAlign: 'right',
+      flex: 1,
+      marginLeft: scale(10),
+    },
+    separator: {
+      height: 1,
+      backgroundColor: '#F1F5F9',
+    },
+  });
+
 export default Detail;
