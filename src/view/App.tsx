@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, StatusBar, ImageBackground } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCustomFonts } from '../hooks/useCustomFonts';
@@ -6,14 +6,13 @@ import SplashScreen from '../screen/SplashScreen';
 import LoginScreen from '../screen/Login/Login';
 import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
+import AddTransactionIncome from '../screen/AddTransaction/AddTransactionIncome';
 import AddTransactionScreen from '../screen/AddTransaction/AddTransactionScreen';
 import Navbar from '../components/Navbar/Navbar';
 import Header from '../components/Header/header';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scale } from '../utils/scaling';
 import CalendarInfoScreen from '../screen/CalendarInfo';
-import { initDatabase } from '../utils/database'; 
-
 ExpoSplashScreen.preventAutoHideAsync();
 
 const MainApp = () => {
@@ -73,27 +72,14 @@ const App = () => {
   const fontsLoaded = useCustomFonts();
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
-  const [dbInitialized, setDbInitialized] = useState(false);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        await initDatabase();
-        setDbInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize database", error);
-      }
-    };
-    initializeApp();
-  }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded && dbInitialized) {
+    if (fontsLoaded) {
       await ExpoSplashScreen.hideAsync();
     }
-  }, [fontsLoaded, dbInitialized]);
+  }, [fontsLoaded]);
 
-  if (!fontsLoaded || !dbInitialized) {
+  if (!fontsLoaded) {
     return <SplashScreen />;
   }
 
