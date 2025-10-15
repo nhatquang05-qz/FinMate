@@ -44,6 +44,7 @@ const Detail = () => {
         initialDate={date}
         onClose={() => setPickerVisible(false)}
         onConfirm={handleConfirmDate}
+        maximumDate={new Date()}
       />
     </View>
   );

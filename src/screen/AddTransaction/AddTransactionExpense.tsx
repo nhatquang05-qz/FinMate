@@ -4,20 +4,20 @@ import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CategoryPicker from '../../components/CategoryPicker';
 import Detail from './detail'; 
 
-const investIcon = require('./earning.png');
-const bonusIcon = require('./pay-day.png');
-const partimeIcon = require('./part-time.png');
-const salaryIcon = require('./salary.png');
-const subsidyIcon = require('./subsidize.png');
+const meal = require('./fast-food.png');
+const transport = require('./bike.png');
+const clothes = require('./clothes.png');
+const medicine = require('./drugs.png');
+const edu = require('./books.png');
 const tempIcon = require('../Home/bike.png');
 
 
 const ExpenseCategories = [
-  { id: '1', name: 'Lương', icon: salaryIcon },
-  { id: '2', name: 'Phụ cấp', icon: subsidyIcon },
-  { id: '3', name: 'Việc phụ', icon: partimeIcon },
-  { id: '4', name: 'Tiền thưởng', icon: bonusIcon },
-  { id: '5', name: 'Đầu tư', icon: investIcon },
+  { id: '1', name: 'Ăn uống', icon: meal },
+  { id: '2', name: 'Đi lại', icon: transport },
+  { id: '3', name: 'Quần áo', icon: clothes },
+  { id: '4', name: 'Y tế', icon: medicine },
+  { id: '5', name: 'Giáo dục', icon: edu },
   { id: '6', name: 'Thêm', icon: tempIcon },
 ];
 

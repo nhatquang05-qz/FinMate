@@ -49,17 +49,24 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
             const date = new Date(Date.UTC(year, month, day));
             const isSelected = selectedDate.getTime() === date.getTime();
             const isToday = todayUTC.getTime() === date.getTime();
+            const isFuture = date.getTime() > todayUTC.getTime();
 
             days.push(
-                <TouchableOpacity key={day} style={styles.dayCell} onPress={() => handleSelectDate(date)}>
+                <TouchableOpacity 
+                    key={day} 
+                    style={styles.dayCell} 
+                    onPress={() => handleSelectDate(date)}
+                    disabled={isFuture}
+                >
                     <View style={[
                         styles.dayContainer,
                         isToday && styles.todayContainer,
-                        isSelected && styles.selectedDayContainer,
+                        isSelected && !isFuture && styles.selectedDayContainer,
                     ]}>
                         <Text style={[
                             styles.dayText,
-                            isSelected && styles.selectedDayText
+                            isSelected && !isFuture && styles.selectedDayText,
+                            isFuture && styles.disabledDayText
                         ]}>{day}</Text>
                     </View>
                 </TouchableOpacity>
@@ -160,7 +167,6 @@ const styles = StyleSheet.create({
     selectedDayContainer: {
         backgroundColor: '#04D1C1',
         borderRadius: scale(100),
-
     },
     dayText: {
         fontFamily: 'BeVietnamPro-Bold',
@@ -169,6 +175,9 @@ const styles = StyleSheet.create({
     },
     selectedDayText: {
         color: 'white',
+    },
+    disabledDayText: {
+        color: '#ccc', // or use opacity: 0.5
     },
 });
 

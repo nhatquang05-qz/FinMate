@@ -5,14 +5,12 @@ import WheelPicker from './WheelPicker';
 const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const createRange = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, i) => String(start + i));
 
-const YEARS = createRange(new Date().getFullYear() - 100, new Date().getFullYear() + 50);
-const MONTHS = createRange(1, 12);
-
 type CustomDatePickerModalProps = {
   visible: boolean;
   initialDate?: Date;
   onClose: () => void;
   onConfirm: (date: Date) => void;
+  maximumDate?: Date;
 };
 
 const CustomDatePickerModal = ({
@@ -20,31 +18,58 @@ const CustomDatePickerModal = ({
   initialDate = new Date(),
   onClose,
   onConfirm,
+  maximumDate,
 }: CustomDatePickerModalProps) => {
   const [date, setDate] = useState(initialDate);
 
   useEffect(() => {
-    setDate(initialDate);
-  }, [initialDate]);
+    const effectiveInitialDate = (maximumDate && initialDate > maximumDate) ? maximumDate : initialDate;
+    setDate(effectiveInitialDate);
+  }, [initialDate, maximumDate, visible]);
 
   const year = date.getFullYear();
   const month = date.getMonth();
   const day = date.getDate();
 
+  const YEARS = useMemo(() => {
+    const endYear = maximumDate ? maximumDate.getFullYear() : new Date().getFullYear() + 50;
+    const startYear = endYear - 150;
+    return createRange(startYear, endYear);
+  }, [maximumDate]);
+
+  const MONTHS = useMemo(() => {
+    // SỬA Ở ĐÂY: Kiểm tra `maximumDate` trực tiếp
+    const endMonth = (maximumDate && year === maximumDate.getFullYear())
+      ? maximumDate.getMonth() + 1
+      : 12;
+    return createRange(1, endMonth);
+  }, [year, maximumDate]);
+
   const days = useMemo(() => {
-    const numDays = getDaysInMonth(year, month);
-    return createRange(1, numDays);
-  }, [year, month]);
+    // SỬA Ở ĐÂY: Kiểm tra `maximumDate` trực tiếp
+    const endDay = (maximumDate && year === maximumDate.getFullYear() && month === maximumDate.getMonth())
+      ? maximumDate.getDate()
+      : getDaysInMonth(year, month);
+    return createRange(1, endDay);
+  }, [year, month, maximumDate]);
 
   const updateDate = (newDatePart: { day?: number; month?: number; year?: number }) => {
-    const newDay = newDatePart.day || day;
-    const newMonth = newDatePart.month ? newDatePart.month - 1 : month;
     const newYear = newDatePart.year || year;
+    const newMonth = newDatePart.month ? newDatePart.month - 1 : month;
+    const newDay = newDatePart.day || day;
 
-    const daysInNewMonth = getDaysInMonth(newYear, newMonth);
-    const correctedDay = Math.min(newDay, daysInNewMonth);
+    let finalDate = new Date(newYear, newMonth, newDay);
 
-    setDate(new Date(newYear, newMonth, correctedDay));
+    if (maximumDate && finalDate > maximumDate) {
+      finalDate = maximumDate;
+    }
+    
+    const daysInNewMonth = getDaysInMonth(finalDate.getFullYear(), finalDate.getMonth());
+    if (finalDate.getDate() > daysInNewMonth) {
+        finalDate.setDate(daysInNewMonth);
+    }
+
+    setDate(finalDate);
   };
 
   const handleConfirm = () => {

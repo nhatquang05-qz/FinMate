@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontFamily: 'Coiny-Regular',
-    fontSize: moderateScale(17),
+    fontSize: moderateScale(18),
     color: '#000000ff',
     textAlign: 'center',
   },
@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
   selectedCategoryIcon: {
   },
   categoryName: {
-    fontFamily: 'BeVietnamPro-SemiBold',
-    fontSize: moderateScale(13),
+    fontFamily: 'Coiny-Regular',
+    fontSize: moderateScale(14),
     color: '#000000ff',
   },
   selectedCategoryName: {
