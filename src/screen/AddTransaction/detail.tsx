@@ -3,12 +3,28 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
-const Detail = () => {
-  const [date, setDate] = useState(new Date());
+// Định nghĩa kiểu cho các props mà component sẽ nhận từ cha
+type DetailProps = {
+  date: Date;
+  onDateChange: (date: Date) => void;
+  amount: string;
+  onAmountChange: (amount: string) => void;
+  note: string;
+  onNoteChange: (note: string) => void;
+};
+
+const Detail = ({
+  date,
+  onDateChange,
+  amount,
+  onAmountChange,
+  note,
+  onNoteChange,
+}: DetailProps) => {
   const [isPickerVisible, setPickerVisible] = useState(false);
 
   const handleConfirmDate = (newDate: Date) => {
-    setDate(newDate);
+    onDateChange(newDate);
   };
 
   return (
@@ -19,25 +35,31 @@ const Detail = () => {
       </TouchableOpacity>
 
       <View style={styles.separator} />
-      <TouchableOpacity style={styles.row}>
+      {/* Sửa ở đây: Dùng View thay cho TouchableOpacity để tránh lỗi và đảm bảo TextInput hoạt động ổn định */}
+      <View style={styles.row}>
         <Text style={styles.label}>Số tiền</Text>
         <TextInput
           style={styles.valueText}
           placeholder="đ 0"
           placeholderTextColor="#c0c0c0"
           keyboardType="numeric"
+          value={amount}
+          onChangeText={onAmountChange} // Sử dụng hàm từ props
         />
-      </TouchableOpacity>
+      </View>
 
       <View style={styles.separator} />
-      <TouchableOpacity style={styles.row}>
+      {/* Sửa ở đây: Dùng View thay cho TouchableOpacity */}
+      <View style={styles.row}>
         <Text style={styles.label}>Ghi chú</Text>
         <TextInput
           style={styles.valueText}
           placeholder="Thêm ghi chú"
           placeholderTextColor="#c0c0c0"
+          value={note}
+          onChangeText={onNoteChange} // Sử dụng hàm từ props
         />
-      </TouchableOpacity>
+      </View>
 
       <CustomDatePickerModal
         visible={isPickerVisible}
@@ -90,3 +112,4 @@ const styles = StyleSheet.create({
   });
 
 export default Detail;
+
