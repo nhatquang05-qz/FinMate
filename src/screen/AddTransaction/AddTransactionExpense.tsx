@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CategoryPicker from '../../components/CategoryPicker';
-import Detail from './detail'; 
+import Detail from './detail';
+import PopupSuccess from '../../components/popups/PopupSuccess'; 
+import PopupFailed from '../../components/popups/PopupFailed';  
 
 const meal = require('./fast-food.png');
 const transport = require('./bike.png');
@@ -10,7 +12,6 @@ const clothes = require('./clothes.png');
 const medicine = require('./drugs.png');
 const edu = require('./books.png');
 const tempIcon = require('../Home/bike.png');
-
 
 const ExpenseCategories = [
   { id: '1', name: 'Ăn uống', icon: meal },
@@ -23,6 +24,30 @@ const ExpenseCategories = [
 
 const AddTransactionExpense = () => {
   const [selectedCategory, setSelectedCategory] = useState(ExpenseCategories[0]);
+  const [date, setDate] = useState(new Date());
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+
+  const [isSuccessVisible, setSuccessVisible] = useState(false);
+  const [isFailedVisible, setFailedVisible] = useState(false);
+
+  const handleSuccessClose = () => {
+    setSuccessVisible(false);
+    setAmount('');
+    setNote('');
+    setSelectedCategory(ExpenseCategories[0]);
+    setDate(new Date());
+  };
+
+  const handleSave = () => {
+    const numericAmount = parseFloat(amount.trim());
+    
+    if (numericAmount > 0 && selectedCategory) {
+      setSuccessVisible(true);
+    } else {
+      setFailedVisible(true);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -31,25 +56,37 @@ const AddTransactionExpense = () => {
         contentContainerStyle={{ paddingBottom: verticalScale(200) }}
         showsVerticalScrollIndicator={false}
       >
-        <Detail />
+        <Detail
+          date={date}
+          onDateChange={setDate}
+          amount={amount}
+          onAmountChange={setAmount}
+          note={note}
+          onNoteChange={setNote}
+        />
         <View style={styles.shadowbox}>
-        <Text style={styles.categoryTitle}>Chọn danh mục</Text>
+          <Text style={styles.categoryTitle}>Chọn danh mục</Text>
         </View>
         <CategoryPicker
           categories={ExpenseCategories}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
-        
       </ScrollView>
       <View style={styles.saveButtonContainer}>
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Nhập</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Nhập</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Render các component pop-up */}
+      <PopupSuccess visible={isSuccessVisible} onClose={handleSuccessClose} />
+      <PopupFailed visible={isFailedVisible} onClose={() => setFailedVisible(false)} />
     </SafeAreaView>
   );
 };
+
+// ... styles không đổi
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -80,7 +117,6 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(15),
   },
   categoryTitle: {
-   
     fontFamily: 'Coiny-Regular',
     fontSize: moderateScale(17),
     color: '#000000ff',
