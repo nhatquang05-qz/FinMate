@@ -28,7 +28,7 @@ const AddTransactionIncome = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingBottom: verticalScale(100) }}
+        contentContainerStyle={{ paddingBottom: verticalScale(200) }}
         showsVerticalScrollIndicator={false}
       >
         <Detail />
