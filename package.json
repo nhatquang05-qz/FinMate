@@ -14,12 +14,8 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
-<<<<<<< HEAD
-    "@react-native-community/datetimepicker": "8.4.4",
-    "@react-native-community/netinfo": "^11.4.1",
-=======
     "@react-native-community/datetimepicker": "^8.4.4",
->>>>>>> 138c797543ed7567e395084a6779fa8520c2aef8
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.18",
     "@react-navigation/stack": "^7.4.10",
     "@reduxjs/toolkit": "^2.9.0",
