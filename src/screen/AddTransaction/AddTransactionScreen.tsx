@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import AddTransactionExpense from './AddTransactionExpense';
 import AddTransactionIncome from './AddTransactionIncome';
-import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle'; // <-- Import component
+import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle'; 
 
 type TransactionType = 'expense' | 'income';
 
@@ -25,11 +25,11 @@ const AddTransactionScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
-    backgroundColor: '#04D1C1',
+    backgroundColor: 'transparent',
   },
   header: {
     fontSize: 22,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: '#04D1C1',
+    backgroundColor: 'transparent',
   },
   saveButton: {
     backgroundColor: '#003B46',

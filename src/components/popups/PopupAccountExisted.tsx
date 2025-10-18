@@ -9,12 +9,13 @@ import {
 } from 'react-native';
 import { scale } from '../../utils/scaling';
 
+
 type PopupProps = {
     visible: boolean;
     onClose: () => void;
 };
 
-const PopupWrongPassword = ({ visible, onClose }: PopupProps) => {
+const PopupAcccountExist = ({ visible, onClose }: PopupProps) => {
     return (
         <Modal
             animationType="fade"
@@ -24,9 +25,9 @@ const PopupWrongPassword = ({ visible, onClose }: PopupProps) => {
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Đăng nhập thất bại</Text>
+                    <Text style={styles.modalTitle}>Đăng ký thất bại</Text>
                     <Text style={styles.modalText}>
-                        Điền đầy đủ tài khoản và mật khẩu để đăng nhập!
+                        Tài khoản đã tồn tại!
                     </Text>
                     <TouchableOpacity
                         style={styles.button}
@@ -97,4 +98,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PopupWrongPassword;
+export default PopupAcccountExist;

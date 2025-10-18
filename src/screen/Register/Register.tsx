@@ -12,15 +12,18 @@ import {
     Platform,
     Alert,
 } from "react-native";
-import { scale } from '../../utils/scaling'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { scale } from '../../utils/scaling';
 import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
-import PopupRegisterFailedAccount from '../../components/popups/PopupRegisterFailedAccount';
+import PopupAccountExisted from '../../components/popups/PopupAccountExisted'; 
+import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch'; 
+import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo'; 
 
-const backgroundImage = require('../../assets/images/background.png')
-const logoImage = require('../../assets/images/logo.png')
+const backgroundImage = require('../../assets/images/background.png');
+const logoImage = require('../../assets/images/logo.png');
 
 type RegisterScreenProps = {
-  onNavigateToLogin: () => void;
+    onNavigateToLogin: () => void;
 };
 
 const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
@@ -28,16 +31,18 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showRegisterSuccessPopup, setShowRegisterSuccessPopup] = useState(false);
-    const [showRegisterFailedAccountPopup, setShowRegisterFailedAccountPopup] = useState(false) 
+    const [showAccountExistedPopup, setShowAccountExistedPopup] = useState(false);
+    const [showPassNotMatchPopup, setShowPassNotMatchPopup] = useState(false);
+    const [showNotEnoughInfoPopup, setShowNotEnoughInfoPopup] = useState(false);
 
     const handleRegister = async () => {
         if (!username || !password || !confirmPassword) {
-            Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
+            setShowNotEnoughInfoPopup(true);
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('Lỗi', 'Mật khẩu nhập lại không khớp. Vui lòng thử lại.');
+            setShowPassNotMatchPopup(true);
             return;
         }
 
@@ -46,13 +51,18 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
             const users = storedUsers ? JSON.parse(storedUsers) : [];
 
             const userExists = users.some((user: any) => user.username === username);
+
             if (userExists) {
-                Alert.alert('Lỗi', 'Tài khoản đã tồn tại. Vui lòng chọn tên khác.');
-                return;
+                setShowAccountExistedPopup(true);
+            } else {
+                const newUser = { username, password };
+                users.push(newUser);
+                await AsyncStorage.setItem('users', JSON.stringify(users));
+                setShowRegisterSuccessPopup(true);
             }
-            setShowRegisterSuccessPopup(true);
-        } else {
-            setShowRegisterFailedAccountPopup(true);
+        } catch (error) {
+            console.error("Register Error: ", error);
+            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng ký.');
         }
     };
 
@@ -72,7 +82,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                         />
                         <View style={styles.formContainer}>
                             <Text style={styles.title}>
-                                {"Đăng ký"}
+                                {"Đăng kí"}
                             </Text>
                             <Text style={styles.label}>
                                 {"Tài khoản"}
@@ -99,7 +109,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                                     secureTextEntry={true}
                                 />
                             </View>
-                             <Text style={styles.label}>
+                            <Text style={styles.label}>
                                 {"Nhập lại mật khẩu"}
                             </Text>
                             <View style={styles.inputContainer}>
@@ -114,13 +124,13 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                             </View>
                             <TouchableOpacity style={styles.button} onPress={handleRegister}>
                                 <Text style={styles.buttonText}>
-                                    {"Đăng ký"}
+                                    {"Đăng kí"}
                                 </Text>
                             </TouchableOpacity>
                             <View style={styles.footer}>
                                 <TouchableOpacity onPress={onNavigateToLogin}>
                                     <Text style={styles.footerText}>
-                                        {"Đã có tài khoản"}
+                                        {"Đăng nhập"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -129,11 +139,22 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                 </ScrollView>
                 <PopupRegisterSuccess
                     visible={showRegisterSuccessPopup}
-                    onClose={() => setShowRegisterSuccessPopup(false)}
+                    onClose={() => {
+                        setShowRegisterSuccessPopup(false);
+                        onNavigateToLogin();
+                    }}
                 />
-                <PopupRegisterFailedAccount
-                    visible={showRegisterFailedAccountPopup}
-                    onClose={() => setShowRegisterFailedAccountPopup(false)}
+                <PopupAccountExisted
+                    visible={showAccountExistedPopup}
+                    onClose={() => setShowAccountExistedPopup(false)}
+                />
+                <PopupPassNotMatch
+                    visible={showPassNotMatchPopup}
+                    onClose={() => setShowPassNotMatchPopup(false)}
+                />
+                <PopupNotEnoughInfo
+                    visible={showNotEnoughInfoPopup}
+                    onClose={() => setShowNotEnoughInfoPopup(false)}
                 />
             </ImageBackground>
         </SafeAreaView>
