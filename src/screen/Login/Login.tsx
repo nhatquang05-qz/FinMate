@@ -11,13 +11,16 @@ import {
     StyleSheet,
     Platform,
     Alert,
+    ActivityIndicator,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { scale } from '../../utils/scaling';
 import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
 import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
 import PopupLoginFailed from '../../components/popups/PopupLoginFailed';
 import PopupAccountNotExist from '../../components/popups/PopupAccountNotExist';
+import apiClient from '../../api/apiClient';
 
 const guestImage = require('./guest.png');
 const backgroundImage = require('../../assets/images/background.png')
@@ -31,46 +34,69 @@ type LoginScreenProps = {
 const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    
     const [showWrongPasswordPopup, setShowWrongPasswordPopup] = useState(false);
     const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
     const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
     const [showAccountNotExistPopup, setShowAccountNotExistPopup] = useState(false);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleLogin = async () => {
         if (!username || !password) {
-            setShowLoginFailedPopup(true);
+            setShowLoginFailedPopup(true); // Hiển thị popup "vui lòng nhập"
             return;
         }
 
-        try {
-            const storedUsers = await AsyncStorage.getItem('users');
+        setIsLoading(true); // Bắt đầu loading
 
-            if (!storedUsers) {
-                setShowAccountNotExistPopup(true);
-                return;
+        try {
+            // Gọi API đăng nhập từ apiClient
+            const response = await apiClient.post('/users/login', {
+                username: username,
+                password: password,
+            });
+
+            const token = response.data.token;
+
+            if (token) {
+                // Lưu token vào AsyncStorage để duy trì đăng nhập
+                await AsyncStorage.setItem('userToken', token);
+                // Hiển thị popup thành công
+                setShowLoginSuccessPopup(true);
+
+                // Chờ 1.5s rồi mới chuyển màn hình, giống logic cũ của bạn
+                setTimeout(() => {
+                   setShowLoginSuccessPopup(false);
+                   onLoginSuccess(); // Báo cho App.tsx biết để chuyển màn hình
+                }, 1500);
+            } else {
+                // Trường hợp hy hữu: API thành công nhưng không trả về token
+                setShowLoginFailedPopup(true);
             }
 
-            const users = JSON.parse(storedUsers);
-            const foundUser = users.find(
-                (user: any) => user.username === username
-            );
-
-            if (foundUser) {
-                if (foundUser.password === password) {
-                    setShowLoginSuccessPopup(true);
-                    setTimeout(() => {
-                       setShowLoginSuccessPopup(false);
-                       onLoginSuccess();
-                    }, 1500);
-                } else {
+        } catch (error) {
+            // Xử lý các loại lỗi từ API
+            if (axios.isAxiosError(error) && error.response) {
+                // Lỗi từ phía server (ví dụ: 400, 404, 500)
+                if (error.response.status === 400) {
+                    // 400 Bad Request có nghĩa là "Invalid credentials"
+                    // Backend trả về lỗi này cho cả sai mật khẩu và không tồn tại tài khoản
+                    // Để đơn giản, ta có thể hiển thị chung một popup
                     setShowWrongPasswordPopup(true);
+                } else {
+                    // Các lỗi server khác
+                    console.error("Login Error: ", error.response.data);
+                    setShowLoginFailedPopup(true);
                 }
             } else {
-                setShowAccountNotExistPopup(true);
+                // Lỗi mạng, không kết nối được tới server
+                setShowLoginFailedPopup(true);
+                console.error("Login Error: ", error);
             }
-        } catch (error) {
-            console.error("Login Error: ", error);
-            Alert.alert('Lỗi', 'Đã có lỗi xảy ra trong quá trình đăng nhập.');
+        } finally {
+            // Dù thành công hay thất bại, luôn dừng loading
+            setIsLoading(false);
         }
     };
 
@@ -117,10 +143,18 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                                     secureTextEntry={true}
                                 />
                             </View>
-                            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                                <Text style={styles.buttonText}>
-                                    {"Đăng nhập"}
-                                </Text>
+                            <TouchableOpacity 
+                                style={styles.button} 
+                                onPress={handleLogin}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator size="small" color="#FFFFFF" />
+                                ) : (
+                                    <Text style={styles.buttonText}>
+                                        {"Đăng nhập"}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                             <View style={styles.footer}>
                                 <TouchableOpacity style={styles.guestLink}>

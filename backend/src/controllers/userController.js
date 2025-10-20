@@ -14,7 +14,6 @@ exports.registerUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    console.log('Hashed Password:', hashedPassword);
 
     const sql = 'INSERT INTO users (username, email, password, full_name, date_of_birth) VALUES (?, ?, ?, ?, ?)';
     
@@ -70,7 +69,6 @@ exports.loginUser = async (req, res) => {
       { expiresIn: '5h' },
       (err, token) => {
         if (err) throw err;
-        console.log('Generated JWT on login:', token);
         res.json({ token });
       }
     );

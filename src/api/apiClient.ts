@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Bạn không thể dùng 'localhost' hay '127.0.0.1' ở đây.
 // ====================================================================
 
-const API_BASE_URL = 'http://10.1.4.34:3000/api'; // dùng ipconfig để lấy địa chỉ IPv4 của máy tính trong phần Wireless LAN adapter Wi-Fi
+const API_BASE_URL = 'http://192.168.1.14:3000/api'; // dùng ipconfig để lấy địa chỉ IPv4 của máy tính trong phần Wireless LAN adapter Wi-Fi
 
 // Tạo một instance của Axios với cấu hình mặc định
 const apiClient = axios.create({
