@@ -3,6 +3,8 @@ const express = require('express');
 require('dotenv').config();
 const db = require('./src/config/db'); // Import để đảm bảo kết nối được khởi tạo
 const userRoutes = require('./src/routes/userRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes');
+const transactionRoutes = require('./src/routes/transactionRoutes');
 
 const app = express();
 
@@ -16,7 +18,8 @@ app.get('/', (req, res) => {
 
 // Sử dụng user routes với tiền tố /api/users
 app.use('/api/users', userRoutes);
-
+app.use('/api/categories', categoryRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
