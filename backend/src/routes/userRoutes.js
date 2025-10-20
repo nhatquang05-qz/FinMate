@@ -12,6 +12,8 @@ router.post(
     body('username', 'Username is required').not().isEmpty(),
     body('email', 'Please include a valid email').isEmail(),
     body('password', 'Password must be 6 or more characters').isLength({ min: 6 }),
+    body('fullName', 'Full name is required').not().isEmpty(),
+    body('dateOfBirth', 'Date of birth is required and must be in YYYY-MM-DD format').isISO8601().toDate(),
   ],
   userController.registerUser
 );

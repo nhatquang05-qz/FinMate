@@ -9,14 +9,16 @@ exports.registerUser = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { username, email, password } = req.body;
+  const { username, email, password, fullName, dateOfBirth } = req.body;
 
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    console.log('Hashed Password:', hashedPassword);
 
-    const sql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-    const [result] = await db.execute(sql, [username, email, hashedPassword]);
+    const sql = 'INSERT INTO users (username, email, password, full_name, date_of_birth) VALUES (?, ?, ?, ?, ?)';
+    
+    const [result] = await db.execute(sql, [username, email, hashedPassword, fullName, dateOfBirth]);
 
     res.status(201).json({ message: 'User registered successfully!', userId: result.insertId });
 
