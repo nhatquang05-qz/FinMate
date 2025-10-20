@@ -10,15 +10,15 @@ import {
     TextInput,
     StyleSheet,
     Platform,
-    ActivityIndicator, // << 1. THÊM VÀO
+    ActivityIndicator, 
 } from "react-native";
-import axios from 'axios'; // << 2. THÊM VÀO
+import axios from 'axios'; 
 import { scale } from '../../utils/scaling';
 import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
 import PopupAccountExisted from '../../components/popups/PopupAccountExisted'; 
 import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch'; 
 import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo'; 
-import apiClient from '../../api/apiClient'; // << 3. IMPORT API CLIENT
+import apiClient from '../../api/apiClient'; 
 
 const backgroundImage = require('../../assets/images/background.png');
 const logoImage = require('../../assets/images/logo.png');
@@ -28,7 +28,6 @@ type RegisterScreenProps = {
 };
 
 const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
-    // << 4. THÊM STATE CHO CÁC TRƯỜNG MỚI >>
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [fullName, setFullName] = useState('');
@@ -42,7 +41,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [showPassNotMatchPopup, setShowPassNotMatchPopup] = useState(false);
     const [showNotEnoughInfoPopup, setShowNotEnoughInfoPopup] = useState(false);
 
-    // << 5. VIẾT LẠI HOÀN TOÀN HÀM handleRegister >>
     const handleRegister = async () => {
         // Validation phía client
         if (!username || !email || !fullName || !dateOfBirth || !password || !confirmPassword) {
@@ -108,7 +106,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                                 {"Đăng kí"}
                             </Text>
 
-                            {/* << 6. THÊM CÁC Ô NHẬP LIỆU MỚI >> */}
                             <Text style={styles.label}>{"Tài khoản"}</Text>
                             <View style={styles.inputContainer}>
                                 <TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="Nhập tài khoản của bạn" placeholderTextColor="#BDBDBD"/>
@@ -166,7 +163,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     );
 };
 
-// << 7. VIẾT LẠI STYLESHEET ĐỂ GIAO DIỆN KHÔNG BỊ VỠ >>
 const styles = StyleSheet.create({
     container: {
         flex: 1,
