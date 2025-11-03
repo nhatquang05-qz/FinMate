@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } 
 import { scale, verticalScale, moderateScale } from '../../src/utils/scaling';
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   icon: ImageSourcePropType;
 }
 
 interface CategoryPickerProps {
   categories: Category[];
-  selectedCategory: Category;
+  selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
 }
 
@@ -24,7 +24,7 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({ categories, selectedCat
               key={cat.id}
               style={[
                 styles.categoryItem,
-                selectedCategory.id === cat.id && styles.selectedCategoryItem,
+                selectedCategory?.id === cat.id && styles.selectedCategoryItem,
               ]}
               onPress={() => onSelectCategory(cat)}
             >
@@ -32,13 +32,13 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({ categories, selectedCat
                 source={cat.icon}
                 style={[
                   styles.categoryIcon,
-                  selectedCategory.id === cat.id && styles.selectedCategoryIcon,
+                  selectedCategory?.id === cat.id && styles.selectedCategoryIcon,
                 ]}
               />
               <Text
                 style={[
                   styles.categoryName,
-                  selectedCategory.id === cat.id && styles.selectedCategoryName,
+                  selectedCategory?.id === cat.id && styles.selectedCategoryName,
                 ]}
               >
                 {cat.name}

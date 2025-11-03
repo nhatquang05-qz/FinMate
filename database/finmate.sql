@@ -39,6 +39,21 @@ CREATE TABLE transactions (
 INSERT INTO users (username, email, password, full_name, date_of_birth)
 VALUES ('admin', 'admin@admin.com', '$2b$10$dWadhBQe.kW9bUcg9QIhZuC8eQsZFc/tpTpRCVv5jyDxiGq37xl8G', 'Nguyễn Văn Admin', '1995-10-20');
 
+-- Thêm các danh mục CHI (Expense)
+INSERT INTO categories (name, type, icon, user_id) VALUES
+('Ăn uống', 'expense', 'food-icon', 1),
+('Đi lại', 'expense', 'transport-icon', 1),
+('Quần áo', 'expense', 'clothes-icon', 1),
+('Y tế', 'expense', 'medicine-icon', 1),
+('Giáo dục', 'expense', 'education-icon', 1);
+
+-- Thêm các danh mục THU (Income)
+INSERT INTO categories (name, type, icon, user_id) VALUES
+('Lương', 'income', 'salary-icon', 1),
+('Phụ cấp', 'income', 'subsidy-icon', 1),
+('Việc phụ', 'income', 'part-time-icon', 1),
+('Tiền thưởng', 'income', 'bonus-icon', 1),
+('Đầu tư', 'income', 'investment-icon', 1);
 
     -- "username": "admin",
     -- "password": "password123"

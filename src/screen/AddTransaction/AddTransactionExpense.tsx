@@ -1,53 +1,41 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CategoryPicker from '../../components/CategoryPicker';
 import Detail from './detail';
 import PopupSuccess from '../../components/popups/PopupSuccess'; 
 import PopupFailed from '../../components/popups/PopupFailed';  
-
-const meal = require('./fast-food.png');
-const transport = require('./bike.png');
-const clothes = require('./clothes.png');
-const medicine = require('./drugs.png');
-const edu = require('./books.png');
-const tempIcon = require('../Home/bike.png');
-
-const ExpenseCategories = [
-  { id: '1', name: 'Ăn uống', icon: meal },
-  { id: '2', name: 'Đi lại', icon: transport },
-  { id: '3', name: 'Quần áo', icon: clothes },
-  { id: '4', name: 'Y tế', icon: medicine },
-  { id: '5', name: 'Giáo dục', icon: edu },
-  { id: '6', name: 'Thêm', icon: tempIcon },
-];
+import { useTransactionForm } from '../../hooks/useTransactionForm';
+import { iconMap } from '../../utils/iconMap'; // << Import "bộ phiên dịch" icon
+import { Category } from '../../types/data';
 
 const AddTransactionExpense = () => {
-  const [selectedCategory, setSelectedCategory] = useState(ExpenseCategories[0]);
-  const [date, setDate] = useState(new Date());
-  const [amount, setAmount] = useState('');
-  const [note, setNote] = useState('');
+  // << Lấy toàn bộ logic và state từ custom hook >>
+  const {
+    categories,
+    selectedCategory,
+    date,
+    amount,
+    note,
+    isLoading,
+    isSuccessVisible,
+    isFailedVisible,
+    setSelectedCategory,
+    setDate,
+    setAmount,
+    setNote,
+    handleSave,
+    handleSuccessClose,
+    setFailedVisible,
+  } = useTransactionForm('expense');
 
-  const [isSuccessVisible, setSuccessVisible] = useState(false);
-  const [isFailedVisible, setFailedVisible] = useState(false);
+  // << Chuyển đổi dữ liệu API để CategoryPicker có thể hiển thị icon >>
+  const formattedCategories = categories.map((cat: Category) => ({
+    ...cat,
+    icon: iconMap[cat.icon] || iconMap.default, // Dùng iconMap để lấy ảnh
+  }));
 
-  const handleSuccessClose = () => {
-    setSuccessVisible(false);
-    setAmount('');
-    setNote('');
-    setSelectedCategory(ExpenseCategories[0]);
-    setDate(new Date());
-  };
-
-  const handleSave = () => {
-    const numericAmount = parseFloat(amount.trim());
-    
-    if (numericAmount > 0 && selectedCategory) {
-      setSuccessVisible(true);
-    } else {
-      setFailedVisible(true);
-    }
-  };
+  const formattedSelectedCategory = formattedCategories.find(c => c.id === selectedCategory?.id) || null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -68,25 +56,32 @@ const AddTransactionExpense = () => {
           <Text style={styles.categoryTitle}>Chọn danh mục</Text>
         </View>
         <CategoryPicker
-          categories={ExpenseCategories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+          categories={formattedCategories}
+          selectedCategory={formattedSelectedCategory}
+          onSelectCategory={(category) => {
+          // Tìm lại category gốc từ API để set state
+            const originalCategory = categories.find(c => c.id === category.id);
+            if (originalCategory) {
+              setSelectedCategory(originalCategory);
+            }
+          }}
         />
       </ScrollView>
       <View style={styles.saveButtonContainer}>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Nhập</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.saveButtonText}>Nhập</Text>
+          )}
         </TouchableOpacity>
       </View>
 
-      {/* Render các component pop-up */}
       <PopupSuccess visible={isSuccessVisible} onClose={handleSuccessClose} />
       <PopupFailed visible={isFailedVisible} onClose={() => setFailedVisible(false)} />
     </SafeAreaView>
   );
 };
-
-// ... styles không đổi
 
 const styles = StyleSheet.create({
   safeArea: {

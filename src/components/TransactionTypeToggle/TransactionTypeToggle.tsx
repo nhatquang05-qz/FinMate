@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { scale, moderateScale, verticalScale } from '../../utils/scaling';
 
 type TransactionType = 'expense' | 'income';
 
 interface TransactionTypeToggleProps {
+  activeType: TransactionType; 
   onSelectionChange: (type: TransactionType) => void;
 }
 
-const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({ onSelectionChange }) => {
-  const [selectedType, setSelectedType] = useState<TransactionType>('income');
-
-  const handleSelect = (type: TransactionType) => {
-    setSelectedType(type);
-    onSelectionChange(type);
-  };
+const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({ activeType, onSelectionChange }) => {
 
   return (
     <View style={styles.wrapper}>
@@ -22,15 +17,15 @@ const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({ onSelecti
         <TouchableOpacity
           style={[
             styles.button, 
-            selectedType === 'income' ? styles.selectedButton : styles.unselectedButton
+            activeType === 'income' ? styles.selectedButton : styles.unselectedButton
           ]}
-          onPress={() => handleSelect('income')}
+          onPress={() => onSelectionChange('income')} 
           activeOpacity={0.8}
         >
           <Text 
             style={[
               styles.buttonText, 
-              selectedType === 'income' ? styles.selectedButtonText : styles.unselectedButtonText
+              activeType === 'income' ? styles.selectedButtonText : styles.unselectedButtonText
             ]}
           >
             Thu
@@ -40,15 +35,15 @@ const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({ onSelecti
         <TouchableOpacity
           style={[
             styles.button, 
-            selectedType === 'expense' ? styles.selectedButton : styles.unselectedButton
+            activeType === 'expense' ? styles.selectedButton : styles.unselectedButton
           ]}
-          onPress={() => handleSelect('expense')}
+          onPress={() => onSelectionChange('expense')} 
           activeOpacity={0.8}
         >
           <Text 
             style={[
               styles.buttonText, 
-              selectedType === 'expense' ? styles.selectedButtonText : styles.unselectedButtonText
+              activeType === 'expense' ? styles.selectedButtonText : styles.unselectedButtonText
             ]}
           >
             Chi
