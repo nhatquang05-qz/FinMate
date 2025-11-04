@@ -129,3 +129,117 @@ exports.deleteTransaction = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+// @desc    Get monthly summary (total income, expense, balance)
+exports.getTransactionSummary = async (req, res) => {
+    const userId = req.user.id;
+    const { month, year } = req.query; // e.g., month=11, year=2025
+
+    if (!month || !year) {
+        return res.status(400).json({ message: 'Month and year are required' });
+    }
+
+    try {
+        const sql = `
+            SELECT
+                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
+                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS totalExpense
+            FROM transactions
+            WHERE 
+                user_id = ? AND 
+                MONTH(transaction_date) = ? AND 
+                YEAR(transaction_date) = ?
+        `;
+        const [summary] = await db.query(sql, [userId, month, year]);
+        
+        const totalIncome = summary[0].totalIncome || 0;
+        const totalExpense = summary[0].totalExpense || 0;
+        const balance = totalIncome - totalExpense;
+
+        res.json({
+            totalIncome: parseFloat(totalIncome),
+            totalExpense: parseFloat(totalExpense),
+            balance: parseFloat(balance),
+        });
+    } catch (error) {
+        console.error('Error fetching transaction summary:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Get data for pie chart (expenses grouped by category)
+exports.getPieChartData = async (req, res) => {
+    const userId = req.user.id;
+    const { month, year } = req.query;
+
+    if (!month || !year) {
+        return res.status(400).json({ message: 'Month and year are required' });
+    }
+
+    try {
+        const sql = `
+            SELECT 
+                c.name AS categoryName,
+                SUM(t.amount) AS totalAmount
+            FROM transactions t
+            JOIN categories c ON t.category_id = c.id
+            WHERE 
+                t.user_id = ? AND 
+                t.type = 'expense' AND
+                MONTH(t.transaction_date) = ? AND 
+                YEAR(t.transaction_date) = ?
+            GROUP BY c.name
+            ORDER BY totalAmount DESC
+            LIMIT 5; -- Lấy 5 danh mục chi nhiều nhất
+        `;
+        const [pieData] = await db.query(sql, [userId, month, year]);
+        res.json(pieData.map(item => ({...item, totalAmount: parseFloat(item.totalAmount)})));
+    } catch (error) {
+        console.error('Error fetching pie chart data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Get all unique months/years that have transactions
+exports.getMonthsWithData = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const sql = `
+            SELECT DISTINCT
+                YEAR(transaction_date) AS year,
+                MONTH(transaction_date) AS month
+            FROM transactions
+            WHERE user_id = ?
+            ORDER BY year DESC, month DESC;
+        `;
+        const [months] = await db.query(sql, [userId]);
+        res.json(months);
+    } catch (error) {
+        console.error('Error fetching months with data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// @desc    Get the 3 most recent transactions for the logged-in user
+exports.getRecentTransactions = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const sql = `
+      SELECT 
+        t.id, t.amount, t.type, t.transaction_date, t.note,
+        c.name AS category_name, c.icon AS category_icon
+      FROM transactions t
+      JOIN categories c ON t.category_id = c.id
+      WHERE t.user_id = ?
+      ORDER BY t.transaction_date DESC
+      LIMIT 3; 
+    `;
+    const params = [userId];
+
+    const [transactions] = await db.query(sql, params);
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching recent transactions:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

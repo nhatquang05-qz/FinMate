@@ -22,6 +22,10 @@ router.post('/', transactionValidation, transactionController.createTransaction)
 // @desc    Get all transactions for a user
 router.get('/', transactionController.getTransactionsByUser);
 
+// @route   GET /api/transactions/recent
+// @desc    Get 3 recent transactions
+router.get('/recent', transactionController.getRecentTransactions);
+
 // @route   PUT /api/transactions/:id
 // @desc    Update a transaction
 router.put('/:id', transactionValidation, transactionController.updateTransaction);
@@ -29,5 +33,17 @@ router.put('/:id', transactionValidation, transactionController.updateTransactio
 // @route   DELETE /api/transactions/:id
 // @desc    Delete a transaction
 router.delete('/:id', transactionController.deleteTransaction);
+
+// @route   GET /api/transactions/summary
+// @desc    Get monthly transaction summary
+router.get('/summary', transactionController.getTransactionSummary);
+
+// @route   GET /api/transactions/report/pie-chart
+// @desc    Get data for pie chart
+router.get('/report/pie-chart', transactionController.getPieChartData);
+
+// @route   GET /api/transactions/months-with-data
+// @desc    Get months that have transaction data
+router.get('/months-with-data', transactionController.getMonthsWithData);
 
 module.exports = router;

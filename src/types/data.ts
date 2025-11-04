@@ -14,3 +14,24 @@ export interface NewTransaction {
   note?: string;
   category_id: number;
 }
+// Định nghĩa cấu trúc của một Transaction nhận từ API
+export interface Transaction {
+  id: number;
+  amount: number;
+  type: 'income' | 'expense';
+  transaction_date: string;
+  note: string | null;
+  category_name: string;
+  category_icon: string;
+}
+// Định nghĩa cấu trúc của dữ liệu tóm tắt giao dịch
+export interface SummaryData {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+}
+// Định nghĩa cấu trúc của dữ liệu biểu đồ tròn
+export interface PieChartData {
+    categoryName: string;
+    totalAmount: number;
+}
