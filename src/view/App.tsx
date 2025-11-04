@@ -6,6 +6,7 @@ import SplashScreen from '../screen/SplashScreen';
 import LoginScreen from '../screen/Login/Login';
 import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
+import HistoryScreen from '../screen/HistoryScreen';
 import AddTransactionIncome from '../screen/AddTransaction/AddTransactionIncome';
 import AddTransactionScreen from '../screen/AddTransaction/AddTransactionScreen';
 import Navbar from '../components/Navbar/Navbar';
@@ -37,7 +38,7 @@ const MainApp = () => {
       case 'User':
         return <PlaceholderScreen routeName="User" />;
       case 'History':
-        return <PlaceholderScreen routeName="History" />;
+        return <HistoryScreen />;
       case 'Statistic':
         return <PlaceholderScreen routeName="Statistic" />;
       case 'Setting':

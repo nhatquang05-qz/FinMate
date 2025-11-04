@@ -38,10 +38,9 @@ exports.createTransaction = async (req, res) => {
 // @desc    Get all transactions for the logged-in user
 exports.getTransactionsByUser = async (req, res) => {
   const userId = req.user.id;
-  const { type } = req.query; // For filtering by income or expense
+  const { type, limit, category_ids } = req.query; // << SỬA `category_id` THÀNH `category_ids`
 
   try {
-    // We use a JOIN to get category info along with the transaction
     let sql = `
       SELECT 
         t.id, t.amount, t.type, t.transaction_date, t.note,
@@ -57,7 +56,20 @@ exports.getTransactionsByUser = async (req, res) => {
       params.push(type);
     }
     
-    sql += ' ORDER BY t.transaction_date DESC'; // Show newest first
+    if (category_ids) {
+        const categoryIdsArray = category_ids.split(',').map(id => parseInt(id, 10));
+        if (categoryIdsArray.length > 0) {
+            sql += ' AND t.category_id IN (?)';
+            params.push(categoryIdsArray);
+        }
+    }
+    
+    sql += ' ORDER BY t.transaction_date DESC';
+
+    if (limit) {
+      sql += ' LIMIT ?';
+      params.push(parseInt(limit, 10));
+    }
 
     const [transactions] = await db.query(sql, params);
     res.json(transactions);
