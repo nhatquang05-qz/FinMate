@@ -7,13 +7,13 @@ import LoginScreen from '../screen/Login/Login';
 import RegisterScreen from '../screen/Register/Register';
 import HomeScreen from '../screen/Home/Home';
 import HistoryScreen from '../screen/HistoryScreen';
-import AddTransactionIncome from '../screen/AddTransaction/AddTransactionIncome';
 import AddTransactionScreen from '../screen/AddTransaction/AddTransactionScreen';
 import Navbar from '../components/Navbar/Navbar';
 import Header from '../components/Header/header';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scale } from '../utils/scaling';
 import CalendarInfoScreen from '../screen/CalendarInfo';
+import ChartScreen from '../screen/Chart/ChartScreen';
 ExpoSplashScreen.preventAutoHideAsync();
 
 const MainApp = () => {
@@ -34,7 +34,7 @@ const MainApp = () => {
       case 'Calendar':
         return <CalendarInfoScreen />;
       case 'Chart':
-        return <PlaceholderScreen routeName="Chart" />;
+        return <ChartScreen />;
       case 'User':
         return <PlaceholderScreen routeName="User" />;
       case 'History':

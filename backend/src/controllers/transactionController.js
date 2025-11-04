@@ -247,11 +247,88 @@ exports.getRecentTransactions = async (req, res) => {
       LIMIT 3; 
     `;
     const params = [userId];
-
     const [transactions] = await db.query(sql, params);
     res.json(transactions);
   } catch (error) {
     console.error('Error fetching recent transactions:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc Get comprehensive statistics for a given period (week, month, year)
+exports.getStatistics = async (req, res) => {
+const userId = req.user.id;
+const { periodType, year, month, startDate, endDate } = req.query;
+if (!periodType || !year) {
+    return res.status(400).json({ message: 'Period type and year are required.' });
+}
+
+let dateCondition = '';
+const params = [userId];
+
+switch (periodType) {
+    case 'year':
+        dateCondition = 'AND YEAR(t.transaction_date) = ?';
+        params.push(year);
+        break;
+    case 'month':
+        if (!month) return res.status(400).json({ message: 'Month is required.' });
+        dateCondition = 'AND YEAR(t.transaction_date) = ? AND MONTH(t.transaction_date) = ?';
+        params.push(year, month);
+        break;
+    case 'week':
+        if (!startDate || !endDate) return res.status(400).json({ message: 'Start and end dates are required for weekly view.' });
+        dateCondition = 'AND t.transaction_date BETWEEN ? AND ?';
+        params.push(startDate, endDate);
+        break;
+    default:
+        return res.status(400).json({ message: 'Invalid period type.' });
+}
+
+  try {
+    // Query 1: Lấy Tổng thu, Tổng chi
+    const summarySql = `
+        SELECT
+            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
+            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS totalExpense
+        FROM transactions t
+        WHERE t.user_id = ? ${dateCondition}
+    `;
+
+    // Query 2: Lấy chi tiết chi tiêu theo từng danh mục
+    const expenseByCategorySql = `
+            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
+            FROM transactions t JOIN categories c ON t.category_id = c.id
+            WHERE t.user_id = ? AND t.type = 'expense' ${dateCondition}
+            GROUP BY c.id, c.name, c.icon ORDER BY totalAmount DESC;
+        `;
+
+    // << QUERY 3: LẤY CHI TIẾT THU NHẬP THEO DANH MỤC >>
+    const incomeByCategorySql = `
+            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
+            FROM transactions t JOIN categories c ON t.category_id = c.id
+            WHERE t.user_id = ? AND t.type = 'income' ${dateCondition}
+            GROUP BY c.id, c.name, c.icon ORDER BY totalAmount DESC;
+        `;
+
+    // Chạy cả 3 query song song để tối ưu hiệu suất
+    const [summaryResult, expenseByCategory, incomeByCategory] = await Promise.all([
+      db.query(summarySql, params),
+      db.query(expenseByCategorySql, params),
+      db.query(incomeByCategorySql, params)
+    ]);
+
+    res.json({
+      summary: {
+        totalIncome: parseFloat(summaryResult[0][0].totalIncome) || 0,
+        totalExpense: parseFloat(summaryResult[0][0].totalExpense) || 0,
+      },
+      expenseByCategory: expenseByCategory[0].map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })),
+      incomeByCategory: incomeByCategory[0].map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })),
+    });
+
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

@@ -46,4 +46,8 @@ router.get('/report/pie-chart', transactionController.getPieChartData);
 // @desc    Get months that have transaction data
 router.get('/months-with-data', transactionController.getMonthsWithData);
 
+// @route   GET /api/transactions/statistics
+// @desc    Get statistics data for charts and reports
+router.get('/statistics', transactionController.getStatistics);
+
 module.exports = router;
