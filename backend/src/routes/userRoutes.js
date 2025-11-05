@@ -4,6 +4,10 @@ const { body } = require('express-validator');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
 
+// @route   GET /api/users/profile
+// @desc    Get user profile
+router.get('/profile', authMiddleware, userController.getUserProfile);
+
 // @route   POST /api/users/register
 // @desc    Register a new user
 router.post(

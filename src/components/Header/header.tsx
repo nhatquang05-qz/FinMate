@@ -7,7 +7,7 @@ const screenTitles: { [key: string]: string } = {
   Home: 'Trang chủ',
   Money: 'Nhập',
   Calendar: 'Lịch',
-  Chart: 'Biểu đồ',
+  Chart: 'Thống kê',
   User: 'Tài khoản',
 };
 

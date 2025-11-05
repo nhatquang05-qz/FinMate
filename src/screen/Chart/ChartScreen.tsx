@@ -208,8 +208,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     scrollViewContent: {
-        padding: scale(15),
-        paddingBottom: scale(120)
+        paddingHorizontal: scale(15),
+        paddingBottom: scale(80),
     },
     periodSelector: {
         flexDirection: 'row',
@@ -242,7 +242,8 @@ const styles = StyleSheet.create({
         padding: scale(12),
         borderRadius: scale(10),
         alignItems: 'center',
-        marginVertical: scale(20),
+        marginTop: scale(15),
+        marginBottom: scale(20),
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },

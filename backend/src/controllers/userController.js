@@ -119,3 +119,23 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// @desc    Get logged in user profile
+exports.getUserProfile = async (req, res) => {
+    const userId = req.user.id; // Lấy từ authMiddleware
+
+    try {
+        // Lấy thông tin user
+        const sql = 'SELECT id, username, email, full_name, date_of_birth FROM users WHERE id = ?';
+        const [users] = await db.execute(sql, [userId]);
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.json(users[0]);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

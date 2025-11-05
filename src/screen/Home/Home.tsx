@@ -54,7 +54,10 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
 
 type MonthData = { year: number, month: number };
 
-type HomeScreenProps = { navigateTo: (screenName: string) => void; };
+type HomeScreenProps = { 
+    navigateTo: (screenName: string) => void; 
+    activeScreen: string;
+};
 
 const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -153,7 +156,7 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                                     <TouchableOpacity onPress={() => navigateTo('History')}>
                                                         <Image source={require('./History.png')} style={styles.managementIcon} />
                                                     </TouchableOpacity>
-                                                    <TouchableOpacity onPress={() => navigateTo('Statistic')}>
+                                                    <TouchableOpacity onPress={() => navigateTo('Chart')}>
                                                         <Image source={require('./Statistic.png')} style={styles.managementIcon} />
                                                     </TouchableOpacity>
                                                     <TouchableOpacity onPress={() => navigateTo('Setting')}>
