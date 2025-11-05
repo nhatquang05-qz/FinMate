@@ -15,7 +15,9 @@ import CalendarInfoScreen from '../screen/CalendarInfo';
 import HistoryScreen from '../screen/HistoryScreen';
 import ChartScreen from '../screen/Chart/ChartScreen';
 import UserScreen from '../screen/User/UserScreen';
+import ProfileScreen from '../screen/User/ProfileScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 ExpoSplashScreen.preventAutoHideAsync();
 
@@ -32,6 +34,7 @@ type HistoryFilter = {
 
 const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
   const [activeScreen, setActiveScreen] = useState('Home');
+  const [currentUserScreen, setCurrentUserScreen] = useState('UserRoot');
   const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
 
   const PlaceholderScreen = ({ routeName }: { routeName: string }) => (
@@ -62,8 +65,10 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
       case 'History':
         return <HistoryScreen initialFilter={initialHistoryFilter} onClearFilter={clearHistoryFilter} />;
       case 'User':
-        // << 2. SỬA LẠI THÀNH `onLogout` ĐỂ KHỚP VỚI PROP ĐÃ NHẬN >>
-        return <UserScreen onLogout={onLogout} />;
+        if (currentUserScreen === 'Profile') {
+            return <ProfileScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
+        }
+        return <UserScreen onLogout={onLogout} navigateToSubScreen={setCurrentUserScreen} />;
       case 'Setting':
         return <PlaceholderScreen routeName="Setting" />;
       default:

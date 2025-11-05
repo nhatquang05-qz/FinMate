@@ -139,3 +139,24 @@ exports.getUserProfile = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+// @desc    Update user profile
+exports.updateUserProfile = async (req, res) => {
+    const userId = req.user.id;
+    const { fullName, dateOfBirth } = req.body;
+
+    // Validation
+    if (!fullName || !dateOfBirth) {
+        return res.status(400).json({ message: 'Full name and date of birth are required.' });
+    }
+
+    try {
+        const sql = 'UPDATE users SET full_name = ?, date_of_birth = ? WHERE id = ?';
+        await db.execute(sql, [fullName, dateOfBirth, userId]);
+
+        res.json({ message: 'Profile updated successfully.' });
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

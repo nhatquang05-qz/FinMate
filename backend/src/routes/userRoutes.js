@@ -45,4 +45,8 @@ router.put(
   userController.changePassword
 );
 
+// @route   PUT /api/users/profile
+// @desc    Update user profile
+router.put('/profile', authMiddleware, userController.updateUserProfile);
+
 module.exports = router;

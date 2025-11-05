@@ -18,9 +18,10 @@ interface UserProfile {
 
 interface UserScreenProps {
     onLogout: () => void;
+    navigateToSubScreen: (screenName: string) => void;
 }
 
-const UserScreen: React.FC<UserScreenProps> = ({ onLogout }) => {
+const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -58,7 +59,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout }) => {
                 </View>
 
                 <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => alert('Chuyển đến trang Thông tin cá nhân')}>
+                    <TouchableOpacity style={styles.menuItem} onPress={() => navigateToSubScreen('Profile')}>
                         <Text style={styles.menuText}>Thông tin cá nhân</Text>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
