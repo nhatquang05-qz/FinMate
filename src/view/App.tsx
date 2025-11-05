@@ -16,14 +16,29 @@ import CalendarInfoScreen from '../screen/CalendarInfo';
 import ChartScreen from '../screen/Chart/ChartScreen';
 ExpoSplashScreen.preventAutoHideAsync();
 
+type HistoryFilter = {
+    categoryId: number;
+    type: 'income' | 'expense';
+};
+
 const MainApp = () => {
   const [activeScreen, setActiveScreen] = useState('Home');
+  const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
 
   const PlaceholderScreen = ({ routeName }: { routeName: string }) => (
     <View style={styles.placeholderContainer}>
       <Text style={styles.placeholderText}>{routeName} Screen</Text>
     </View>
   );
+
+  const navigateToHistoryWithFilter = (filter: HistoryFilter) => {
+      setInitialHistoryFilter(filter); // Lưu bộ lọc
+      setActiveScreen('History');     // Chuyển màn hình
+  };
+
+  const clearHistoryFilter = () => {
+      setInitialHistoryFilter(null); // Xóa bộ lọc sau khi đã dùng
+  };
 
   const renderScreen = () => {
     switch (activeScreen) {
@@ -34,11 +49,11 @@ const MainApp = () => {
       case 'Calendar':
         return <CalendarInfoScreen />;
       case 'Chart':
-        return <ChartScreen />;
+        return <ChartScreen navigateToHistoryWithFilter={navigateToHistoryWithFilter} />;
       case 'User':
         return <PlaceholderScreen routeName="User" />;
       case 'History':
-        return <HistoryScreen />;
+        return <HistoryScreen initialFilter={initialHistoryFilter} onClearFilter={clearHistoryFilter} />;
       case 'Statistic':
         return <PlaceholderScreen routeName="Statistic" />;
       case 'Setting':

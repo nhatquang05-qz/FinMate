@@ -73,8 +73,11 @@ const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
         </View>
     );
 };
+interface ChartScreenProps {
+    navigateToHistoryWithFilter: (filter: { categoryId: number; type: 'income' | 'expense' }) => void;
+}
 
-const ChartScreen = () => {
+const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }) => {
   const [period, setPeriod] = useState<PeriodType>('month');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -153,20 +156,28 @@ const ChartScreen = () => {
                     </View>
                     
                     {/* Detail List */}
-                    <View style={styles.card}>
-                        <Text style={styles.cardTitle}>{detailCardTitle}</Text>
-                        {dataForChart && dataForChart.length > 0 ? (
-                            dataForChart.map(item => (
-                                <TouchableOpacity key={item.categoryId} style={styles.detailItem}>
-                                    <View style={{flex: 1, marginRight: 10}}>
-                                        <Text style={styles.detailCategory} numberOfLines={1}>{item.categoryName}</Text>
-                                        <Text style={styles.detailCount}>{item.transactionCount} giao dịch</Text>
-                                    </View>
-                                    <Text style={[styles.detailAmount, detailAmountStyle]}>{formatCurrency(item.totalAmount)}</Text>
-                                </TouchableOpacity>
-                            ))
-                        ) : <Text style={styles.noDataText}>Không có dữ liệu</Text>}
-                    </View>
+                            <View style={styles.card}>
+                                <Text style={styles.cardTitle}>{detailCardTitle}</Text>
+                                {dataForChart && dataForChart.length > 0 ? (
+                                    dataForChart.map(item => (
+                                        // << 2. THÊM `onPress` VÀO TouchableOpacity >>
+                                        <TouchableOpacity 
+                                            key={item.categoryId} 
+                                            style={styles.detailItem}
+                                            onPress={() => navigateToHistoryWithFilter({
+                                                categoryId: item.categoryId,
+                                                type: chartType
+                                            })}
+                                        >
+                                            <View style={{flex: 1, marginRight: 10}}>
+                                                <Text style={styles.detailCategory} numberOfLines={1}>{item.categoryName}</Text>
+                                                <Text style={styles.detailCount}>{item.transactionCount} giao dịch</Text>
+                                            </View>
+                                            <Text style={[styles.detailAmount, detailAmountStyle]}>{formatCurrency(item.totalAmount)}</Text>
+                                        </TouchableOpacity>
+                                    ))
+                                ) : <Text style={styles.noDataText}>Không có dữ liệu</Text>}
+                            </View>
                 </>
             )
         )}

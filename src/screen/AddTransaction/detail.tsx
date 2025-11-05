@@ -35,7 +35,6 @@ const Detail = ({
       </TouchableOpacity>
 
       <View style={styles.separator} />
-      {/* Sửa ở đây: Dùng View thay cho TouchableOpacity để tránh lỗi và đảm bảo TextInput hoạt động ổn định */}
       <View style={styles.row}>
         <Text style={styles.label}>Số tiền</Text>
         <TextInput
@@ -49,7 +48,6 @@ const Detail = ({
       </View>
 
       <View style={styles.separator} />
-      {/* Sửa ở đây: Dùng View thay cho TouchableOpacity */}
       <View style={styles.row}>
         <Text style={styles.label}>Ghi chú</Text>
         <TextInput

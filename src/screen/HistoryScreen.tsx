@@ -10,16 +10,29 @@ import { scale } from '../utils/scaling';
 
 type HistoryTab = 'all' | 'income' | 'expense';
 
-const HistoryScreen = () => {
+type HistoryFilter = { categoryId: number; type: 'income' | 'expense'; };
+interface HistoryScreenProps {
+    initialFilter: HistoryFilter | null;
+    onClearFilter: () => void;
+}
+
+const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFilter }) => {
+    const [activeTab, setActiveTab] = useState<HistoryTab>(initialFilter?.type || 'all');
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(initialFilter ? [initialFilter.categoryId] : []);
+
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<HistoryTab>('all');
-    
     const [allCategories, setAllCategories] = useState<Category[]>([]);
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
     const [isFilterModalVisible, setFilterModalVisible] = useState(false);
 
-    // Lấy danh sách tất cả danh mục (chỉ 1 lần khi component mount)
+    // Dọn dẹp bộ lọc ở component cha sau khi đã sử dụng (chỉ chạy 1 lần)
+    useEffect(() => {
+        if (initialFilter) {
+            onClearFilter();
+        }
+    }, []);
+
+    // Lấy danh sách tất cả danh mục (chỉ chạy 1 lần)
     useEffect(() => {
         const fetchAllCategories = async () => {
             try {
@@ -32,7 +45,8 @@ const HistoryScreen = () => {
         fetchAllCategories();
     }, []);
 
-    // Tải lại dữ liệu khi tab hoặc filter thay đổi
+    // Tải lại dữ liệu khi tab hoặc filter thay đổi.
+    // Lần đầu tiên chạy, nó sẽ dùng state đã được khởi tạo đúng.
     useEffect(() => {
         fetchData();
     }, [activeTab, selectedCategoryIds]); 
