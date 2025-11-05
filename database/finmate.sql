@@ -1,4 +1,4 @@
--- 1. Tạo cơ sở dữ liệu (database) mới
+categoriescategoriesusers-- 1. Tạo cơ sở dữ liệu (database) mới
 CREATE DATABASE finmate_db;
 
 -- 2. Chọn cơ sở dữ liệu vừa tạo để làm việc
