@@ -1,4 +1,4 @@
--- 1. Tạo cơ sở dữ liệu (database) mới
+categoriescategoriesusers-- 1. Tạo cơ sở dữ liệu (database) mới
 CREATE DATABASE finmate_db;
 
 -- 2. Chọn cơ sở dữ liệu vừa tạo để làm việc
@@ -39,6 +39,6 @@ CREATE TABLE transactions (
 INSERT INTO users (username, email, password, full_name, date_of_birth)
 VALUES ('admin', 'admin@admin.com', '$2b$10$dWadhBQe.kW9bUcg9QIhZuC8eQsZFc/tpTpRCVv5jyDxiGq37xl8G', 'Nguyễn Văn Admin', '1995-10-20');
 
-
-    -- "username": "admin",
-    -- "password": "password123"
+INSERT INTO users (username, email, password, full_name, date_of_birth)
+VALUES ('nquang', 'nquang@gmail.com', '123', 'Nhật Quang', '2005-12-24');
+ 

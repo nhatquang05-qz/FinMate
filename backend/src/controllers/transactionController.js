@@ -12,7 +12,7 @@ exports.createTransaction = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // **Security Check**: Verify the category belongs to the user
+    
     const [categories] = await db.query('SELECT user_id FROM categories WHERE id = ?', [category_id]);
     if (categories.length === 0) {
       return res.status(404).json({ message: 'Category not found' });

@@ -28,10 +28,9 @@ exports.createCategory = async (req, res) => {
   }
 };
 
-// @desc    Get all categories for the logged-in user, optionally filtered by type
 exports.getCategoriesByUser = async (req, res) => {
   const userId = req.user.id;
-  const { type } = req.query; // Lấy type từ query param (ví dụ: /api/categories?type=expense)
+  const { type } = req.query; 
 
   try {
     let sql = 'SELECT id, name, type, icon FROM categories WHERE user_id = ?';
