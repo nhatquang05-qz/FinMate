@@ -12,6 +12,8 @@ const subsidyIcon = require('../screen/AddTransaction/subsidize.png');
 const partimeIcon = require('../screen/AddTransaction/part-time.png');
 const bonusIcon = require('../screen/AddTransaction/pay-day.png');
 const investIcon = require('../screen/AddTransaction/earning.png');
+const friendsIcon = require('../screen/AddTransaction/friends.png');
+const piggyBankIcon = require('../screen/AddTransaction/piggy-bank.png');
 const defaultIcon = require('../screen/Home/bike.png'); // Icon mặc định nếu không tìm thấy
 
 // Đây là "bộ phiên dịch" của chúng ta
@@ -22,6 +24,7 @@ export const iconMap: { [key: string]: ImageSourcePropType } = {
   'clothes-icon': clothesIcon,
   'medicine-icon': medicineIcon,
   'education-icon': eduIcon,
+  'friends-icon': friendsIcon,
   
   // Income Icons
   'salary-icon': salaryIcon,
@@ -29,6 +32,7 @@ export const iconMap: { [key: string]: ImageSourcePropType } = {
   'part-time-icon': partimeIcon,
   'bonus-icon': bonusIcon,
   'investment-icon': investIcon,
+  'piggy-bank-icon': piggyBankIcon,
 
   // Default / Fallback Icon
   'default': defaultIcon,

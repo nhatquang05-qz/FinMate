@@ -54,6 +54,8 @@ INSERT INTO categories (name, type, icon, user_id) VALUES
 ('Việc phụ', 'income', 'part-time-icon', 1),
 ('Tiền thưởng', 'income', 'bonus-icon', 1),
 ('Đầu tư', 'income', 'investment-icon', 1);
+('Bạn bè', 'expense', 'friends-icon', 1),
+('Lãi tiết kiệm', 'income', 'piggy-bank-icon', 1);
 
 INSERT INTO transactions (amount, type, transaction_date, note, user_id, category_id) VALUES
 (20000000.00, 'income', '2025-11-01 09:00:00', 'Lương tháng 11, 2025', 1, 6),
