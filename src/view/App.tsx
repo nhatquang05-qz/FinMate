@@ -17,6 +17,7 @@ import ChartScreen from '../screen/Chart/ChartScreen';
 import UserScreen from '../screen/User/UserScreen';
 import ProfileScreen from '../screen/User/ProfileScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CalendarScreen from '../screen/Calendar/CalendarScreen';
 
 
 ExpoSplashScreen.preventAutoHideAsync();
@@ -59,7 +60,7 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
       case 'Money':
         return <AddTransactionScreen />;
       case 'Calendar':
-        return <CalendarInfoScreen />;
+        return <CalendarScreen />;
       case 'Chart':
         return <ChartScreen navigateToHistoryWithFilter={navigateToHistoryWithFilter} />;
       case 'History':

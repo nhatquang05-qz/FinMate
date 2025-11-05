@@ -38,6 +38,11 @@ CREATE TABLE transactions (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `date_of_birth`, `created_at`) VALUES
+(1, 'admin', 'admin@admin.com', '$2b$10$dWadhBQe.kW9bUcg9QIhZuC8eQsZFc/tpTpRCVv5jyDxiGq37xl8G', 'Nguyễn Văn Admin 1', '1995-10-19', '2025-10-20 03:32:41'),
+(8, 'phattran', 'phat@phat.com', '$2b$10$n5/.ahDLPkZVUG1eUheKg.L7wQ9vhseylkFMdAYsx4/DmguVXxXfu', 'Phat Tran', '2002-09-15', '2025-10-20 14:24:03');
+
+
 INSERT INTO categories (name, type, icon, user_id) VALUES
 ('Ăn uống', 'expense', 'food-icon', 1),
 ('Đi lại', 'expense', 'transport-icon', 1),
@@ -102,6 +107,34 @@ INSERT INTO transactions (amount, type, transaction_date, note, user_id, categor
 (600000.00,  'expense', '2025-11-15 09:30:00', 'Mua tài liệu học tập', 1, 5),
 (15000.00,   'expense', '2025-11-16 10:00:00', 'Gửi xe tháng', 1, 2),
 (30000.00,   'expense', '2025-11-17 08:00:00', 'Bánh mì và sữa', 1, 1),
+(20000000.00, 'income',  '2025-08-01 09:00:00', 'Lương tháng 8', 1, 6),
+(1500000.00,  'income',  '2025-08-05 18:30:00', 'Thưởng hoàn thành tốt dự án', 1, 9),
+(52000.00,   'expense', '2025-08-02 12:00:00', 'Cơm trưa', 1, 1),
+(75000.00,   'expense', '2025-08-02 20:00:00', 'Trà sữa với bạn bè', 1, 1),
+(100000.00,  'expense', '2025-08-03 08:00:00', 'Đổ xăng', 1, 2),
+(250000.00,  'expense', '2025-08-05 19:00:00', 'Ăn tối nhà hàng', 1, 1),
+(1800000.00, 'expense', '2025-08-07 15:00:00', 'Mua tai nghe Sony mới', 1, 3),
+(45000.00,   'expense', '2025-08-08 07:30:00', 'Cà phê', 1, 1),
+(800000.00,  'income',  '2025-08-10 14:00:00', 'Thiết kế logo freelance', 1, 8),
+(200000.00,  'expense', '2025-08-12 11:00:00', 'Khám da liễu', 1, 4),
+(45000.00,   'expense', '2025-08-14 12:30:00', 'Bún chả', 1, 1),
+(180000.00,  'expense', '2025-08-20 10:00:00', 'Mua sách chuyên ngành', 1, 5),
+(70000.00,   'expense', '2025-08-22 18:00:00', 'Grab car đi họp', 1, 2),
+(300000.00,  'expense', '2025-08-25 13:00:00', 'Đi siêu thị', 1, 1),
+(1500000.00, 'expense', '2025-08-28 19:30:00', 'Mua vé máy bay Tết', 1, 2),
+(350000.00,  'income',  '2025-08-30 16:00:00', 'Lãi tiết kiệm', 1, 10),
+(20000000.00, 'income',  '2025-09-01 09:05:00', 'Lương tháng 9', 1, 6),
+(500000.00,  'income',  '2025-09-04 10:00:00', 'Phụ cấp trách nhiệm', 1, 7),
+(950000.00,  'expense', '2025-09-09 11:00:00', 'Săn sale 9/9 mua quần áo', 1, 3),
+(68000.00,   'expense', '2025-09-10 12:00:00', 'Phở bò', 1, 1),
+(25000.00,   'expense', '2025-09-11 17:30:00', 'Gửi xe', 1, 2),
+(120000.00,  'expense', '2025-09-13 16:00:00', 'Mua thuốc đau đầu', 1, 4),
+(1500000.00, 'income',  '2025-09-15 14:00:00', 'Dịch thuật tài liệu', 1, 8),
+(420000.00,  'expense', '2025-09-17 19:00:00', 'Ăn buffer lẩu', 1, 1),
+(80000.00,   'expense', '2025-09-20 08:30:00', 'Đổ xăng', 1, 2),
+(350000.00,  'expense', '2025-09-24 10:00:00', 'Mua đồ dùng học tập cho em', 1, 5),
+(55000.00,   'expense', '2025-09-26 12:10:00', 'Cơm gà', 1, 1),
+(180000.00,  'expense', '2025-09-29 20:30:00', NULL, 1, 1),
 (1800000.00, 'income',  '2025-11-18 19:00:00', 'Bán lại điện thoại cũ', 1, 8);
 
     -- "username": "admin",

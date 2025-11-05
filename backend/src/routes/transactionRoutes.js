@@ -50,4 +50,8 @@ router.get('/months-with-data', transactionController.getMonthsWithData);
 // @desc    Get statistics data for charts and reports
 router.get('/statistics', transactionController.getStatistics);
 
+// @route   GET /api/transactions/calendar-view
+// @desc    Get data for the calendar screen
+router.get('/calendar-view', transactionController.getCalendarView);
+
 module.exports = router;

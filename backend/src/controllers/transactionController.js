@@ -332,3 +332,64 @@ switch (periodType) {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// @desc Get all data needed for the calendar view for a specific month
+exports.getCalendarView = async (req, res) => {
+const userId = req.user.id;
+const { month, year } = req.query;
+if (!month || !year) {
+    return res.status(400).json({ message: 'Month and year are required.' });
+}
+
+try {
+    // Query 1: Lấy tóm tắt Tổng thu, Tổng chi của cả tháng
+    const summarySql = `
+        SELECT
+            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
+            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS totalExpense
+        FROM transactions
+        WHERE user_id = ? AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?;
+    `;
+
+    // Query 2: Lấy tóm tắt chênh lệch Thu-Chi cho mỗi ngày có giao dịch
+    const dailySummarySql = `
+        SELECT
+            DATE(transaction_date) as date,
+            SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as netAmount
+        FROM transactions
+        WHERE user_id = ? AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?
+        GROUP BY DATE(transaction_date);
+    `;
+
+    // Query 3: Lấy tất cả giao dịch trong tháng
+    const allTransactionsSql = `
+        SELECT t.id, t.amount, t.type, t.transaction_date, t.note, c.name AS category_name
+        FROM transactions t JOIN categories c ON t.category_id = c.id
+        WHERE t.user_id = ? AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?
+        ORDER BY t.transaction_date DESC;
+    `;
+    
+    // Chạy cả 3 query song song
+    const [summaryResult, dailySummaryResult, allTransactionsResult] = await Promise.all([
+        db.query(summarySql, [userId, month, year]),
+        db.query(dailySummarySql, [userId, month, year]),
+        db.query(allTransactionsSql, [userId, month, year])
+    ]);
+
+    const summary = summaryResult[0][0];
+
+    res.json({
+        summary: {
+            totalIncome: parseFloat(summary.totalIncome) || 0,
+            totalExpense: parseFloat(summary.totalExpense) || 0,
+            balance: (parseFloat(summary.totalIncome) || 0) - (parseFloat(summary.totalExpense) || 0),
+        },
+        dailySummaries: dailySummaryResult[0].map(d => ({...d, netAmount: parseFloat(d.netAmount)})),
+        transactions: allTransactionsResult[0],
+    });
+
+} catch (error) {
+    console.error('Error fetching calendar data:', error);
+    res.status(500).json({ message: 'Server error' });
+}
+};
