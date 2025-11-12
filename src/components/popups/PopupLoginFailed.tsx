@@ -21,7 +21,7 @@ const PopupWrongPassword = ({ visible, onClose }: PopupProps) => {
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
-        >
+        >   
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <Text style={styles.modalTitle}>Đăng nhập thất bại</Text>
