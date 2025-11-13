@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TextInput, 
+    TouchableOpacity, 
+    ScrollView, 
+    ActivityIndicator, 
+    Alert,
+    Image 
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
+import * as ImagePicker from 'expo-image-picker';
+
+const defaultAvatar = require('../../assets/images/user_avatar.png');
 
 interface UserProfile {
     id: number;
@@ -10,20 +23,24 @@ interface UserProfile {
     email: string;
     full_name: string;
     date_of_birth: string;
+    avatar_url: string | null;
 }
 
+// KHÔI PHỤC LẠI PROP GỐC (onBack)
 interface ProfileScreenProps {
-    onBack: () => void;
+    navigation: any;
+    onBack: () => void; 
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, onBack }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     
-    // State để lưu dữ liệu khi đang sửa
     const [editedFullName, setEditedFullName] = useState('');
     const [editedDob, setEditedDob] = useState('');
+
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         fetchUserProfile();
@@ -34,7 +51,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         try {
             const response = await apiClient.get<UserProfile>('/users/profile');
             setUser(response.data);
-            // Cập nhật state cho việc sửa đổi
             setEditedFullName(response.data.full_name);
             setEditedDob(new Date(response.data.date_of_birth).toISOString().split('T')[0]);
         } catch (error) {
@@ -44,7 +60,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSaveTextChanges = async () => {
         setIsLoading(true);
         try {
             await apiClient.put('/users/profile', {
@@ -52,13 +68,66 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                 dateOfBirth: editedDob,
             });
             Alert.alert('Thành công', 'Thông tin cá nhân đã được cập nhật.');
-            await fetchUserProfile(); // Tải lại thông tin mới
-            setIsEditing(false); // Chuyển về chế độ xem
+            await fetchUserProfile();
+            setIsEditing(false);
         } catch (error) {
             Alert.alert('Lỗi', 'Không thể cập nhật thông tin.');
             console.error("Failed to update profile:", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const pickImage = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Lỗi', 'Chúng tôi cần quyền truy cập thư viện ảnh!');
+            return;
+        }
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            await uploadAvatar(result.assets[0].uri);
+        }
+    };
+
+    const uploadAvatar = async (uri: string) => {
+        setIsUploading(true);
+        
+        const formData = new FormData();
+        const filename = uri.split('/').pop() || 'avatar.jpg';
+        
+        formData.append('avatar', {
+            uri: uri,
+            name: filename,
+            type: 'image/jpeg', 
+        } as any);
+
+        try {
+            const response = await apiClient.patch('/users/avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', 
+                },
+            });
+
+            setUser(prev => ({
+                ...prev!,
+                avatar_url: response.data.avatarURL,
+            }));
+            
+            Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
+
+        } catch (error) {
+            console.error('Avatar upload failed:', error);
+            Alert.alert('Lỗi', 'Cập nhật ảnh đại diện thất bại.');
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -78,23 +147,45 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     );
 
     if (isLoading && !user) {
-        return <ActivityIndicator size="large" color="#04D1C1" style={{ flex: 1 }} />;
+        return <ActivityIndicator size="large" color="#04D1C1" style={{ flex: 1, justifyContent: 'center' }} />;
     }
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
+                
+                {/* KHÔI PHỤC NÚT QUAY LẠI CỦA BẠN (Dòng này đã bị tôi xóa nhầm) */}
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
                     <Text style={styles.backButtonText}>‹ Quay lại</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.title}>Thông tin cá nhân</Text>
+                
+                {/* LOGIC AVATAR MỚI */}
+                <TouchableOpacity 
+                    style={styles.avatarContainer} 
+                    onPress={pickImage}
+                    disabled={isUploading}
+                >
+                    <Image
+                        source={user?.avatar_url ? { uri: user.avatar_url } : defaultAvatar}
+                        style={styles.avatar}
+                    />
+                    <View style={styles.editIcon}>
+                        {isUploading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Text style={styles.editText}>Đổi</Text>
+                        )}
+                    </View>
+                </TouchableOpacity>
 
+                {/* LOGIC CHỈNH SỬA GỐC CỦA BẠN */}
                 <View style={styles.card}>
                     {renderField('Tên đăng nhập', user?.username || '', false)}
                     {renderField('Email', user?.email || '', false)}
                     {renderField('Họ và tên', isEditing ? editedFullName : user?.full_name || '', isEditing, setEditedFullName)}
-                    {renderField('Ngày sinh', isEditing ? editedDob : new Date(user?.date_of_birth || '').toLocaleDateString('vi-VN'), isEditing, setEditedDob)}
+                    {renderField('Ngày sinh', isEditing ? editedDob : (user?.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString('vi-VN') : ''), isEditing, setEditedDob)}
                 </View>
 
                 {isEditing ? (
@@ -102,7 +193,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                         <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setIsEditing(false)} disabled={isLoading}>
                             <Text style={styles.cancelButtonText}>Hủy</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave} disabled={isLoading}>
+                        <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSaveTextChanges} disabled={isLoading}>
                             {isLoading ? <ActivityIndicator color="white" /> : <Text style={styles.saveButtonText}>Lưu</Text>}
                         </TouchableOpacity>
                     </View>
@@ -116,6 +207,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     );
 };
 
+// (Styles không thay đổi)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'transparent' },
     content: { 
@@ -126,6 +218,37 @@ const styles = StyleSheet.create({
     backButton: { marginBottom: scale(20) },
     backButtonText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16), color: '#04D1C1' },
     title: { fontFamily: 'Coiny-Regular', fontSize: scale(28), color: '#04D1C1', textAlign: 'center', marginBottom: scale(20) },
+    
+    avatarContainer: {
+        alignSelf: 'center',
+        marginBottom: scale(30),
+    },
+    avatar: {
+        width: scale(120),
+        height: scale(120),
+        borderRadius: scale(60),
+        borderWidth: 4,
+        borderColor: '#fff',
+    },
+    editIcon: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: '#04D1C1',
+        borderRadius: scale(20),
+        width: scale(35),
+        height: scale(35),
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    editText: {
+        color: 'white',
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: scale(12),
+    },
+
     card: { backgroundColor: 'white', borderRadius: scale(20), padding: scale(20), elevation: 3, shadowOpacity: 0.1 },
     fieldContainer: { marginBottom: scale(20) },
     label: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(14), color: '#888', marginBottom: scale(5) },

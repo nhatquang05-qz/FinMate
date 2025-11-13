@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
-
+const { uploadAvatar } = require('../config/cloudinaryConfig');
 // @route   GET /api/users/profile
 // @desc    Get user profile
 router.get('/profile', authMiddleware, userController.getUserProfile);
@@ -48,5 +48,6 @@ router.put(
 // @route   PUT /api/users/profile
 // @desc    Update user profile
 router.put('/profile', authMiddleware, userController.updateUserProfile);
+router.patch('/avatar', authMiddleware, uploadAvatar, userController.updateAvatar);
 
 module.exports = router;
