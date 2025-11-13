@@ -26,13 +26,11 @@ interface UserProfile {
     avatar_url: string | null;
 }
 
-// KHÔI PHỤC LẠI PROP GỐC (onBack)
 interface ProfileScreenProps {
-    navigation: any;
     onBack: () => void; 
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, onBack }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -161,7 +159,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, onBack }) => 
 
                 <Text style={styles.title}>Thông tin cá nhân</Text>
                 
-                {/* LOGIC AVATAR MỚI */}
                 <TouchableOpacity 
                     style={styles.avatarContainer} 
                     onPress={pickImage}
@@ -180,7 +177,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, onBack }) => 
                     </View>
                 </TouchableOpacity>
 
-                {/* LOGIC CHỈNH SỬA GỐC CỦA BẠN */}
                 <View style={styles.card}>
                     {renderField('Tên đăng nhập', user?.username || '', false)}
                     {renderField('Email', user?.email || '', false)}
@@ -207,7 +203,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, onBack }) => 
     );
 };
 
-// (Styles không thay đổi)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'transparent' },
     content: { 

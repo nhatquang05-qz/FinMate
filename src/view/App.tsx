@@ -22,12 +22,10 @@ import CalendarScreen from '../screen/Calendar/CalendarScreen';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
-// << 1. ĐỊNH NGHĨA PROPS CHO MainApp >>
 interface MainAppProps {
   onLogout: () => void;
 }
 
-// << ĐỊNH NGHĨA KIỂU DỮ LIỆU CHO BỘ LỌC >>
 type HistoryFilter = {
     categoryId: number;
     type: 'income' | 'expense';
@@ -142,15 +140,19 @@ const App = () => {
     setIsLoggedIn(true);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    // Xóa token ở đây không cần await vì không cần chờ nó xong
-    AsyncStorage.removeItem('userToken');
+
+  const handleLogout = async () => {
+    try {
+        await AsyncStorage.removeItem('userToken');
+        setIsLoggedIn(false);
+    } catch (e) {
+        console.error("Failed to remove token on logout", e);
+        setIsLoggedIn(false);
+    }
   };
 
   const renderContent = () => {
     if (isLoggedIn) {
-      // << 3. TRUYỀN `handleLogout` VÀO PROP `onLogout` CỦA MainApp >>
       return <MainApp onLogout={handleLogout} />;
     }
 

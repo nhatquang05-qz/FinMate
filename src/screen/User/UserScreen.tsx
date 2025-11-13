@@ -3,19 +3,16 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, ScrollView, Ac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native'; // Cần import useFocusEffect
 
-const userAvatar = require('../../assets/images/user_avatar.png'); // Ảnh avatar mặc định
+const userAvatar = require('../../assets/images/user_avatar.png'); 
 
-// SỬA 1: Thêm avatar_url vào interface
 interface UserProfile {
     id: number;
     username: string;
     email: string;
     full_name: string;
     date_of_birth: string;
-    avatar_url: string | null; // Thêm dòng này
+    avatar_url: string | null; 
 }
 
 interface UserScreenProps {
@@ -28,9 +25,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
     const [isLoading, setIsLoading] = useState(true);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-    // SỬA 2: Sử dụng useFocusEffect để tải lại dữ liệu mỗi khi quay lại màn hình này
-    // (Điều này yêu cầu bạn phải cài @react-navigation/native)
-    // Nếu bạn không dùng React Navigation, useEffect với [] vẫn chạy khi mount lại
     useEffect(() => {
         const fetchUserProfile = async () => {
             setIsLoading(true);
@@ -39,6 +33,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
                 setUser(response.data);
             } catch (error) {
                 console.error("Failed to fetch user profile:", error);
+
             } finally {
                 setIsLoading(false);
             }
@@ -46,29 +41,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
         fetchUserProfile();
     }, []);
     
-    // Bạn có thể thay useEffect trên bằng useFocusEffect nếu đã cài React Navigation
     
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         const fetchUserProfile = async () => {
-    //             setIsLoading(true);
-    //             try {
-    //                 const response = await apiClient.get<UserProfile>('/users/profile');
-    //                 setUser(response.data);
-    //             } catch (error) {
-    //                 console.error("Failed to fetch user profile:", error);
-    //             } finally {
-    //                 setIsLoading(false);
-    //             }
-    //         };
-    //         fetchUserProfile();
-    //     }, [])
-    // );
-    
-
-    const handleLogout = async () => {
-        await AsyncStorage.removeItem('userToken');
-        onLogout();
+    const handleLogout = () => {
+        onLogout(); 
     };
 
     if (isLoading) {
@@ -79,7 +54,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.profileHeader}>
-                    {/* SỬA 3: Hiển thị avatar động */}
                     <Image 
                         source={user?.avatar_url ? { uri: user.avatar_url } : userAvatar} 
                         style={styles.avatar} 
@@ -88,7 +62,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
                 </View>
 
                 <View style={styles.menuContainer}>
-                    {/* Nút này sẽ điều hướng đến ProfileScreen, nơi bạn CÓ THỂ bấm để upload */}
                     <TouchableOpacity style={styles.menuItem} onPress={() => navigateToSubScreen('Profile')}>
                         <Text style={styles.menuText}>Thông tin cá nhân</Text>
                         <Text style={styles.arrow}>›</Text>
