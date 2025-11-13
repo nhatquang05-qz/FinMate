@@ -11,19 +11,22 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ie307.finmate"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ie307.finmate"
     },
     "web": {},
     "plugins": [
       "expo-font",
       "expo-sqlite"
-    ]
+    ],
+    "scheme": "finmate"
   }
 }

@@ -33,6 +33,25 @@ router.post(
   userController.loginUser
 );
 
+// =================================================================
+// TÍNH NĂNG MỚI: ROUTE ĐĂNG NHẬP BẰNG GOOGLE
+// =================================================================
+// @route   POST /api/users/google-login
+// @desc    Authenticate user with Google & get token
+router.post(
+  '/google-login',
+  [
+    body('email', 'Email is required').isEmail(),
+    body('googleId', 'Google ID is required').not().isEmpty(),
+    body('fullName', 'Full name is required').not().isEmpty(),
+  ],
+  userController.googleLogin
+);
+// =================================================================
+// KẾT THÚC TÍNH NĂNG MỚI
+// =================================================================
+
+
 // @route   PUT /api/users/change-password
 // @desc    Change user password (Protected)
 router.put(
