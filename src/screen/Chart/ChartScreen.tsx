@@ -4,14 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 import { PieChart } from "react-native-gifted-charts";
-import DatePicker from 'react-native-date-picker';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 
+import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
-// Import component Toggle đã có
 import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle';
 
-// Định nghĩa kiểu dữ liệu
 interface CategoryStats {
     categoryId: number;
     categoryName: string;
@@ -26,13 +24,11 @@ interface StatsData {
 type PeriodType = 'week' | 'month' | 'year';
 type ChartType = 'income' | 'expense';
 
-// Hàm định dạng tiền tệ
 const formatCurrency = (amount: number) => {
     if (typeof amount !== 'number') return '0 ₫';
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
-// Component con cho biểu đồ tròn
 const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
     if (!data || data.length === 0) {
         return <Text style={styles.noDataText}>Không có dữ liệu</Text>;
@@ -128,7 +124,6 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-        {/* Period Selector */}
         <View style={styles.periodSelector}>
             <TouchableOpacity style={[styles.periodButton, period === 'week' && styles.activePeriod]} onPress={() => setPeriod('week')}><Text style={[styles.periodText, period === 'week' && styles.activeText]}>Tuần</Text></TouchableOpacity>
             <TouchableOpacity style={[styles.periodButton, period === 'month' && styles.activePeriod]} onPress={() => setPeriod('month')}><Text style={[styles.periodText, period === 'month' && styles.activeText]}>Tháng</Text></TouchableOpacity>
@@ -155,12 +150,10 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
                         <StatisticsPieChart data={dataForChart || []} />
                     </View>
                     
-                    {/* Detail List */}
                             <View style={styles.card}>
                                 <Text style={styles.cardTitle}>{detailCardTitle}</Text>
                                 {dataForChart && dataForChart.length > 0 ? (
                                     dataForChart.map(item => (
-                                        // << 2. THÊM `onPress` VÀO TouchableOpacity >>
                                         <TouchableOpacity 
                                             key={item.categoryId} 
                                             style={styles.detailItem}
@@ -183,20 +176,15 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
         )}
       </ScrollView>
 
-      <DatePicker
-        modal
-        open={isPickerVisible}
-        date={selectedDate}
-        mode="date"
+      <CustomDatePickerModal
+        visible={isPickerVisible}
+        initialDate={selectedDate}
+        maximumDate={new Date()} 
         onConfirm={(date) => {
           setPickerVisible(false);
           setSelectedDate(date);
         }}
-        onCancel={() => setPickerVisible(false)}
-        title="Chọn thời gian"
-        confirmText="Xác nhận"
-        cancelText="Hủy"
-        locale="vi-VN"
+        onClose={() => setPickerVisible(false)}
       />
     </SafeAreaView>
   );
