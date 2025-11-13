@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+// nhatquang05-qz/finmate/FinMate-edec92c6da477a84711eaeb9eb1d129936c7a05d/src/screen/Chart/ChartScreen.tsx
+import React, { useState, useEffect, useMemo } from 'react'; // THÊM useMemo
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 import { PieChart } from "react-native-gifted-charts";
+// import DatePicker from 'react-native-date-picker'; // Đã xóa
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 
+// THÊM: Import component CustomDatePickerModal
 import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
+// Import component Toggle đã có
 import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle';
 
+// Định nghĩa kiểu dữ liệu
 interface CategoryStats {
     categoryId: number;
     categoryName: string;
@@ -23,11 +28,16 @@ interface StatsData {
 }
 type PeriodType = 'week' | 'month' | 'year';
 type ChartType = 'income' | 'expense';
+type DatePickerMode = 'day' | 'month' | 'year'; // THÊM: Định nghĩa lại type
 
+// Hàm định dạng tiền tệ
 const formatCurrency = (amount: number) => {
     if (typeof amount !== 'number') return '0 ₫';
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
+
+// Component con cho biểu đồ tròn
+// ... (StatisticsPieChart không đổi)
 
 const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
     if (!data || data.length === 0) {
@@ -117,6 +127,13 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
     return '';
   };
 
+  // NEW: Logic tính toán mode cho DatePicker
+  const datePickerMode: DatePickerMode = useMemo(() => {
+    if (period === 'year') return 'year';
+    if (period === 'month') return 'month';
+    return 'day'; // 'week' tương ứng với 'day'
+  }, [period]);
+
   const dataForChart = chartType === 'expense' ? stats?.expenseByCategory : stats?.incomeByCategory;
   const detailCardTitle = chartType === 'expense' ? 'Chi tiết danh mục chi' : 'Chi tiết danh mục thu';
   const detailAmountStyle = chartType === 'expense' ? styles.detailAmountExpense : styles.detailAmountIncome;
@@ -124,6 +141,7 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
+        {/* Period Selector */}
         <View style={styles.periodSelector}>
             <TouchableOpacity style={[styles.periodButton, period === 'week' && styles.activePeriod]} onPress={() => setPeriod('week')}><Text style={[styles.periodText, period === 'week' && styles.activeText]}>Tuần</Text></TouchableOpacity>
             <TouchableOpacity style={[styles.periodButton, period === 'month' && styles.activePeriod]} onPress={() => setPeriod('month')}><Text style={[styles.periodText, period === 'month' && styles.activeText]}>Tháng</Text></TouchableOpacity>
@@ -150,10 +168,12 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
                         <StatisticsPieChart data={dataForChart || []} />
                     </View>
                     
+                    {/* Detail List */}
                             <View style={styles.card}>
                                 <Text style={styles.cardTitle}>{detailCardTitle}</Text>
                                 {dataForChart && dataForChart.length > 0 ? (
                                     dataForChart.map(item => (
+                                        // << 2. THÊM `onPress` VÀO TouchableOpacity >>
                                         <TouchableOpacity 
                                             key={item.categoryId} 
                                             style={styles.detailItem}
@@ -176,21 +196,24 @@ const ChartScreen: React.FC<ChartScreenProps> = ({ navigateToHistoryWithFilter }
         )}
       </ScrollView>
 
+      {/* Thay thế DatePicker cũ bằng CustomDatePickerModal */}
       <CustomDatePickerModal
         visible={isPickerVisible}
         initialDate={selectedDate}
-        maximumDate={new Date()} 
+        maximumDate={new Date()} // Giới hạn ngày tối đa là ngày hiện tại
         onConfirm={(date) => {
           setPickerVisible(false);
           setSelectedDate(date);
         }}
         onClose={() => setPickerVisible(false)}
+        mode={datePickerMode} // TRUYỀN MODE MỚI VÀO ĐÂY
       />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+// ... (Styles không đổi)
     container: {
         flex: 1,
         backgroundColor: 'transparent',

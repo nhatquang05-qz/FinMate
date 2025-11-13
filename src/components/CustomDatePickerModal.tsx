@@ -5,12 +5,15 @@ import WheelPicker from './WheelPicker';
 const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const createRange = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, i) => String(start + i));
 
+type DatePickerMode = 'day' | 'month' | 'year';
+
 type CustomDatePickerModalProps = {
   visible: boolean;
   initialDate?: Date;
   onClose: () => void;
   onConfirm: (date: Date) => void;
   maximumDate?: Date;
+  mode?: DatePickerMode;
 };
 
 const CustomDatePickerModal = ({
@@ -19,6 +22,7 @@ const CustomDatePickerModal = ({
   onClose,
   onConfirm,
   maximumDate,
+  mode = 'day',
 }: CustomDatePickerModalProps) => {
   const [date, setDate] = useState(initialDate);
 
@@ -38,7 +42,6 @@ const CustomDatePickerModal = ({
   }, [maximumDate]);
 
   const MONTHS = useMemo(() => {
-    // SỬA Ở ĐÂY: Kiểm tra `maximumDate` trực tiếp
     const endMonth = (maximumDate && year === maximumDate.getFullYear())
       ? maximumDate.getMonth() + 1
       : 12;
@@ -46,7 +49,6 @@ const CustomDatePickerModal = ({
   }, [year, maximumDate]);
 
   const days = useMemo(() => {
-    // SỬA Ở ĐÂY: Kiểm tra `maximumDate` trực tiếp
     const endDay = (maximumDate && year === maximumDate.getFullYear() && month === maximumDate.getMonth())
       ? maximumDate.getDate()
       : getDaysInMonth(year, month);
@@ -77,6 +79,13 @@ const CustomDatePickerModal = ({
     onClose();
   };
 
+  // Tiêu đề động dựa trên mode
+  const headerTitle = useMemo(() => {
+    if (mode === 'year') return 'Chọn Năm';
+    if (mode === 'month') return 'Chọn Tháng';
+    return 'Chọn Ngày';
+  }, [mode]);
+
   return (
     <Modal
       transparent
@@ -87,23 +96,37 @@ const CustomDatePickerModal = ({
       <SafeAreaView style={styles.modalContainer} onTouchEnd={onClose}>
         <View style={styles.pickerContainer} onTouchEnd={(e) => e.stopPropagation()}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Chọn ngày</Text>
+            <Text style={styles.headerTitle}>{headerTitle}</Text> 
           </View>
           <View style={styles.headerSeparator} />
 
           <View style={styles.wheelsContainer}>
-            <WheelPicker
-              data={days}
-              selectedValue={String(day)}
-              onValueChange={(newDay) => updateDate({ day: Number(newDay) })}
-            />
-            <View style={styles.columnSeparator} />
-            <WheelPicker
-              data={MONTHS}
-              selectedValue={String(month + 1)}
-              onValueChange={(newMonth) => updateDate({ month: Number(newMonth) })}
-            />
-            <View style={styles.columnSeparator} />
+            
+            {/* WheelPicker Ngày (Chỉ hiển thị khi mode là 'day') */}
+            {(mode === 'day') && (
+              <>
+                <WheelPicker
+                  data={days}
+                  selectedValue={String(day)}
+                  onValueChange={(newDay) => updateDate({ day: Number(newDay) })}
+                />
+                <View style={styles.columnSeparator} />
+              </>
+            )}
+
+            {/* WheelPicker Tháng (Hiển thị khi mode là 'day' hoặc 'month') */}
+            {(mode === 'day' || mode === 'month') && (
+              <>
+                <WheelPicker
+                  data={MONTHS}
+                  selectedValue={String(month + 1)}
+                  onValueChange={(newMonth) => updateDate({ month: Number(newMonth) })}
+                />
+                <View style={styles.columnSeparator} />
+              </>
+            )}
+
+            {/* WheelPicker Năm (Luôn hiển thị) */}
             <WheelPicker
               data={YEARS}
               selectedValue={String(year)}
