@@ -141,3 +141,5 @@ INSERT INTO transactions (amount, type, transaction_date, note, user_id, categor
 
     -- "username": "admin",
     -- "password": "password123"
+-- Thêm côt avatar_url vào bảng users để lưu trữ URL ảnh đại diện người dùng
+ALTER TABLE users ADD COLUMN avatar_url VARCHAR(255);
