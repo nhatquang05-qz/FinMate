@@ -1,4 +1,4 @@
-import React, {useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, ActivityIndicator,
 } from "react-native";
@@ -8,12 +8,10 @@ import { Transaction, SummaryData, PieChartData } from '../../types/data';
 import TransactionItem from '../../components/TransactionItem';
 import { PieChart } from "react-native-gifted-charts";
 
-// Hàm định dạng tiền tệ
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
-// Component con cho biểu đồ
 const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
     if (!data || data.length === 0) {
         return <Text style={styles.noDataText}>Không có dữ liệu chi tiêu cho tháng này</Text>;
@@ -22,11 +20,14 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
     const total = data.reduce((acc, item) => acc + item.totalAmount, 0);
     const chartColors = ['#04D1C1', '#FFC107', '#28A745', '#DC3545', '#17A2B8'];
 
-    const pieData = data.map((item, index) => ({
-        value: item.totalAmount,
-        color: chartColors[index % chartColors.length],
-        text: `${Math.round((item.totalAmount / total) * 100)}%`,
-    }));
+    const pieData = data.map((item, index) => {
+        const percentage = total > 0 ? Math.round((item.totalAmount / total) * 100) : 0;
+        return {
+            value: item.totalAmount,
+            color: chartColors[index % chartColors.length],
+            text: `${percentage}%`,
+        };
+    });
 
     return (
         <View style={styles.chartContainer}>
@@ -42,9 +43,11 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
             />
             <View style={styles.legendContainer}>
                 {data.map((item, index) => (
-                    <View key={item.categoryName} style={styles.legendItem}>
+                    <View key={index} style={styles.legendItem}>
                         <View style={[styles.legendColor, { backgroundColor: chartColors[index % chartColors.length] }]} />
-                        <Text style={styles.legendText}>{item.categoryName} ({pieData[index].text})</Text>
+                        <Text style={styles.legendText}>
+                            {item.categoryName} ({pieData[index].text})
+                        </Text>
                     </View>
                 ))}
             </View>
@@ -54,8 +57,8 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
 
 type MonthData = { year: number, month: number };
 
-type HomeScreenProps = { 
-    navigateTo: (screenName: string) => void; 
+type HomeScreenProps = {
+    navigateTo: (screenName: string) => void;
     activeScreen: string;
 };
 
@@ -67,12 +70,15 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
     const [pieData, setPieData] = useState<PieChartData[]>([]);
     const [availableMonths, setAvailableMonths] = useState<MonthData[]>([]);
 
-    // Lấy danh sách các tháng có dữ liệu (chỉ chạy 1 lần)
     useEffect(() => {
         const fetchAvailableMonths = async () => {
             try {
                 const res = await apiClient.get<MonthData[]>('/transactions/months-with-data');
-                setAvailableMonths(res.data);
+                const sortedMonths = res.data.sort((a, b) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                });
+                setAvailableMonths(sortedMonths);
             } catch (error) {
                 console.error("Failed to fetch available months:", error);
             }
@@ -80,20 +86,15 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
         fetchAvailableMonths();
     }, []);
 
-    // Lấy dữ liệu chi tiết cho tháng được chọn
     useEffect(() => {
-        if (availableMonths.length > 0) {
-            fetchData();
-        } else {
-            setIsLoading(false); // Không có dữ liệu gì cả
-        }
-    }, [currentDate, availableMonths]); // Chạy lại khi tháng thay đổi
+        fetchData();
+    }, [currentDate]);
 
     const fetchData = async () => {
         setIsLoading(true);
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
-        
+
         try {
             const [summaryRes, transactionsRes, pieRes] = await Promise.all([
                 apiClient.get(`/transactions/summary?month=${month}&year=${year}`),
@@ -115,12 +116,23 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
             m => m.year === currentDate.getFullYear() && m.month === currentDate.getMonth() + 1
         );
 
-        if (direction === 1) { // Next month
+        if (currentIndex === -1 && availableMonths.length > 0) {
+            const latest = availableMonths[0];
+            setCurrentDate(new Date(latest.year, latest.month - 1));
+            return;
+        }
+
+        if (direction === 1) { 
             if (currentIndex > 0) {
                 const nextMonthData = availableMonths[currentIndex - 1];
                 setCurrentDate(new Date(nextMonthData.year, nextMonthData.month - 1));
+            } else {
+                const now = new Date();
+                if (currentDate.getMonth() !== now.getMonth() || currentDate.getFullYear() !== now.getFullYear()) {
+                     setCurrentDate(now);
+                }
             }
-        } else { // Previous month
+        } else { 
             if (currentIndex < availableMonths.length - 1 && currentIndex !== -1) {
                 const prevMonthData = availableMonths[currentIndex + 1];
                 setCurrentDate(new Date(prevMonthData.year, prevMonthData.month - 1));
@@ -136,39 +148,39 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
     const isPrevDisabled = () => {
         if (availableMonths.length === 0) return true;
         const lastMonthWithData = availableMonths[availableMonths.length - 1];
-        return currentDate.getFullYear() <= lastMonthWithData.year && currentDate.getMonth() + 1 <= lastMonthWithData.month;
+        if (currentDate.getFullYear() < lastMonthWithData.year) return true;
+        if (currentDate.getFullYear() === lastMonthWithData.year && currentDate.getMonth() + 1 <= lastMonthWithData.month) return true;
+        return false;
     };
-    
+
     const monthYearString = `Tháng ${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.scrollViewContent}>
-                    {/* Quản lý */}
                     <View style={styles.sectionContainer}>
-                                            <Text style={styles.sectionTitle}>Quản lý</Text>
-                                            <View style={styles.card}>
-                                                <View style={styles.managementIconsContainer}>
-                                                    <TouchableOpacity onPress={() => navigateTo('Money')}>
-                                                        <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity onPress={() => navigateTo('History')}>
-                                                        <Image source={require('./History.png')} style={styles.managementIcon} />
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity onPress={() => navigateTo('Chart')}>
-                                                        <Image source={require('./Statistic.png')} style={styles.managementIcon} />
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity onPress={() => navigateTo('Setting')}>
-                                                        <Image source={require('./Setting.png')} style={styles.managementIcon} />
-                                                    </TouchableOpacity>
-                                                </View>
-                                            </View>
-                                        </View>
-                    
-                    {isLoading ? <ActivityIndicator size="large" color="#04D1C1" /> : (
+                        <Text style={styles.sectionTitle}>Quản lý</Text>
+                        <View style={styles.card}>
+                            <View style={styles.managementIconsContainer}>
+                                <TouchableOpacity onPress={() => navigateTo('Money')}>
+                                    <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('History')}>
+                                    <Image source={require('./History.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('Chart')}>
+                                    <Image source={require('./Statistic.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('Setting')}>
+                                    <Image source={require('./Setting.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    {isLoading ? <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} /> : (
                         <>
-                            {/* Tổng quan tháng này */}
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>Tổng quan {monthYearString}</Text>
                                 <View style={styles.card}>
@@ -186,25 +198,25 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                     </View>
                                 </View>
                             </View>
-                            {/* Biểu đồ chi tiêu */}
-                        <View style={styles.sectionContainer}>
-                            {/* << 1. SỬA LỖI KHOẢNG CÁCH TIÊU ĐỀ >> */}
-                            <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
-                            <View style={styles.monthSelector}>
-                                <TouchableOpacity onPress={() => changeMonth(-1)} disabled={isPrevDisabled()}>
-                                    <Text style={[styles.arrow, isPrevDisabled() && styles.arrowDisabled]}>{'<'}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.monthYearText}>{`Tháng ${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`}</Text>
-                                <TouchableOpacity onPress={() => changeMonth(1)} disabled={isNextDisabled()}>
-                                    <Text style={[styles.arrow, isNextDisabled() && styles.arrowDisabled]}>{'>'}</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={[styles.card, styles.chartCard]}>
-                                <PieChartComponent data={pieData} />
-                            </View>
-                        </View>
 
-                            {/* Giao dịch gần đây */}
+                            <View style={styles.sectionContainer}>
+                                <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
+                                <View style={styles.monthSelector}>
+                                    <TouchableOpacity onPress={() => changeMonth(-1)} disabled={isPrevDisabled()} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                        <Text style={[styles.arrow, isPrevDisabled() && styles.arrowDisabled]}>{'<'}</Text>
+                                    </TouchableOpacity>
+                                    
+                                    <Text style={styles.monthYearText}>{monthYearString}</Text>
+                                    
+                                    <TouchableOpacity onPress={() => changeMonth(1)} disabled={isNextDisabled()} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                        <Text style={[styles.arrow, isNextDisabled() && styles.arrowDisabled]}>{'>'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={[styles.card, styles.chartCard]}>
+                                    <PieChartComponent data={pieData} />
+                                </View>
+                            </View>
+
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>Giao dịch gần đây</Text>
                                 <View style={[styles.card, { paddingTop: 0 }]}>
@@ -311,24 +323,81 @@ const styles = StyleSheet.create({
         color: '#04D1C1',
     },
     chartCard: {
-        height: scale(200),
+        minHeight: scale(200),
         justifyContent: 'center',
         alignItems: 'center',
     },
-    noDataText: { textAlign: 'center', padding: scale(20), fontFamily: 'BeVietnamPro-Regular' },
-    summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: scale(10), borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-    summaryLabel: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(15) },
-    summaryAmountIncome: { fontFamily: 'Coiny-Regular', fontSize: scale(16), color: '#28A745' },
-    summaryAmountExpense: { fontFamily: 'Coiny-Regular', fontSize: scale(16), color: '#D9435E' },
-    summaryAmountBalance: { fontFamily: 'Coiny-Regular', fontSize: scale(16), color: '#007BFF' },
-    monthSelector: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    arrow: { fontSize: scale(24), fontFamily: 'Coiny-Regular', color: '#04D1C1', paddingHorizontal: scale(10) },
-    chartContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' },
-    legendContainer: { marginLeft: scale(20) },
-    legendItem: { flexDirection: 'row', alignItems: 'center', marginVertical: scale(4) },
-    legendColor: { width: scale(12), height: scale(12), borderRadius: scale(6), marginRight: scale(8) },
-    legendText: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(13) },
-        viewMoreButton: {
+    noDataText: { 
+        textAlign: 'center', 
+        padding: scale(20), 
+        fontFamily: 'BeVietnamPro-Regular' 
+    },
+    summaryRow: {
+         flexDirection: 'row', 
+         justifyContent: 'space-between', 
+         paddingVertical: scale(10), 
+         borderBottomWidth: 1, 
+         borderBottomColor: '#F0F0F0' 
+        },
+    summaryLabel: { 
+        fontFamily: 'BeVietnamPro-Bold', 
+        fontSize: scale(15) 
+    },
+    summaryAmountIncome: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#28A745' 
+    },
+    summaryAmountExpense: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#D9435E' 
+    },
+    summaryAmountBalance: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#007BFF' 
+    },
+    monthSelector: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: scale(10), 
+        paddingHorizontal: scale(10) 
+    },
+    arrow: { 
+        fontSize: scale(24), 
+        fontFamily: 'Coiny-Regular', 
+        color: '#04D1C1', 
+        paddingHorizontal: scale(10) 
+    },
+    chartContainer: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-around', 
+        width: '100%' 
+    },
+    legendContainer: { 
+        marginLeft: scale(10), 
+        flex: 1 
+    },
+    legendItem: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        marginVertical: scale(4) 
+    },
+    legendColor: { 
+        width: scale(12), 
+        height: scale(12), 
+        borderRadius: scale(6), 
+        marginRight: scale(8) 
+    },
+    legendText: { 
+        fontFamily: 'BeVietnamPro-Regular', 
+        fontSize: scale(13), 
+        flexShrink: 1 
+    },
+    viewMoreButton: {
         marginTop: scale(15),
         paddingVertical: scale(5),
         alignItems: 'center',
@@ -340,10 +409,6 @@ const styles = StyleSheet.create({
     },
     arrowDisabled: {
         color: '#A0A0A0',
-    },
-    monthYearContainer: {
-        flexDirection: 'column', 
-        alignItems: 'center' ,
     },
     monthYearText: {
         fontSize: scale(18),

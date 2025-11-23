@@ -53,7 +53,7 @@ INSERT INTO categories (name, type, icon, user_id) VALUES
 ('Phụ cấp', 'income', 'subsidy-icon', 1),
 ('Việc phụ', 'income', 'part-time-icon', 1),
 ('Tiền thưởng', 'income', 'bonus-icon', 1),
-('Đầu tư', 'income', 'investment-icon', 1);
+('Đầu tư', 'income', 'investment-icon', 1),
 ('Bạn bè', 'expense', 'friends-icon', 1),
 ('Lãi tiết kiệm', 'income', 'piggy-bank-icon', 1);
 
@@ -71,7 +71,7 @@ INSERT INTO transactions (amount, type, transaction_date, note, user_id, categor
 (300000.00, 'expense', '2025-10-25 09:00:00', 'Vé xe khách về quê', 1, 2),
 (750000.00, 'expense', '2025-10-29 20:00:00', 'Mua áo khoác mới', 1, 3),
 (120000.00, 'expense', '2025-11-02 11:00:00', 'Thuốc cảm', 1, 4),
-(450000.00, 'expense', '2025-10-20 15:00:00', 'Mua sách React Native', 1, 5);
+(450000.00, 'expense', '2025-10-20 15:00:00', 'Mua sách React Native', 1, 5),
 (20000000.00, 'income',  '2025-09-01 08:30:00', 'Lương tháng 9', 1, 6),
 (500000.00,  'income',  '2025-09-05 15:00:00', 'Phụ cấp đi lại', 1, 7),
 (48000.00,   'expense', '2025-09-02 12:15:00', 'Cơm trưa', 1, 1),

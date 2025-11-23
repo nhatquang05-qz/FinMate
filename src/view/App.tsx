@@ -18,7 +18,9 @@ import UserScreen from '../screen/User/UserScreen';
 import ProfileScreen from '../screen/User/ProfileScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CalendarScreen from '../screen/Calendar/CalendarScreen';
-
+import NotificationScreen from '../screen/NotificationScreen'; 
+import { NotificationManager } from '../utils/NotificationManager'; 
+import SettingScreen from '../screen/SettingScreen'; 
 
 ExpoSplashScreen.preventAutoHideAsync();
 
@@ -36,6 +38,10 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
   const [currentUserScreen, setCurrentUserScreen] = useState('UserRoot');
   const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
 
+  useEffect(() => {
+    NotificationManager.checkAndGenerateReports();
+  }, []);
+
   const PlaceholderScreen = ({ routeName }: { routeName: string }) => (
     <View style={styles.placeholderContainer}>
       <Text style={styles.placeholderText}>{routeName} Screen</Text>
@@ -49,6 +55,10 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
 
   const clearHistoryFilter = () => {
       setInitialHistoryFilter(null);
+  };
+
+  const handleNavigateFromNotification = () => {
+    setActiveScreen('Chart');
   };
 
   const renderScreen = () => {
@@ -67,9 +77,17 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
         if (currentUserScreen === 'Profile') {
             return <ProfileScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
         }
-        return <UserScreen onLogout={onLogout} navigateToSubScreen={setCurrentUserScreen} />;
+        return (
+          <UserScreen 
+            onLogout={onLogout} 
+            navigateToSubScreen={setCurrentUserScreen} 
+            onNavigateToSettings={() => setActiveScreen('Setting')} 
+          />
+        );
+      case 'Notification':
+        return <NotificationScreen onNavigateToReport={handleNavigateFromNotification} />;
       case 'Setting':
-        return <PlaceholderScreen routeName="Setting" />;
+        return <SettingScreen />;
       default:
         return <HomeScreen navigateTo={setActiveScreen} activeScreen={activeScreen} />;
     }
@@ -83,7 +101,10 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
         style={StyleSheet.absoluteFillObject}
       />
       <View style={styles.safeArea}>
-        <Header activeTab={activeScreen} />
+        <Header 
+          activeTab={activeScreen} 
+          onNotificationPress={() => setActiveScreen('Notification')}
+        />
         <View style={{ flex: 1 }}>
             {renderScreen()}
         </View>

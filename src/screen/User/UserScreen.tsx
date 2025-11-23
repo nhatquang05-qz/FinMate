@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
@@ -18,9 +18,10 @@ interface UserProfile {
 interface UserScreenProps {
     onLogout: () => void;
     navigateToSubScreen: (screenName: string) => void;
+    onNavigateToSettings: () => void; 
 }
 
-const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }) => {
+const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, onNavigateToSettings }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -33,14 +34,12 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
                 setUser(response.data);
             } catch (error) {
                 console.error("Failed to fetch user profile:", error);
-
             } finally {
                 setIsLoading(false);
             }
         };
         fetchUserProfile();
     }, []);
-    
     
     const handleLogout = () => {
         onLogout(); 
@@ -72,7 +71,8 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem} onPress={() => alert('Chuyển đến trang Quản lý cài đặt')}>
+                    {/* << 2. Cập nhật sự kiện onPress cho nút này >> */}
+                    <TouchableOpacity style={styles.menuItem} onPress={onNavigateToSettings}>
                         <Text style={styles.menuText}>Quản lý cài đặt</Text>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
@@ -82,6 +82,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen }
                         <Switch
                             trackColor={{ false: "#767577", true: "#81e9e1" }}
                             thumbColor={notificationsEnabled ? "#04D1C1" : "#f4f3f4"}
+                            ios_backgroundColor="#3e3e3e"
                             onValueChange={() => setNotificationsEnabled(previousState => !previousState)}
                             value={notificationsEnabled}
                         />

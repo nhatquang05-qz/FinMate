@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { scale } from '../../utils/scaling';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,13 +9,16 @@ const screenTitles: { [key: string]: string } = {
   Calendar: 'Lịch',
   Chart: 'Thống kê',
   User: 'Tài khoản',
+  Notification: 'Thông báo', 
+  Setting: 'Cài đặt',
 };
 
 interface HeaderProps {
   activeTab: string;
+  onNotificationPress?: () => void; 
 }
 
-const Header = ({ activeTab }: HeaderProps) => {
+const Header = ({ activeTab, onNotificationPress }: HeaderProps) => {
   const title = screenTitles[activeTab] || 'Trang chủ';
   const insets = useSafeAreaInsets();
 
@@ -28,14 +31,27 @@ const Header = ({ activeTab }: HeaderProps) => {
       }
     ]}>
       <View style={styles.placeholder} />
-      <Text style={styles.headerTitle}>{title}</Text>
+      <View style={styles.titleContainer}>
+        <Text 
+          style={styles.headerTitle}
+          numberOfLines={1} 
+          adjustsFontSizeToFit={true}
+          minimumFontScale={0.5} 
+        >
+          {title}
+        </Text>
+      </View>
       <View style={styles.rightIconContainer}>
-        <View style={styles.iconWrapper}>
+        <TouchableOpacity 
+          style={styles.iconWrapper} 
+          onPress={onNotificationPress}
+          activeOpacity={0.7}
+        >
           <Image 
             source={require('./notification-icon.png')} 
             style={styles.icon} 
           />
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -44,7 +60,7 @@ const Header = ({ activeTab }: HeaderProps) => {
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center', 
     justifyContent: 'space-between',
     backgroundColor: '#FFFF',
     paddingHorizontal: scale(10),
@@ -52,13 +68,17 @@ const styles = StyleSheet.create({
   placeholder: {
     flex: 1,
   },
+  titleContainer: {
+    flex: 4, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  },
   headerTitle: {
-    flex: 2,
     fontFamily: 'Coiny-Regular',
     textAlign: 'center',
-    fontSize: scale(35),
+    fontSize: scale(30), 
     color: "#04D1C1",
-    lineHeight: scale(60),
   },
   rightIconContainer: {
     flex: 1,

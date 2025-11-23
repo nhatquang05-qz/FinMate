@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'; 
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CategoryPicker from '../../components/CategoryPicker';
@@ -6,11 +6,11 @@ import Detail from './detail';
 import PopupSuccess from '../../components/popups/PopupSuccess'; 
 import PopupFailed from '../../components/popups/PopupFailed';  
 import { useTransactionForm } from '../../hooks/useTransactionForm';
-import { iconMap } from '../../utils/iconMap'; // << Import "bộ phiên dịch" icon
+import { iconMap } from '../../utils/iconMap';
 import { Category } from '../../types/data';
+import { NotificationManager } from '../../utils/NotificationManager'; 
 
 const AddTransactionIncome = () => {
-  // << Lấy toàn bộ logic và state từ custom hook >>
   const {
     categories,
     selectedCategory,
@@ -29,10 +29,20 @@ const AddTransactionIncome = () => {
     setFailedVisible,
   } = useTransactionForm('income');
 
-  // << Chuyển đổi dữ liệu API để CategoryPicker có thể hiển thị icon >>
+  useEffect(() => {
+    if (isSuccessVisible) {
+      const catName = selectedCategory?.name || 'Khoản thu';
+      NotificationManager.addNotification(
+        'Nhập thành công',
+        `Bạn vừa thêm khoản thu "${catName}" với số tiền ${amount}đ.`,
+        'success'
+      );
+    }
+  }, [isSuccessVisible]);
+
   const formattedCategories = categories.map((cat: Category) => ({
     ...cat,
-    icon: iconMap[cat.icon] || iconMap.default, // Dùng iconMap để lấy ảnh
+    icon: iconMap[cat.icon] || iconMap.default,
   }));
   
   const formattedSelectedCategory = formattedCategories.find(c => c.id === selectedCategory?.id) || null;
@@ -59,7 +69,6 @@ const AddTransactionIncome = () => {
           categories={formattedCategories}
           selectedCategory={formattedSelectedCategory}
           onSelectCategory={(category) => {
-          // Tìm lại category gốc từ API để set state
             const originalCategory = categories.find(c => c.id === category.id);
             if (originalCategory) {
               setSelectedCategory(originalCategory);
