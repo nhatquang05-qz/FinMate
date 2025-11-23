@@ -39,9 +39,7 @@ CREATE TABLE transactions (
 );
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `date_of_birth`, `created_at`) VALUES
-(1, 'admin', 'admin@admin.com', '$2b$10$dWadhBQe.kW9bUcg9QIhZuC8eQsZFc/tpTpRCVv5jyDxiGq37xl8G', 'Nguyễn Văn Admin 1', '1995-10-19', '2025-10-20 03:32:41'),
-(8, 'phattran', 'phat@phat.com', '$2b$10$n5/.ahDLPkZVUG1eUheKg.L7wQ9vhseylkFMdAYsx4/DmguVXxXfu', 'Phat Tran', '2002-09-15', '2025-10-20 14:24:03');
-
+(1, 'admin', 'admin@admin.com', '$2b$10$dWadhBQe.kW9bUcg9QIhZuC8eQsZFc/tpTpRCVv5jyDxiGq37xl8G', 'Nguyễn Văn Admin 1', '1995-10-19', '2025-10-20 03:32:41');
 
 INSERT INTO categories (name, type, icon, user_id) VALUES
 ('Ăn uống', 'expense', 'food-icon', 1),
@@ -53,7 +51,7 @@ INSERT INTO categories (name, type, icon, user_id) VALUES
 ('Phụ cấp', 'income', 'subsidy-icon', 1),
 ('Việc phụ', 'income', 'part-time-icon', 1),
 ('Tiền thưởng', 'income', 'bonus-icon', 1),
-('Đầu tư', 'income', 'investment-icon', 1);
+('Đầu tư', 'income', 'investment-icon', 1),
 ('Bạn bè', 'expense', 'friends-icon', 1),
 ('Lãi tiết kiệm', 'income', 'piggy-bank-icon', 1);
 
@@ -65,13 +63,12 @@ INSERT INTO transactions (amount, type, transaction_date, note, user_id, categor
 (350000.00, 'expense', '2025-11-03 19:00:00', 'Ăn tối với bạn bè', 1, 1),
 (45000.00, 'expense', '2025-11-04 08:00:00', 'Cà phê Highlands', 1, 1),
 (250000.00, 'expense', '2025-10-29 12:35:00', 'Đi siêu thị mua đồ ăn vặt', 1, 1),
-(120000.00, 'expense', '2025-10-27 19:15:00', NULL, 1, 1),
 (150000.00, 'expense', '2025-11-02 07:00:00', 'Đổ đầy bình xăng', 1, 2),
 (45000.00, 'expense', '2025-11-03 17:00:00', 'Grab về nhà', 1, 2),
 (300000.00, 'expense', '2025-10-25 09:00:00', 'Vé xe khách về quê', 1, 2),
 (750000.00, 'expense', '2025-10-29 20:00:00', 'Mua áo khoác mới', 1, 3),
 (120000.00, 'expense', '2025-11-02 11:00:00', 'Thuốc cảm', 1, 4),
-(450000.00, 'expense', '2025-10-20 15:00:00', 'Mua sách React Native', 1, 5);
+(450000.00, 'expense', '2025-10-20 15:00:00', 'Mua sách React Native', 1, 5),
 (20000000.00, 'income',  '2025-09-01 08:30:00', 'Lương tháng 9', 1, 6),
 (500000.00,  'income',  '2025-09-05 15:00:00', 'Phụ cấp đi lại', 1, 7),
 (48000.00,   'expense', '2025-09-02 12:15:00', 'Cơm trưa', 1, 1),
@@ -136,7 +133,6 @@ INSERT INTO transactions (amount, type, transaction_date, note, user_id, categor
 (80000.00,   'expense', '2025-09-20 08:30:00', 'Đổ xăng', 1, 2),
 (350000.00,  'expense', '2025-09-24 10:00:00', 'Mua đồ dùng học tập cho em', 1, 5),
 (55000.00,   'expense', '2025-09-26 12:10:00', 'Cơm gà', 1, 1),
-(180000.00,  'expense', '2025-09-29 20:30:00', NULL, 1, 1),
 (1800000.00, 'income',  '2025-11-18 19:00:00', 'Bán lại điện thoại cũ', 1, 8);
 
     -- "username": "admin",
