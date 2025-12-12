@@ -8,34 +8,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Bạn không thể dùng 'localhost' hay '127.0.0.1' ở đây.
 // ====================================================================
 
-const API_BASE_URL = 'http://172.16.16.15:3000/api'; // Địa chỉ mới từ ipconfig // dùng ipconfig để lấy địa chỉ IPv4 của máy tính trong phần Wireless LAN adapter Wi-Fi
+const API_BASE_URL = 'http://172.20.10.6:3000/api'; // Địa chỉ mới từ ipconfig // dùng ipconfig để lấy địa chỉ IPv4 của máy tính trong phần Wireless LAN adapter Wi-Fi
 // 'http://10.1.4.34:3000/api' 'http://192.168.1.11:3000/api'
 // Tạo một instance của Axios với cấu hình mặc định
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 // Cấu hình Interceptor (Bộ chặn) để tự động thêm token vào mỗi request
 apiClient.interceptors.request.use(
-  async (config) => {
-    // Lấy token từ AsyncStorage
-    const token = await AsyncStorage.getItem('userToken');
+    async config => {
+        // Lấy token từ AsyncStorage
+        const token = await AsyncStorage.getItem('userToken');
 
-    // Nếu token tồn tại, thêm nó vào header Authorization
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+        // Nếu token tồn tại, thêm nó vào header Authorization
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
 
-    // Trả về config đã được sửa đổi để request tiếp tục được gửi đi
-    return config;
-  },
-  (error) => {
-    // Xử lý lỗi nếu có
-    return Promise.reject(error);
-  }
+        // Trả về config đã được sửa đổi để request tiếp tục được gửi đi
+        return config;
+    },
+    error => {
+        // Xử lý lỗi nếu có
+        return Promise.reject(error);
+    },
 );
 
 export default apiClient;

@@ -11,7 +11,7 @@ const transactionValidation = [
     body('amount', 'Amount must be a valid positive number').isFloat({ gt: 0 }),
     body('type', 'Type must be "income" or "expense"').isIn(['income', 'expense']),
     body('transaction_date', 'Transaction date is required').isISO8601().toDate(),
-    body('category_id', 'Category ID must be a valid number').isInt()
+    body('category_id', 'Category ID must be a valid number').isInt(),
 ];
 
 // @route   POST /api/transactions

@@ -11,7 +11,7 @@ const MOCK_TRANSACTIONS = [
     { id: 5, date: '2025-10-17', type: 'income', amount: 500000 },
 ];
 
-const StatBox = ({ label, amount, color }: { label: string, amount: number, color: string }) => (
+const StatBox = ({ label, amount, color }: { label: string; amount: number; color: string }) => (
     <View style={styles.statBox}>
         <View style={[styles.statBoxContent, { backgroundColor: color }]}>
             <Text style={styles.statLabel}>{label}</Text>
@@ -26,9 +26,8 @@ const CalendarInfoScreen = () => {
     const [selectedDate, setSelectedDate] = useState(todayUTC);
 
     const dailyStats = useMemo(() => {
-   
         const dateString = selectedDate.toISOString().split('T')[0];
-        
+
         const transactionsForDay = MOCK_TRANSACTIONS.filter(t => t.date === dateString);
 
         const income = transactionsForDay

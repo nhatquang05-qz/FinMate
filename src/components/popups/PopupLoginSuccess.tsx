@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-    Modal,
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    Image
-} from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { scale } from '../../utils/scaling';
 
 type PopupProps = {
@@ -16,22 +9,12 @@ type PopupProps = {
 
 const PopupLoginSuccess = ({ visible, onClose }: PopupProps) => {
     return (
-        <Modal
-            animationType="fade"
-            transparent={true}
-            visible={visible}
-            onRequestClose={onClose}
-        >
+        <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <Text style={styles.modalTitle}>Đăng nhập thành công</Text>
-                    <Text style={styles.modalText}>
-                        Bạn đã đăng nhập thành công!
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={onClose}
-                    >
+                    <Text style={styles.modalText}>Bạn đã đăng nhập thành công!</Text>
+                    <TouchableOpacity style={styles.button} onPress={onClose}>
                         <Text style={styles.buttonText}>Tiếp tục</Text>
                     </TouchableOpacity>
                 </View>
@@ -45,7 +28,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)', 
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
     },
     modalView: {
         width: '80%',
@@ -73,14 +56,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: scale(22),
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#1cf3a1ff', 
+        color: '#1cf3a1ff',
     },
     modalText: {
         marginBottom: scale(20),
         textAlign: 'center',
         fontSize: scale(16),
         fontFamily: 'BeVietnamPro-Regular',
-        color: '#333'
+        color: '#333',
     },
     button: {
         borderRadius: scale(20),
@@ -93,7 +76,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontFamily: 'BeVietnamPro-Bold',
         textAlign: 'center',
-        fontSize: scale(16)
+        fontSize: scale(16),
     },
 });
 

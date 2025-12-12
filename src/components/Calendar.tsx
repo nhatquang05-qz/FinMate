@@ -8,7 +8,9 @@ type CalendarProps = {
 
 const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
     const localToday = new Date();
-    const todayUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
+    const todayUTC = new Date(
+        Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()),
+    );
 
     const [displayDate, setDisplayDate] = useState(todayUTC);
     const [selectedDate, setSelectedDate] = useState(todayUTC);
@@ -20,8 +22,18 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
 
     const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     const monthNames = [
-        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+        'Tháng 1',
+        'Tháng 2',
+        'Tháng 3',
+        'Tháng 4',
+        'Tháng 5',
+        'Tháng 6',
+        'Tháng 7',
+        'Tháng 8',
+        'Tháng 9',
+        'Tháng 10',
+        'Tháng 11',
+        'Tháng 12',
     ];
 
     const year = displayDate.getUTCFullYear();
@@ -52,24 +64,27 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
             const isFuture = date.getTime() > todayUTC.getTime();
 
             days.push(
-                <TouchableOpacity 
-                    key={day} 
-                    style={styles.dayCell} 
+                <TouchableOpacity
+                    key={day}
+                    style={styles.dayCell}
                     onPress={() => handleSelectDate(date)}
-                    disabled={isFuture}
-                >
-                    <View style={[
-                        styles.dayContainer,
-                        isToday && styles.todayContainer,
-                        isSelected && !isFuture && styles.selectedDayContainer,
-                    ]}>
-                        <Text style={[
-                            styles.dayText,
-                            isSelected && !isFuture && styles.selectedDayText,
-                            isFuture && styles.disabledDayText
-                        ]}>{day}</Text>
+                    disabled={isFuture}>
+                    <View
+                        style={[
+                            styles.dayContainer,
+                            isToday && styles.todayContainer,
+                            isSelected && !isFuture && styles.selectedDayContainer,
+                        ]}>
+                        <Text
+                            style={[
+                                styles.dayText,
+                                isSelected && !isFuture && styles.selectedDayText,
+                                isFuture && styles.disabledDayText,
+                            ]}>
+                            {day}
+                        </Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity>,
             );
         }
         return days;
@@ -87,11 +102,13 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect }) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.daysOfWeekContainer}>
-                {daysOfWeek.map(day => <Text key={day} style={styles.dayOfWeekText}>{day}</Text>)}
+                {daysOfWeek.map(day => (
+                    <Text key={day} style={styles.dayOfWeekText}>
+                        {day}
+                    </Text>
+                ))}
             </View>
-            <View style={styles.daysContainer}>
-                {renderDays()}
-            </View>
+            <View style={styles.daysContainer}>{renderDays()}</View>
         </View>
     );
 };

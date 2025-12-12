@@ -12,9 +12,10 @@ import {
     Platform,
     Alert,
     ActivityIndicator,
-} from "react-native";
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { scale } from '../../utils/scaling';
 import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
 import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
@@ -23,18 +24,18 @@ import PopupAccountNotExist from '../../components/popups/PopupAccountNotExist';
 import apiClient from '../../api/apiClient';
 
 const guestImage = require('./guest.png');
-const backgroundImage = require('../../assets/images/background.png')
-const logoImage = require('../../assets/images/logo.png')
+const backgroundImage = require('../../assets/images/background.png');
+const logoImage = require('../../assets/images/logo.png');
 
 type LoginScreenProps = {
-  onNavigateToRegister: () => void;
-  onLoginSuccess: () => void;
+    onNavigateToRegister: () => void;
+    onLoginSuccess: () => void;
 };
 
 const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    
+
     const [showWrongPasswordPopup, setShowWrongPasswordPopup] = useState(false);
     const [showLoginSuccessPopup, setShowLoginSuccessPopup] = useState(false);
     const [showLoginFailedPopup, setShowLoginFailedPopup] = useState(false);
@@ -42,16 +43,50 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = async () => {
-        if (!username || !password) {
-            setShowLoginFailedPopup(true); // Hiển thị popup "vui lòng nhập"
+    const handleBiometricLogin = async () => {
+        const hasHardware = await LocalAuthentication.hasHardwareAsync();
+        const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+        if (!hasHardware || !isEnrolled) {
+            Alert.alert('Lỗi', 'Thiết bị không hỗ trợ hoặc chưa cài đặt khóa sinh trắc học.');
             return;
         }
 
-        setIsLoading(true); // Bắt đầu loading
+        const savedToken = await AsyncStorage.getItem('biometricToken');
+
+        if (!savedToken) {
+            Alert.alert(
+                'Thông báo',
+                'Vui lòng đăng nhập bằng mật khẩu lần đầu tiên để kích hoạt tính năng này.',
+            );
+            return;
+        }
+
+        const result = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Đăng nhập nhanh bằng sinh trắc học',
+            fallbackLabel: 'Dùng mật khẩu',
+        });
+
+        if (result.success) {
+            await AsyncStorage.setItem('userToken', savedToken);
+
+            setShowLoginSuccessPopup(true);
+            setTimeout(() => {
+                setShowLoginSuccessPopup(false);
+                onLoginSuccess();
+            }, 1000);
+        }
+    };
+
+    const handleLogin = async () => {
+        if (!username || !password) {
+            setShowLoginFailedPopup(true);
+            return;
+        }
+
+        setIsLoading(true);
 
         try {
-            // Gọi API đăng nhập từ apiClient
             const response = await apiClient.post('/users/login', {
                 username: username,
                 password: password,
@@ -60,42 +95,31 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
             const token = response.data.token;
 
             if (token) {
-                // Lưu token vào AsyncStorage để duy trì đăng nhập
                 await AsyncStorage.setItem('userToken', token);
-                // Hiển thị popup thành công
+                await AsyncStorage.setItem('biometricToken', token);
+
                 setShowLoginSuccessPopup(true);
 
-                // Chờ 1.5s rồi mới chuyển màn hình, giống logic cũ của bạn
                 setTimeout(() => {
-                   setShowLoginSuccessPopup(false);
-                   onLoginSuccess(); // Báo cho App.tsx biết để chuyển màn hình
+                    setShowLoginSuccessPopup(false);
+                    onLoginSuccess();
                 }, 1500);
             } else {
-                // Trường hợp hy hữu: API thành công nhưng không trả về token
                 setShowLoginFailedPopup(true);
             }
-
         } catch (error) {
-            // Xử lý các loại lỗi từ API
             if (axios.isAxiosError(error) && error.response) {
-                // Lỗi từ phía server (ví dụ: 400, 404, 500)
                 if (error.response.status === 400) {
-                    // 400 Bad Request có nghĩa là "Invalid credentials"
-                    // Backend trả về lỗi này cho cả sai mật khẩu và không tồn tại tài khoản
-                    // Để đơn giản, ta có thể hiển thị chung một popup
                     setShowWrongPasswordPopup(true);
                 } else {
-                    // Các lỗi server khác
-                    console.error("Login Error: ", error.response.data);
+                    console.error('Login Error: ', error.response.data);
                     setShowLoginFailedPopup(true);
                 }
             } else {
-                // Lỗi mạng, không kết nối được tới server
                 setShowLoginFailedPopup(true);
-                console.error("Login Error: ", error);
+                console.error('Login Error: ', error);
             }
         } finally {
-            // Dù thành công hay thất bại, luôn dừng loading
             setIsLoading(false);
         }
     };
@@ -104,23 +128,14 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
         <SafeAreaView style={styles.container}>
             <ImageBackground
                 source={backgroundImage}
-                resizeMode='cover'
-                style={styles.backgroundImage}
-            >
+                resizeMode="cover"
+                style={styles.backgroundImage}>
                 <ScrollView contentContainerStyle={styles.scrollViewContent}>
                     <View style={styles.mainContent}>
-                        <Image
-                            source={logoImage}
-                            resizeMode={"contain"}
-                            style={styles.logo}
-                        />
+                        <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
                         <View style={styles.formContainer}>
-                            <Text style={styles.title}>
-                                {"Đăng nhập"}
-                            </Text>
-                            <Text style={styles.label}>
-                                {"Tài khoản"}
-                            </Text>
+                            <Text style={styles.title}>{'Đăng nhập'}</Text>
+                            <Text style={styles.label}>{'Tài khoản'}</Text>
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     style={styles.input}
@@ -130,9 +145,7 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                                     placeholderTextColor="#BDBDBD"
                                 />
                             </View>
-                            <Text style={styles.label}>
-                                {"Mật khẩu"}
-                            </Text>
+                            <Text style={styles.label}>{'Mật khẩu'}</Text>
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     style={styles.input}
@@ -143,34 +156,29 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
                                     secureTextEntry={true}
                                 />
                             </View>
-                            <TouchableOpacity 
-                                style={styles.button} 
+                            <TouchableOpacity
+                                style={styles.button}
                                 onPress={handleLogin}
-                                disabled={isLoading}
-                            >
+                                disabled={isLoading}>
                                 {isLoading ? (
                                     <ActivityIndicator size="small" color="#FFFFFF" />
                                 ) : (
-                                    <Text style={styles.buttonText}>
-                                        {"Đăng nhập"}
-                                    </Text>
+                                    <Text style={styles.buttonText}>{'Đăng nhập'}</Text>
                                 )}
                             </TouchableOpacity>
                             <View style={styles.footer}>
-                                <TouchableOpacity style={styles.guestLink}>
+                                <TouchableOpacity
+                                    style={styles.guestLink}
+                                    onPress={handleBiometricLogin}>
                                     <Image
                                         source={guestImage}
-                                        resizeMode={"contain"}
+                                        resizeMode={'contain'}
                                         style={styles.guestIcon}
                                     />
-                                    <Text style={styles.footerText}>
-                                        {"Guest"}
-                                    </Text>
+                                    <Text style={styles.footerText}>{'Vân tay / FaceID'}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={onNavigateToRegister}>
-                                    <Text style={styles.footerText}>
-                                        {"Tạo tài khoản"}
-                                    </Text>
+                                    <Text style={styles.footerText}>{'Tạo tài khoản'}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -204,7 +212,7 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: '#FFFFFF',
     },
     backgroundImage: {
         justifyContent: 'center',
@@ -227,7 +235,7 @@ const styles = StyleSheet.create({
     formContainer: {
         width: '100%',
         height: '63%',
-        backgroundColor: "#FFFF",
+        backgroundColor: '#FFFF',
         borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: scale(25),
@@ -237,7 +245,7 @@ const styles = StyleSheet.create({
         paddingBottom: scale(25),
         ...Platform.select({
             ios: {
-                shadowColor: "#000",
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.1,
                 shadowRadius: scale(2),
@@ -248,14 +256,14 @@ const styles = StyleSheet.create({
         }),
     },
     title: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(35),
         textAlign: 'center',
         marginBottom: scale(10),
         fontFamily: 'Coiny-Regular',
     },
     label: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(18),
         marginBottom: scale(10),
         marginLeft: scale(10),
@@ -264,7 +272,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
         height: '12%',
-        backgroundColor: "#ffffffff",
+        backgroundColor: '#ffffffff',
         borderRadius: scale(57),
         marginBottom: scale(20),
         justifyContent: 'center',
@@ -272,7 +280,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         ...Platform.select({
             ios: {
-                shadowColor: "#0000001a",
+                shadowColor: '#0000001a',
                 shadowOffset: { width: 2, height: 4 },
                 shadowOpacity: 1,
                 shadowRadius: scale(5),
@@ -291,7 +299,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '70%',
         height: '12%',
-        backgroundColor: "#04D1C1",
+        backgroundColor: '#04D1C1',
         borderRadius: scale(25),
         alignItems: 'center',
         justifyContent: 'center',
@@ -299,7 +307,7 @@ const styles = StyleSheet.create({
         marginBottom: scale(35),
     },
     buttonText: {
-        color: "#FFFFFF",
+        color: '#FFFFFF',
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
     },
@@ -314,7 +322,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     footerText: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(16),
         fontWeight: '600',
         fontFamily: 'BeVietnamPro-SemiBold',

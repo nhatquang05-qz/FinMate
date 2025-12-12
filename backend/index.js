@@ -16,10 +16,12 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(fileUpload({
-    useTempFiles: true,
-    tempFileDir: '/tmp/'
-}));
+app.use(
+    fileUpload({
+        useTempFiles: true,
+        tempFileDir: '/tmp/',
+    }),
+);
 
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
@@ -36,12 +38,22 @@ cron.schedule('0 0 * * *', async () => {
         if (recurrings.length > 0) {
             for (const item of recurrings) {
                 const sqlInsert = `INSERT INTO transactions (amount, type, transaction_date, note, user_id, category_id) VALUES (?, ?, ?, ?, ?, ?)`;
-                await db.execute(sqlInsert, [item.amount, item.type, new Date(), `[Tự động] ${item.note || ''}`, item.user_id, item.category_id]);
+                await db.execute(sqlInsert, [
+                    item.amount,
+                    item.type,
+                    new Date(),
+                    `[Tự động] ${item.note || ''}`,
+                    item.user_id,
+                    item.category_id,
+                ]);
 
                 const nextDate = new Date(item.next_run_date);
-                nextDate.setMonth(nextDate.getMonth() + 1); 
-                
-                await db.execute(`UPDATE recurring_transactions SET next_run_date = ? WHERE id = ?`, [nextDate, item.id]);
+                nextDate.setMonth(nextDate.getMonth() + 1);
+
+                await db.execute(
+                    `UPDATE recurring_transactions SET next_run_date = ? WHERE id = ?`,
+                    [nextDate, item.id],
+                );
             }
             console.log(`Processed ${recurrings.length} recurring transactions.`);
         }

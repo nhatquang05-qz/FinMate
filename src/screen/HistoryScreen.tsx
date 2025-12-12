@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    ActivityIndicator,
+    TouchableOpacity,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import apiClient from '../api/apiClient';
 import { Transaction, Category } from '../types/data';
@@ -10,7 +17,7 @@ import { scale } from '../utils/scaling';
 
 type HistoryTab = 'all' | 'income' | 'expense';
 
-type HistoryFilter = { categoryId: number; type: 'income' | 'expense'; };
+type HistoryFilter = { categoryId: number; type: 'income' | 'expense' };
 interface HistoryScreenProps {
     initialFilter: HistoryFilter | null;
     onClearFilter: () => void;
@@ -18,7 +25,9 @@ interface HistoryScreenProps {
 
 const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFilter }) => {
     const [activeTab, setActiveTab] = useState<HistoryTab>(initialFilter?.type || 'all');
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(initialFilter ? [initialFilter.categoryId] : []);
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(
+        initialFilter ? [initialFilter.categoryId] : [],
+    );
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +48,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
                 const response = await apiClient.get<Category[]>('/categories');
                 setAllCategories(response.data);
             } catch (error) {
-                console.error("Failed to fetch all categories:", error);
+                console.error('Failed to fetch all categories:', error);
             }
         };
         fetchAllCategories();
@@ -49,7 +58,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
     // Lần đầu tiên chạy, nó sẽ dùng state đã được khởi tạo đúng.
     useEffect(() => {
         fetchData();
-    }, [activeTab, selectedCategoryIds]); 
+    }, [activeTab, selectedCategoryIds]);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -61,21 +70,21 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
             if (selectedCategoryIds.length > 0) {
                 params.category_ids = selectedCategoryIds.join(',');
             }
-            
+
             const response = await apiClient.get<Transaction[]>('/transactions', { params });
             setTransactions(response.data);
         } catch (error) {
-            console.error("Failed to fetch transactions:", error);
+            console.error('Failed to fetch transactions:', error);
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     // XỬ LÝ VIỆC CHUYỂN TAB
     const handleTabChange = (tab: HistoryTab) => {
         setActiveTab(tab);
         // Reset bộ lọc mỗi khi chuyển tab
-        setSelectedCategoryIds([]); 
+        setSelectedCategoryIds([]);
     };
 
     const handleApplyFilter = (ids: number[]) => {
@@ -89,15 +98,21 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
     );
 
     // Lọc danh sách category để hiển thị trong modal dựa trên tab đang chọn
-    const categoriesForFilter = allCategories.filter(cat => activeTab === 'all' || cat.type === activeTab);
+    const categoriesForFilter = allCategories.filter(
+        cat => activeTab === 'all' || cat.type === activeTab,
+    );
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <HistoryTabNavigator activeTab={activeTab} onTabPress={handleTabChange} />
-                <TouchableOpacity style={styles.filterButton} onPress={() => setFilterModalVisible(true)}>
+                <TouchableOpacity
+                    style={styles.filterButton}
+                    onPress={() => setFilterModalVisible(true)}>
                     <Text style={styles.filterText}>
-                        {selectedCategoryIds.length > 0 ? `Đang lọc (${selectedCategoryIds.length} danh mục)` : 'Lọc theo danh mục'}
+                        {selectedCategoryIds.length > 0
+                            ? `Đang lọc (${selectedCategoryIds.length} danh mục)`
+                            : 'Lọc theo danh mục'}
                     </Text>
                 </TouchableOpacity>
 

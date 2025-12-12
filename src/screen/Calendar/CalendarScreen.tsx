@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    ActivityIndicator,
+    TouchableOpacity,
+    ScrollView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig, DateData } from 'react-native-calendars';
 import { scale } from '../../utils/scaling';
@@ -11,8 +19,18 @@ import { format, addMonths, subMonths, isSameMonth, isAfter } from 'date-fns';
 // Cấu hình tiếng Việt cho lịch
 LocaleConfig.locales['vi'] = {
     monthNames: [
-        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+        'Tháng 1',
+        'Tháng 2',
+        'Tháng 3',
+        'Tháng 4',
+        'Tháng 5',
+        'Tháng 6',
+        'Tháng 7',
+        'Tháng 8',
+        'Tháng 9',
+        'Tháng 10',
+        'Tháng 11',
+        'Tháng 12',
     ],
     dayNames: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'],
     dayNamesShort: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
@@ -22,7 +40,12 @@ LocaleConfig.defaultLocale = 'vi';
 // Kiểu dữ liệu từ API
 interface CalendarData {
     summary: { totalIncome: number; totalExpense: number; balance: number };
-    dailySummaries: { date: string; netAmount: number; totalIncome?: number; totalExpense?: number }[];
+    dailySummaries: {
+        date: string;
+        netAmount: number;
+        totalIncome?: number;
+        totalExpense?: number;
+    }[];
     transactions: Transaction[];
 }
 
@@ -57,7 +80,7 @@ const CalendarScreen = () => {
             const month = currentMonth.getMonth() + 1;
             const year = currentMonth.getFullYear();
             const response = await apiClient.get<CalendarData>(
-                `/transactions/calendar-view?month=${month}&year=${year}`
+                `/transactions/calendar-view?month=${month}&year=${year}`,
             );
             setCalendarData(response.data);
         } catch (error) {
@@ -82,16 +105,12 @@ const CalendarScreen = () => {
         const isToday = format(thisDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
         const day = calendarData?.dailySummaries.find(
-            d => format(new Date(d.date), 'yyyy-MM-dd') === date.dateString
+            d => format(new Date(d.date), 'yyyy-MM-dd') === date.dateString,
         );
 
         const isSelected = selectedDate === date.dateString;
         const amount = day ? formatCurrency(day.netAmount, true) : '';
-        const color = day
-            ? day.netAmount < 0
-                ? '#D9435E'
-                : '#28A745'
-            : '#999';
+        const color = day ? (day.netAmount < 0 ? '#D9435E' : '#28A745') : '#999';
 
         // Disable touch for future or other month
         const disabled = isFuture || isOtherMonth;
@@ -105,21 +124,15 @@ const CalendarScreen = () => {
                     isSelected && styles.daySelectedOutline,
                     !isSelected && isToday && styles.todayOutline,
                     disabled && styles.dayDisabled,
-                ]}
-            >
+                ]}>
                 <Text
                     style={[
                         styles.dayText,
                         {
-                            color: disabled
-                                ? '#ccc'
-                                : isSelected
-                                    ? '#04D1C1'
-                                    : '#000',
+                            color: disabled ? '#ccc' : isSelected ? '#04D1C1' : '#000',
                             fontFamily: isSelected ? 'BeVietnamPro-Bold' : 'BeVietnamPro-Regular',
                         },
-                    ]}
-                >
+                    ]}>
                     {date.day}
                 </Text>
 
@@ -129,8 +142,7 @@ const CalendarScreen = () => {
                             style={[
                                 styles.amountText,
                                 { color: disabled ? '#ccc' : isSelected ? '#04D1C1' : color },
-                            ]}
-                        >
+                            ]}>
                             {amount}
                         </Text>
                     )}
@@ -143,7 +155,7 @@ const CalendarScreen = () => {
         if (!selectedDate) return calendarData?.transactions || [];
         return (
             calendarData?.transactions.filter(
-                t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate
+                t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate,
             ) || []
         );
     }, [calendarData, selectedDate]);
@@ -167,7 +179,12 @@ const CalendarScreen = () => {
             }
             if (!isNaN(amt) && amt > 0) {
                 // But check if type says expense (some APIs store positive amounts for expenses)
-                if (typeHint.includes('exp') || typeHint.includes('chi') || typeHint.includes('withdraw') || typeHint.includes('debit')) {
+                if (
+                    typeHint.includes('exp') ||
+                    typeHint.includes('chi') ||
+                    typeHint.includes('withdraw') ||
+                    typeHint.includes('debit')
+                ) {
                     expense += Math.abs(amt);
                 } else {
                     income += amt;
@@ -176,7 +193,12 @@ const CalendarScreen = () => {
             }
 
             // amt is 0 or NaN: use type hint
-            if (typeHint.includes('exp') || typeHint.includes('chi') || typeHint.includes('withdraw') || typeHint.includes('debit')) {
+            if (
+                typeHint.includes('exp') ||
+                typeHint.includes('chi') ||
+                typeHint.includes('withdraw') ||
+                typeHint.includes('debit')
+            ) {
                 expense += Math.abs(amt || 0);
             } else {
                 income += amt || 0;
@@ -201,7 +223,7 @@ const CalendarScreen = () => {
 
         // tìm day summary trong API
         const day = calendarData.dailySummaries.find(
-            d => format(new Date(d.date), 'yyyy-MM-dd') === selectedDate
+            d => format(new Date(d.date), 'yyyy-MM-dd') === selectedDate,
         );
 
         if (day) {
@@ -209,8 +231,12 @@ const CalendarScreen = () => {
             const tInc = Number((day as any).totalIncome);
             const tExp = Number((day as any).totalExpense);
             if (!isNaN(tInc) || !isNaN(tExp)) {
-                const totalIncome = !isNaN(tInc) ? tInc : (day.netAmount > 0 ? day.netAmount : 0);
-                const totalExpense = !isNaN(tExp) ? tExp : (day.netAmount < 0 ? Math.abs(day.netAmount) : 0);
+                const totalIncome = !isNaN(tInc) ? tInc : day.netAmount > 0 ? day.netAmount : 0;
+                const totalExpense = !isNaN(tExp)
+                    ? tExp
+                    : day.netAmount < 0
+                      ? Math.abs(day.netAmount)
+                      : 0;
                 return {
                     totalIncome: totalIncome || 0,
                     totalExpense: totalExpense || 0,
@@ -221,9 +247,10 @@ const CalendarScreen = () => {
         }
 
         // fallback: tính từ transactions của ngày (với phân loại linh hoạt)
-        const dailyTxs = calendarData.transactions.filter(
-            t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate
-        ) || [];
+        const dailyTxs =
+            calendarData.transactions.filter(
+                t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate,
+            ) || [];
 
         const sums = classifyAndSum(dailyTxs);
         return {
@@ -251,8 +278,7 @@ const CalendarScreen = () => {
         <SafeAreaView style={styles.container}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: scale(150) }}
-            >
+                contentContainerStyle={{ paddingBottom: scale(150) }}>
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={handlePrevMonth}>
@@ -267,8 +293,7 @@ const CalendarScreen = () => {
                             currentMonth.getFullYear() > today.getFullYear() ||
                             (currentMonth.getFullYear() === today.getFullYear() &&
                                 currentMonth.getMonth() >= today.getMonth())
-                        }
-                    >
+                        }>
                         <Text
                             style={[
                                 styles.arrow,
@@ -277,8 +302,7 @@ const CalendarScreen = () => {
                                     currentMonth.getMonth() >= today.getMonth())
                                     ? { opacity: 0.3 }
                                     : null,
-                            ]}
-                        >
+                            ]}>
                             {'>'}
                         </Text>
                     </TouchableOpacity>
@@ -305,7 +329,13 @@ const CalendarScreen = () => {
                                 </View>
                                 <View style={styles.summaryItem}>
                                     <Text style={styles.summaryLabel}>Chênh lệch</Text>
-                                    <Text style={[styles.summaryAmount, displayedSummary.balance >= 0 ? styles.income : styles.expense]}>
+                                    <Text
+                                        style={[
+                                            styles.summaryAmount,
+                                            displayedSummary.balance >= 0
+                                                ? styles.income
+                                                : styles.expense,
+                                        ]}>
                                         {formatCurrency(displayedSummary.balance)}
                                     </Text>
                                 </View>

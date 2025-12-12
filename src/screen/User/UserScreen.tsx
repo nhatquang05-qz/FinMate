@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, ScrollView, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    Switch,
+    ScrollView,
+    ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 
-const userAvatar = require('../../assets/images/user_avatar.png'); 
+const userAvatar = require('../../assets/images/user_avatar.png');
 
 interface UserProfile {
     id: number;
@@ -12,16 +21,20 @@ interface UserProfile {
     email: string;
     full_name: string;
     date_of_birth: string;
-    avatar_url: string | null; 
+    avatar_url: string | null;
 }
 
 interface UserScreenProps {
     onLogout: () => void;
     navigateToSubScreen: (screenName: string) => void;
-    onNavigateToSettings: () => void; 
+    onNavigateToSettings: () => void;
 }
 
-const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, onNavigateToSettings }) => {
+const UserScreen: React.FC<UserScreenProps> = ({
+    onLogout,
+    navigateToSubScreen,
+    onNavigateToSettings,
+}) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -33,16 +46,16 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, 
                 const response = await apiClient.get<UserProfile>('/users/profile');
                 setUser(response.data);
             } catch (error) {
-                console.error("Failed to fetch user profile:", error);
+                console.error('Failed to fetch user profile:', error);
             } finally {
                 setIsLoading(false);
             }
         };
         fetchUserProfile();
     }, []);
-    
+
     const handleLogout = () => {
-        onLogout(); 
+        onLogout();
     };
 
     if (isLoading) {
@@ -53,20 +66,24 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, 
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.profileHeader}>
-                    <Image 
-                        source={user?.avatar_url ? { uri: user.avatar_url } : userAvatar} 
-                        style={styles.avatar} 
+                    <Image
+                        source={user?.avatar_url ? { uri: user.avatar_url } : userAvatar}
+                        style={styles.avatar}
                     />
                     <Text style={styles.userName}>{user?.full_name || 'User'}</Text>
                 </View>
 
                 <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => navigateToSubScreen('Profile')}>
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => navigateToSubScreen('Profile')}>
                         <Text style={styles.menuText}>Thông tin cá nhân</Text>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem} onPress={() => alert('Chuyển đến trang Quản lý danh mục')}>
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => alert('Chuyển đến trang Quản lý danh mục')}>
                         <Text style={styles.menuText}>Quản lý danh mục</Text>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
@@ -80,10 +97,12 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, 
                     <View style={styles.menuItem}>
                         <Text style={styles.menuText}>Thông báo</Text>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#81e9e1" }}
-                            thumbColor={notificationsEnabled ? "#04D1C1" : "#f4f3f4"}
+                            trackColor={{ false: '#767577', true: '#81e9e1' }}
+                            thumbColor={notificationsEnabled ? '#04D1C1' : '#f4f3f4'}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={() => setNotificationsEnabled(previousState => !previousState)}
+                            onValueChange={() =>
+                                setNotificationsEnabled(previousState => !previousState)
+                            }
                             value={notificationsEnabled}
                         />
                     </View>
@@ -99,13 +118,18 @@ const UserScreen: React.FC<UserScreenProps> = ({ onLogout, navigateToSubScreen, 
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'transparent' },
-    scrollViewContent: { 
+    scrollViewContent: {
         paddingHorizontal: scale(20),
         paddingTop: scale(20),
-        paddingBottom: scale(120), 
+        paddingBottom: scale(120),
     },
     profileHeader: { alignItems: 'center', marginBottom: scale(30) },
-    avatar: { width: scale(100), height: scale(100), borderRadius: scale(50), marginBottom: scale(15) },
+    avatar: {
+        width: scale(100),
+        height: scale(100),
+        borderRadius: scale(50),
+        marginBottom: scale(15),
+    },
     userName: { fontFamily: 'Coiny-Regular', fontSize: scale(24), color: '#04D1C1' },
     menuContainer: { marginBottom: scale(40) },
     menuItem: {

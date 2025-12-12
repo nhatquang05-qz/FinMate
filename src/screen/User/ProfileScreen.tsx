@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TextInput, 
-    TouchableOpacity, 
-    ScrollView, 
-    ActivityIndicator, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    ActivityIndicator,
     Alert,
-    Image 
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../../utils/scaling';
@@ -27,14 +27,14 @@ interface UserProfile {
 }
 
 interface ProfileScreenProps {
-    onBack: () => void; 
+    onBack: () => void;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    
+
     const [editedFullName, setEditedFullName] = useState('');
     const [editedDob, setEditedDob] = useState('');
 
@@ -52,7 +52,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
             setEditedFullName(response.data.full_name);
             setEditedDob(new Date(response.data.date_of_birth).toISOString().split('T')[0]);
         } catch (error) {
-            console.error("Failed to fetch user profile:", error);
+            console.error('Failed to fetch user profile:', error);
         } finally {
             setIsLoading(false);
         }
@@ -70,7 +70,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
             setIsEditing(false);
         } catch (error) {
             Alert.alert('Lỗi', 'Không thể cập nhật thông tin.');
-            console.error("Failed to update profile:", error);
+            console.error('Failed to update profile:', error);
         } finally {
             setIsLoading(false);
         }
@@ -84,7 +84,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         }
 
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images', 
+            mediaTypes: 'images',
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.7,
@@ -97,20 +97,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
 
     const uploadAvatar = async (uri: string) => {
         setIsUploading(true);
-        
+
         const formData = new FormData();
         const filename = uri.split('/').pop() || 'avatar.jpg';
-        
+
         formData.append('avatar', {
             uri: uri,
             name: filename,
-            type: 'image/jpeg', 
+            type: 'image/jpeg',
         } as any);
 
         try {
             const response = await apiClient.patch('/users/avatar', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data', 
+                    'Content-Type': 'multipart/form-data',
                 },
             });
 
@@ -118,9 +118,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                 ...prev!,
                 avatar_url: response.data.avatarURL,
             }));
-            
-            Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
 
+            Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
         } catch (error) {
             console.error('Avatar upload failed:', error);
             Alert.alert('Lỗi', 'Cập nhật ảnh đại diện thất bại.');
@@ -129,15 +128,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         }
     };
 
-    const renderField = (label: string, value: string, editable: boolean, onChangeText?: (text: string) => void) => (
+    const renderField = (
+        label: string,
+        value: string,
+        editable: boolean,
+        onChangeText?: (text: string) => void,
+    ) => (
         <View style={styles.fieldContainer}>
             <Text style={styles.label}>{label}</Text>
             {editable ? (
-                <TextInput
-                    style={styles.input}
-                    value={value}
-                    onChangeText={onChangeText}
-                />
+                <TextInput style={styles.input} value={value} onChangeText={onChangeText} />
             ) : (
                 <Text style={styles.value}>{value}</Text>
             )}
@@ -145,25 +145,29 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     );
 
     if (isLoading && !user) {
-        return <ActivityIndicator size="large" color="#04D1C1" style={{ flex: 1, justifyContent: 'center' }} />;
+        return (
+            <ActivityIndicator
+                size="large"
+                color="#04D1C1"
+                style={{ flex: 1, justifyContent: 'center' }}
+            />
+        );
     }
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
-                
                 {/* KHÔI PHỤC NÚT QUAY LẠI CỦA BẠN (Dòng này đã bị tôi xóa nhầm) */}
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
                     <Text style={styles.backButtonText}>‹ Quay lại</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.title}>Thông tin cá nhân</Text>
-                
-                <TouchableOpacity 
-                    style={styles.avatarContainer} 
+
+                <TouchableOpacity
+                    style={styles.avatarContainer}
                     onPress={pickImage}
-                    disabled={isUploading}
-                >
+                    disabled={isUploading}>
                     <Image
                         source={user?.avatar_url ? { uri: user.avatar_url } : defaultAvatar}
                         style={styles.avatar}
@@ -180,21 +184,47 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                 <View style={styles.card}>
                     {renderField('Tên đăng nhập', user?.username || '', false)}
                     {renderField('Email', user?.email || '', false)}
-                    {renderField('Họ và tên', isEditing ? editedFullName : user?.full_name || '', isEditing, setEditedFullName)}
-                    {renderField('Ngày sinh', isEditing ? editedDob : (user?.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString('vi-VN') : ''), isEditing, setEditedDob)}
+                    {renderField(
+                        'Họ và tên',
+                        isEditing ? editedFullName : user?.full_name || '',
+                        isEditing,
+                        setEditedFullName,
+                    )}
+                    {renderField(
+                        'Ngày sinh',
+                        isEditing
+                            ? editedDob
+                            : user?.date_of_birth
+                              ? new Date(user.date_of_birth).toLocaleDateString('vi-VN')
+                              : '',
+                        isEditing,
+                        setEditedDob,
+                    )}
                 </View>
 
                 {isEditing ? (
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setIsEditing(false)} disabled={isLoading}>
+                        <TouchableOpacity
+                            style={[styles.button, styles.cancelButton]}
+                            onPress={() => setIsEditing(false)}
+                            disabled={isLoading}>
                             <Text style={styles.cancelButtonText}>Hủy</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSaveTextChanges} disabled={isLoading}>
-                            {isLoading ? <ActivityIndicator color="white" /> : <Text style={styles.saveButtonText}>Lưu</Text>}
+                        <TouchableOpacity
+                            style={[styles.button, styles.saveButton]}
+                            onPress={handleSaveTextChanges}
+                            disabled={isLoading}>
+                            {isLoading ? (
+                                <ActivityIndicator color="white" />
+                            ) : (
+                                <Text style={styles.saveButtonText}>Lưu</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <TouchableOpacity style={[styles.button, styles.editButton]} onPress={() => setIsEditing(true)}>
+                    <TouchableOpacity
+                        style={[styles.button, styles.editButton]}
+                        onPress={() => setIsEditing(true)}>
                         <Text style={styles.editButtonText}>Chỉnh sửa</Text>
                     </TouchableOpacity>
                 )}
@@ -205,15 +235,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'transparent' },
-    content: { 
+    content: {
         paddingHorizontal: scale(20),
         paddingTop: scale(20),
-        paddingBottom: scale(120),  
+        paddingBottom: scale(120),
     },
     backButton: { marginBottom: scale(20) },
     backButtonText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16), color: '#04D1C1' },
-    title: { fontFamily: 'Coiny-Regular', fontSize: scale(28), color: '#04D1C1', textAlign: 'center', marginBottom: scale(20) },
-    
+    title: {
+        fontFamily: 'Coiny-Regular',
+        fontSize: scale(28),
+        color: '#04D1C1',
+        textAlign: 'center',
+        marginBottom: scale(20),
+    },
+
     avatarContainer: {
         alignSelf: 'center',
         marginBottom: scale(30),
@@ -244,11 +280,29 @@ const styles = StyleSheet.create({
         fontSize: scale(12),
     },
 
-    card: { backgroundColor: 'white', borderRadius: scale(20), padding: scale(20), elevation: 3, shadowOpacity: 0.1 },
+    card: {
+        backgroundColor: 'white',
+        borderRadius: scale(20),
+        padding: scale(20),
+        elevation: 3,
+        shadowOpacity: 0.1,
+    },
     fieldContainer: { marginBottom: scale(20) },
-    label: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(14), color: '#888', marginBottom: scale(5) },
+    label: {
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: scale(14),
+        color: '#888',
+        marginBottom: scale(5),
+    },
     value: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(16), color: '#333' },
-    input: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(16), color: '#333', borderBottomWidth: 1, borderBottomColor: '#04D1C1', paddingBottom: scale(5) },
+    input: {
+        fontFamily: 'BeVietnamPro-Regular',
+        fontSize: scale(16),
+        color: '#333',
+        borderBottomWidth: 1,
+        borderBottomColor: '#04D1C1',
+        paddingBottom: scale(5),
+    },
     buttonContainer: { flexDirection: 'row', marginTop: scale(30) },
     button: { flex: 1, padding: scale(15), borderRadius: scale(30), alignItems: 'center' },
     editButton: { backgroundColor: '#E6FFFD', marginTop: scale(30) },

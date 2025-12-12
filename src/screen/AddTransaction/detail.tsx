@@ -5,109 +5,108 @@ import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
 // Định nghĩa kiểu cho các props mà component sẽ nhận từ cha
 type DetailProps = {
-  date: Date;
-  onDateChange: (date: Date) => void;
-  amount: string;
-  onAmountChange: (amount: string) => void;
-  note: string;
-  onNoteChange: (note: string) => void;
+    date: Date;
+    onDateChange: (date: Date) => void;
+    amount: string;
+    onAmountChange: (amount: string) => void;
+    note: string;
+    onNoteChange: (note: string) => void;
 };
 
 const Detail = ({
-  date,
-  onDateChange,
-  amount,
-  onAmountChange,
-  note,
-  onNoteChange,
+    date,
+    onDateChange,
+    amount,
+    onAmountChange,
+    note,
+    onNoteChange,
 }: DetailProps) => {
-  const [isPickerVisible, setPickerVisible] = useState(false);
+    const [isPickerVisible, setPickerVisible] = useState(false);
 
-  const handleConfirmDate = (newDate: Date) => {
-    onDateChange(newDate);
-  };
+    const handleConfirmDate = (newDate: Date) => {
+        onDateChange(newDate);
+    };
 
-  return (
-    <View style={styles.boxContainer}>
-      <TouchableOpacity style={styles.row} onPress={() => setPickerVisible(true)}>
-        <Text style={styles.label}>Ngày</Text>
-        <Text style={styles.valueText}>{date.toLocaleDateString('vi-VN')}</Text>
-      </TouchableOpacity>
+    return (
+        <View style={styles.boxContainer}>
+            <TouchableOpacity style={styles.row} onPress={() => setPickerVisible(true)}>
+                <Text style={styles.label}>Ngày</Text>
+                <Text style={styles.valueText}>{date.toLocaleDateString('vi-VN')}</Text>
+            </TouchableOpacity>
 
-      <View style={styles.separator} />
-      <View style={styles.row}>
-        <Text style={styles.label}>Số tiền</Text>
-        <TextInput
-          style={styles.valueText}
-          placeholder="đ 0"
-          placeholderTextColor="#c0c0c0"
-          keyboardType="numeric"
-          value={amount}
-          onChangeText={onAmountChange} // Sử dụng hàm từ props
-        />
-      </View>
+            <View style={styles.separator} />
+            <View style={styles.row}>
+                <Text style={styles.label}>Số tiền</Text>
+                <TextInput
+                    style={styles.valueText}
+                    placeholder="đ 0"
+                    placeholderTextColor="#c0c0c0"
+                    keyboardType="numeric"
+                    value={amount}
+                    onChangeText={onAmountChange} // Sử dụng hàm từ props
+                />
+            </View>
 
-      <View style={styles.separator} />
-      <View style={styles.row}>
-        <Text style={styles.label}>Ghi chú</Text>
-        <TextInput
-          style={styles.valueText}
-          placeholder="Thêm ghi chú"
-          placeholderTextColor="#c0c0c0"
-          value={note}
-          onChangeText={onNoteChange} // Sử dụng hàm từ props
-        />
-      </View>
+            <View style={styles.separator} />
+            <View style={styles.row}>
+                <Text style={styles.label}>Ghi chú</Text>
+                <TextInput
+                    style={styles.valueText}
+                    placeholder="Thêm ghi chú"
+                    placeholderTextColor="#c0c0c0"
+                    value={note}
+                    onChangeText={onNoteChange} // Sử dụng hàm từ props
+                />
+            </View>
 
-      <CustomDatePickerModal
-        visible={isPickerVisible}
-        initialDate={date}
-        onClose={() => setPickerVisible(false)}
-        onConfirm={handleConfirmDate}
-        maximumDate={new Date()}
-      />
-    </View>
-  );
+            <CustomDatePickerModal
+                visible={isPickerVisible}
+                initialDate={date}
+                onClose={() => setPickerVisible(false)}
+                onConfirm={handleConfirmDate}
+                maximumDate={new Date()}
+            />
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
     boxContainer: {
-    backgroundColor: 'white',
-    borderRadius: scale(20),
-    padding: scale(15),
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+        backgroundColor: 'white',
+        borderRadius: scale(20),
+        padding: scale(15),
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     row: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: verticalScale(5),
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: verticalScale(5),
     },
     label: {
-      fontSize: moderateScale(17),
-      color: '#182033ff',
-      fontFamily: 'Coiny-Regular',
-      lineHeight: scale(30),
+        fontSize: moderateScale(17),
+        color: '#182033ff',
+        fontFamily: 'Coiny-Regular',
+        lineHeight: scale(30),
     },
     valueText: {
-      fontSize: moderateScale(16),
-      color: '#64748B',
-      textAlign: 'right',
-      flex: 1,
-      marginLeft: scale(10),
+        fontSize: moderateScale(16),
+        color: '#64748B',
+        textAlign: 'right',
+        flex: 1,
+        marginLeft: scale(10),
     },
     separator: {
-      height: 1,
-      backgroundColor: '#F1F5F9',
+        height: 1,
+        backgroundColor: '#F1F5F9',
     },
-  });
+});
 
 export default Detail;
-

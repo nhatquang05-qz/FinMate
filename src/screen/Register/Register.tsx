@@ -10,15 +10,15 @@ import {
     TextInput,
     StyleSheet,
     Platform,
-    ActivityIndicator, 
-} from "react-native";
-import axios from 'axios'; 
+    ActivityIndicator,
+} from 'react-native';
+import axios from 'axios';
 import { scale } from '../../utils/scaling';
 import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
-import PopupAccountExisted from '../../components/popups/PopupAccountExisted'; 
-import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch'; 
-import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo'; 
-import apiClient from '../../api/apiClient'; 
+import PopupAccountExisted from '../../components/popups/PopupAccountExisted';
+import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch';
+import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo';
+import apiClient from '../../api/apiClient';
 
 const backgroundImage = require('../../assets/images/background.png');
 const logoImage = require('../../assets/images/logo.png');
@@ -34,7 +34,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [showRegisterSuccessPopup, setShowRegisterSuccessPopup] = useState(false);
     const [showAccountExistedPopup, setShowAccountExistedPopup] = useState(false);
@@ -67,7 +67,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
             // Nếu không có lỗi, tức là đăng ký thành công
             setShowRegisterSuccessPopup(true);
             // Popup này sẽ tự động gọi onNavigateToLogin khi đóng
-
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 if (error.response.status === 409) {
@@ -80,7 +79,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
             } else {
                 // Lỗi mạng hoặc lỗi không xác định
                 setShowNotEnoughInfoPopup(true);
-                console.error("Register Error: ", error);
+                console.error('Register Error: ', error);
             }
         } finally {
             setIsLoading(false);
@@ -91,73 +90,119 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
         <SafeAreaView style={styles.container}>
             <ImageBackground
                 source={backgroundImage}
-                resizeMode='cover'
-                style={styles.backgroundImage}
-            >
+                resizeMode="cover"
+                style={styles.backgroundImage}>
                 <ScrollView contentContainerStyle={styles.scrollViewContent}>
                     <View style={styles.mainContent}>
-                        <Image
-                            source={logoImage}
-                            resizeMode={"contain"}
-                            style={styles.logo}
-                        />
+                        <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
                         <View style={styles.formContainer}>
-                            <Text style={styles.title}>
-                                {"Đăng kí"}
-                            </Text>
+                            <Text style={styles.title}>{'Đăng kí'}</Text>
 
-                            <Text style={styles.label}>{"Tài khoản"}</Text>
+                            <Text style={styles.label}>{'Tài khoản'}</Text>
                             <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="Nhập tài khoản của bạn" placeholderTextColor="#BDBDBD"/>
-                            </View>
-                            
-                            <Text style={styles.label}>{"Email"}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Nhập email của bạn" placeholderTextColor="#BDBDBD" keyboardType="email-address"/>
-                            </View>
-
-                            <Text style={styles.label}>{"Họ và tên"}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={fullName} onChangeText={setFullName} placeholder="Nhập họ và tên đầy đủ" placeholderTextColor="#BDBDBD"/>
-                            </View>
-                            
-                            <Text style={styles.label}>{"Ngày sinh"}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={dateOfBirth} onChangeText={setDateOfBirth} placeholder="YYYY-MM-DD" placeholderTextColor="#BDBDBD"/>
-                            </View>
-                            <Text style={styles.label}>{"Mật khẩu"}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Nhập mật khẩu của bạn" placeholderTextColor="#BDBDBD" secureTextEntry={true}/>
+                                <TextInput
+                                    style={styles.input}
+                                    value={username}
+                                    onChangeText={setUsername}
+                                    placeholder="Nhập tài khoản của bạn"
+                                    placeholderTextColor="#BDBDBD"
+                                />
                             </View>
 
-                            <Text style={styles.label}>{"Nhập lại mật khẩu"}</Text>
+                            <Text style={styles.label}>{'Email'}</Text>
                             <View style={styles.inputContainer}>
-                                <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Nhập lại mật khẩu của bạn" placeholderTextColor="#BDBDBD" secureTextEntry={true}/>
+                                <TextInput
+                                    style={styles.input}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    placeholder="Nhập email của bạn"
+                                    placeholderTextColor="#BDBDBD"
+                                    keyboardType="email-address"
+                                />
                             </View>
 
-                            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
+                            <Text style={styles.label}>{'Họ và tên'}</Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={fullName}
+                                    onChangeText={setFullName}
+                                    placeholder="Nhập họ và tên đầy đủ"
+                                    placeholderTextColor="#BDBDBD"
+                                />
+                            </View>
+
+                            <Text style={styles.label}>{'Ngày sinh'}</Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={dateOfBirth}
+                                    onChangeText={setDateOfBirth}
+                                    placeholder="YYYY-MM-DD"
+                                    placeholderTextColor="#BDBDBD"
+                                />
+                            </View>
+                            <Text style={styles.label}>{'Mật khẩu'}</Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    placeholder="Nhập mật khẩu của bạn"
+                                    placeholderTextColor="#BDBDBD"
+                                    secureTextEntry={true}
+                                />
+                            </View>
+
+                            <Text style={styles.label}>{'Nhập lại mật khẩu'}</Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    placeholder="Nhập lại mật khẩu của bạn"
+                                    placeholderTextColor="#BDBDBD"
+                                    secureTextEntry={true}
+                                />
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={handleRegister}
+                                disabled={isLoading}>
                                 {isLoading ? (
                                     <ActivityIndicator size="small" color="#FFFFFF" />
                                 ) : (
-                                    <Text style={styles.buttonText}>
-                                        {"Đăng kí"}
-                                    </Text>
+                                    <Text style={styles.buttonText}>{'Đăng kí'}</Text>
                                 )}
                             </TouchableOpacity>
                             <View style={styles.footer}>
                                 <TouchableOpacity onPress={onNavigateToLogin}>
-                                    <Text style={styles.footerText}>
-                                        {"Đăng nhập"}
-                                    </Text>
+                                    <Text style={styles.footerText}>{'Đăng nhập'}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                 </ScrollView>
-                <PopupRegisterSuccess visible={showRegisterSuccessPopup} onClose={() => { setShowRegisterSuccessPopup(false); onNavigateToLogin(); }}/>
-                <PopupAccountExisted visible={showAccountExistedPopup} onClose={() => setShowAccountExistedPopup(false)}/>
-                <PopupPassNotMatch visible={showPassNotMatchPopup} onClose={() => setShowPassNotMatchPopup(false)}/>
-                <PopupNotEnoughInfo visible={showNotEnoughInfoPopup} onClose={() => setShowNotEnoughInfoPopup(false)}/>
+                <PopupRegisterSuccess
+                    visible={showRegisterSuccessPopup}
+                    onClose={() => {
+                        setShowRegisterSuccessPopup(false);
+                        onNavigateToLogin();
+                    }}
+                />
+                <PopupAccountExisted
+                    visible={showAccountExistedPopup}
+                    onClose={() => setShowAccountExistedPopup(false)}
+                />
+                <PopupPassNotMatch
+                    visible={showPassNotMatchPopup}
+                    onClose={() => setShowPassNotMatchPopup(false)}
+                />
+                <PopupNotEnoughInfo
+                    visible={showNotEnoughInfoPopup}
+                    onClose={() => setShowNotEnoughInfoPopup(false)}
+                />
             </ImageBackground>
         </SafeAreaView>
     );
@@ -166,7 +211,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: '#FFFFFF',
     },
     backgroundImage: {
         flex: 1,
@@ -187,39 +232,49 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         width: '100%',
-        backgroundColor: "#FFFF",
+        backgroundColor: '#FFFF',
         borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: scale(25),
         paddingHorizontal: scale(24),
         paddingVertical: scale(35),
         ...Platform.select({
-            ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: scale(2) },
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: scale(2),
+            },
             android: { elevation: 12 },
         }),
     },
     title: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(35),
         textAlign: 'center',
         marginBottom: scale(20),
         fontFamily: 'Coiny-Regular',
     },
     label: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(18),
         marginBottom: scale(10),
         marginLeft: scale(10),
         fontFamily: 'BeVietnamPro-Bold',
     },
     inputContainer: {
-        backgroundColor: "#FFFFFF",
+        backgroundColor: '#FFFFFF',
         borderRadius: scale(57),
         marginBottom: scale(15), // Giảm margin một chút
         paddingHorizontal: scale(20),
         paddingVertical: Platform.OS === 'ios' ? scale(12) : scale(8), // Dùng padding thay vì height
         ...Platform.select({
-            ios: { shadowColor: "rgba(0, 0, 0, 0.1)", shadowOffset: { width: 2, height: 4 }, shadowOpacity: 1, shadowRadius: scale(5) },
+            ios: {
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowOffset: { width: 2, height: 4 },
+                shadowOpacity: 1,
+                shadowRadius: scale(5),
+            },
             android: { elevation: 5 },
         }),
     },
@@ -231,7 +286,7 @@ const styles = StyleSheet.create({
     button: {
         alignSelf: 'center',
         width: '70%',
-        backgroundColor: "#04D1C1",
+        backgroundColor: '#04D1C1',
         borderRadius: scale(25),
         alignItems: 'center',
         justifyContent: 'center',
@@ -239,7 +294,7 @@ const styles = StyleSheet.create({
         marginTop: scale(15),
     },
     buttonText: {
-        color: "#FFFFFF",
+        color: '#FFFFFF',
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
     },
@@ -250,7 +305,7 @@ const styles = StyleSheet.create({
         marginTop: scale(20),
     },
     footerText: {
-        color: "#04D1C1",
+        color: '#04D1C1',
         fontSize: scale(16),
         fontWeight: '600',
         fontFamily: 'BeVietnamPro-SemiBold',

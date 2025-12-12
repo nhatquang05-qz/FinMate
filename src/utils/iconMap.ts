@@ -18,22 +18,22 @@ const defaultIcon = require('../screen/Home/bike.png'); // Icon mặc định n�
 
 // Đây là "bộ phiên dịch" của chúng ta
 export const iconMap: { [key: string]: ImageSourcePropType } = {
-  // Expense Icons
-  'food-icon': mealIcon,
-  'transport-icon': transportIcon,
-  'clothes-icon': clothesIcon,
-  'medicine-icon': medicineIcon,
-  'education-icon': eduIcon,
-  'friends-icon': friendsIcon,
-  
-  // Income Icons
-  'salary-icon': salaryIcon,
-  'subsidy-icon': subsidyIcon,
-  'part-time-icon': partimeIcon,
-  'bonus-icon': bonusIcon,
-  'investment-icon': investIcon,
-  'piggy-bank-icon': piggyBankIcon,
+    // Expense Icons
+    'food-icon': mealIcon,
+    'transport-icon': transportIcon,
+    'clothes-icon': clothesIcon,
+    'medicine-icon': medicineIcon,
+    'education-icon': eduIcon,
+    'friends-icon': friendsIcon,
 
-  // Default / Fallback Icon
-  'default': defaultIcon,
+    // Income Icons
+    'salary-icon': salaryIcon,
+    'subsidy-icon': subsidyIcon,
+    'part-time-icon': partimeIcon,
+    'bonus-icon': bonusIcon,
+    'investment-icon': investIcon,
+    'piggy-bank-icon': piggyBankIcon,
+
+    // Default / Fallback Icon
+    default: defaultIcon,
 };
