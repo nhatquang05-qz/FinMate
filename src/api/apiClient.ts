@@ -3,39 +3,44 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ====================================================================
 // !! QUAN TRỌNG: THAY ĐỔI ĐỊA CHỈ IP NÀY !!
-// Đây là địa chỉ IP của máy tính đang chạy backend Node.js.
-// Điện thoại/máy ảo và máy tính phải ở trong cùng một mạng Wi-Fi.
-// Bạn không thể dùng 'localhost' hay '127.0.0.1' ở đây.
 // ====================================================================
 
-const API_BASE_URL = 'http://172.20.10.6:3000/api'; // Địa chỉ mới từ ipconfig // dùng ipconfig để lấy địa chỉ IPv4 của máy tính trong phần Wireless LAN adapter Wi-Fi
-// 'http://10.1.4.34:3000/api' 'http://192.168.1.11:3000/api'
-// Tạo một instance của Axios với cấu hình mặc định
+const API_BASE_URL = 'http://172.20.10.6:3000/api'; // Đảm bảo IP này đúng với máy tính của bạn
+
 const apiClient = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Cấu hình Interceptor (Bộ chặn) để tự động thêm token vào mỗi request
 apiClient.interceptors.request.use(
-    async config => {
-        // Lấy token từ AsyncStorage
-        const token = await AsyncStorage.getItem('userToken');
+  async (config) => {
+    const token = await AsyncStorage.getItem('userToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-        // Nếu token tồn tại, thêm nó vào header Authorization
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+// Thêm interceptor cho response để xử lý lỗi 401
+apiClient.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    async (error) => {
+        if (error.response && error.response.status === 401) {
+            // Token hết hạn hoặc không hợp lệ
+            console.error("Token hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");
+            // Tùy chọn: Xóa token cũ để app tự logout ở lần mở sau
+            // await AsyncStorage.removeItem('userToken'); 
         }
-
-        // Trả về config đã được sửa đổi để request tiếp tục được gửi đi
-        return config;
-    },
-    error => {
-        // Xử lý lỗi nếu có
         return Promise.reject(error);
-    },
+    }
 );
 
 export default apiClient;

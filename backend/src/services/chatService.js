@@ -44,7 +44,6 @@ const askFinpetService = async (userId, message, history) => {
             financialContext += `- Tổng chi: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(summary.totalExpense || 0)}\n`;
             financialContext += `- Số dư hiện tại: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance)}\n\n`;
 
-            // 2. Lấy 5 giao dịch gần nhất
             const [recentRows] = await db.execute(`
                 SELECT t.amount, t.type, t.date, c.name as category_name, t.note
                 FROM transactions t
@@ -63,7 +62,6 @@ const askFinpetService = async (userId, message, history) => {
                 }).join("\n") + "\n\n";
             }
 
-            // 3. Phân tích chi tiêu theo danh mục (Top 3 chi nhiều nhất)
              const [topExpenseRows] = await db.execute(`
                 SELECT c.name, SUM(t.amount) as total
                 FROM transactions t
@@ -97,7 +95,9 @@ const askFinpetService = async (userId, message, history) => {
                 2. Dựa vào dữ liệu tài chính ở trên để đưa ra lời khuyên (ví dụ: nếu chi tiêu quá nhiều so với thu, hãy cảnh báo).
                 3. Nếu người dùng hỏi về giao dịch gần đây, hãy liệt kê chi tiết từ dữ liệu đã cung cấp.
                 4. Động viên người dùng tiết kiệm và quản lý tài chính tốt hơn.
-                5. Luôn xưng hô là "Finpet" và gọi người dùng là "bạn".`
+                5. Luôn xưng hô là "Finpet" và gọi người dùng là "bạn".
+                6. Câu trả lời phải định dạng hợp lí, không máy móc cứng nhắc mà thân thiện.`
+                
             },
             ...history.map(item => ({
                 role: item.role,

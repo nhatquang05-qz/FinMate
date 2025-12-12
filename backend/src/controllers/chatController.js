@@ -2,7 +2,7 @@ const chatService = require('../services/chatService');
 
 exports.chatWithFinpet = async (req, res) => {
     try {
-        const userId = req.user.id; // Lấy từ middleware auth
+        const userId = req.user.id; 
         const { message, history } = req.body;
 
         const result = await chatService.askFinpetService(userId, message, history || []);
