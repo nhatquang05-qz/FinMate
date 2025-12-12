@@ -51,6 +51,7 @@
         "@types/react": "~19.1.0",
         "@types/react-native-sqlite-storage": "^6.0.5",
         "prettier": "^3.7.4",
+        "react-native-dotenv": "^3.4.11",
         "typescript": "~5.9.2"
     },
     "private": true

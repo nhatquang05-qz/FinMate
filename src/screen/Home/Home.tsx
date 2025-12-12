@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    TouchableOpacity,
-    ScrollView,
-    ActivityIndicator,
-} from 'react-native';
+    SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions
+} from "react-native";
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 import { Transaction, SummaryData, PieChartData } from '../../types/data';
 import TransactionItem from '../../components/TransactionItem';
-import { PieChart } from 'react-native-gifted-charts';
+import { PieChart } from "react-native-gifted-charts";
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -51,12 +44,7 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
             <View style={styles.legendContainer}>
                 {data.map((item, index) => (
                     <View key={index} style={styles.legendItem}>
-                        <View
-                            style={[
-                                styles.legendColor,
-                                { backgroundColor: chartColors[index % chartColors.length] },
-                            ]}
-                        />
+                        <View style={[styles.legendColor, { backgroundColor: chartColors[index % chartColors.length] }]} />
                         <Text style={styles.legendText}>
                             {item.categoryName} ({pieData[index].text})
                         </Text>
@@ -67,7 +55,7 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
     );
 };
 
-type MonthData = { year: number; month: number };
+type MonthData = { year: number, month: number };
 
 type HomeScreenProps = {
     navigateTo: (screenName: string) => void;
@@ -92,7 +80,7 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                 });
                 setAvailableMonths(sortedMonths);
             } catch (error) {
-                console.error('Failed to fetch available months:', error);
+                console.error("Failed to fetch available months:", error);
             }
         };
         fetchAvailableMonths();
@@ -111,13 +99,13 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
             const [summaryRes, transactionsRes, pieRes] = await Promise.all([
                 apiClient.get(`/transactions/summary?month=${month}&year=${year}`),
                 apiClient.get('/transactions/recent'),
-                apiClient.get(`/transactions/report/pie-chart?month=${month}&year=${year}`),
+                apiClient.get(`/transactions/report/pie-chart?month=${month}&year=${year}`)
             ]);
             setSummary(summaryRes.data);
             setRecentTransactions(transactionsRes.data);
             setPieData(pieRes.data);
         } catch (error) {
-            console.error('Failed to fetch home screen data:', error);
+            console.error("Failed to fetch home screen data:", error);
         } finally {
             setIsLoading(false);
         }
@@ -125,7 +113,7 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
 
     const changeMonth = (direction: -1 | 1) => {
         const currentIndex = availableMonths.findIndex(
-            m => m.year === currentDate.getFullYear() && m.month === currentDate.getMonth() + 1,
+            m => m.year === currentDate.getFullYear() && m.month === currentDate.getMonth() + 1
         );
 
         if (currentIndex === -1 && availableMonths.length > 0) {
@@ -134,20 +122,17 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
             return;
         }
 
-        if (direction === 1) {
+        if (direction === 1) { 
             if (currentIndex > 0) {
                 const nextMonthData = availableMonths[currentIndex - 1];
                 setCurrentDate(new Date(nextMonthData.year, nextMonthData.month - 1));
             } else {
                 const now = new Date();
-                if (
-                    currentDate.getMonth() !== now.getMonth() ||
-                    currentDate.getFullYear() !== now.getFullYear()
-                ) {
-                    setCurrentDate(now);
+                if (currentDate.getMonth() !== now.getMonth() || currentDate.getFullYear() !== now.getFullYear()) {
+                     setCurrentDate(now);
                 }
             }
-        } else {
+        } else { 
             if (currentIndex < availableMonths.length - 1 && currentIndex !== -1) {
                 const prevMonthData = availableMonths[currentIndex + 1];
                 setCurrentDate(new Date(prevMonthData.year, prevMonthData.month - 1));
@@ -157,21 +142,14 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
 
     const isNextDisabled = () => {
         const now = new Date();
-        return (
-            currentDate.getFullYear() >= now.getFullYear() &&
-            currentDate.getMonth() >= now.getMonth()
-        );
+        return currentDate.getFullYear() >= now.getFullYear() && currentDate.getMonth() >= now.getMonth();
     };
 
     const isPrevDisabled = () => {
         if (availableMonths.length === 0) return true;
         const lastMonthWithData = availableMonths[availableMonths.length - 1];
         if (currentDate.getFullYear() < lastMonthWithData.year) return true;
-        if (
-            currentDate.getFullYear() === lastMonthWithData.year &&
-            currentDate.getMonth() + 1 <= lastMonthWithData.month
-        )
-            return true;
+        if (currentDate.getFullYear() === lastMonthWithData.year && currentDate.getMonth() + 1 <= lastMonthWithData.month) return true;
         return false;
     };
 
@@ -186,66 +164,37 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                         <View style={styles.card}>
                             <View style={styles.managementIconsContainer}>
                                 <TouchableOpacity onPress={() => navigateTo('Money')}>
-                                    <Image
-                                        source={require('./AddTrans.png')}
-                                        style={styles.managementIcon}
-                                    />
+                                    <Image source={require('./AddTrans.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('History')}>
-                                    <Image
-                                        source={require('./History.png')}
-                                        style={styles.managementIcon}
-                                    />
+                                    <Image source={require('./History.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
-
-                                {/* THÊM NÚT GOAL (HŨ TIẾT KIỆM) VÀO ĐÂY */}
-                                <TouchableOpacity onPress={() => navigateTo('Goal')}>
-                                    <Image
-                                        source={require('../../assets/images/piggy-bank.png')}
-                                        style={styles.managementIcon}
-                                    />
-                                </TouchableOpacity>
-
                                 <TouchableOpacity onPress={() => navigateTo('Chart')}>
-                                    <Image
-                                        source={require('./Statistic.png')}
-                                        style={styles.managementIcon}
-                                    />
+                                    <Image source={require('./Statistic.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('Setting')}>
-                                    <Image
-                                        source={require('./Setting.png')}
-                                        style={styles.managementIcon}
-                                    />
+                                    <Image source={require('./Setting.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
 
-                    {isLoading ? (
-                        <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} />
-                    ) : (
+                    {isLoading ? <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} /> : (
                         <>
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>Tổng quan {monthYearString}</Text>
                                 <View style={styles.card}>
                                     <View style={styles.summaryRow}>
                                         <Text style={styles.summaryLabel}>Tổng Thu</Text>
-                                        <Text style={styles.summaryAmountIncome}>
-                                            {formatCurrency(summary?.totalIncome || 0)}
-                                        </Text>
+                                        <Text style={styles.summaryAmountIncome}>{formatCurrency(summary?.totalIncome || 0)}</Text>
                                     </View>
                                     <View style={styles.summaryRow}>
                                         <Text style={styles.summaryLabel}>Tổng Chi</Text>
-                                        <Text style={styles.summaryAmountExpense}>
-                                            {formatCurrency(summary?.totalExpense || 0)}
-                                        </Text>
+                                        <Text style={styles.summaryAmountExpense}>{formatCurrency(summary?.totalExpense || 0)}</Text>
                                     </View>
                                     <View style={[styles.summaryRow, { borderBottomWidth: 0 }]}>
                                         <Text style={styles.summaryLabel}>Số dư</Text>
-                                        <Text style={styles.summaryAmountBalance}>
-                                            {formatCurrency(summary?.balance || 0)}
-                                        </Text>
+                                        <Text style={styles.summaryAmountBalance}>{formatCurrency(summary?.balance || 0)}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -253,32 +202,14 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
                                 <View style={styles.monthSelector}>
-                                    <TouchableOpacity
-                                        onPress={() => changeMonth(-1)}
-                                        disabled={isPrevDisabled()}
-                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                        <Text
-                                            style={[
-                                                styles.arrow,
-                                                isPrevDisabled() && styles.arrowDisabled,
-                                            ]}>
-                                            {'<'}
-                                        </Text>
+                                    <TouchableOpacity onPress={() => changeMonth(-1)} disabled={isPrevDisabled()} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                        <Text style={[styles.arrow, isPrevDisabled() && styles.arrowDisabled]}>{'<'}</Text>
                                     </TouchableOpacity>
-
+                                    
                                     <Text style={styles.monthYearText}>{monthYearString}</Text>
-
-                                    <TouchableOpacity
-                                        onPress={() => changeMonth(1)}
-                                        disabled={isNextDisabled()}
-                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                        <Text
-                                            style={[
-                                                styles.arrow,
-                                                isNextDisabled() && styles.arrowDisabled,
-                                            ]}>
-                                            {'>'}
-                                        </Text>
+                                    
+                                    <TouchableOpacity onPress={() => changeMonth(1)} disabled={isNextDisabled()} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                                        <Text style={[styles.arrow, isNextDisabled() && styles.arrowDisabled]}>{'>'}</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View style={[styles.card, styles.chartCard]}>
@@ -291,12 +222,8 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                 <View style={[styles.card, { paddingTop: 0 }]}>
                                     {recentTransactions.length > 0 ? (
                                         <>
-                                            {recentTransactions.map(item => (
-                                                <TransactionItem key={item.id} item={item} />
-                                            ))}
-                                            <TouchableOpacity
-                                                style={styles.viewMoreButton}
-                                                onPress={() => navigateTo('History')}>
+                                            {recentTransactions.map(item => <TransactionItem key={item.id} item={item} />)}
+                                            <TouchableOpacity style={styles.viewMoreButton} onPress={() => navigateTo('History')}>
                                                 <Text style={styles.viewMoreText}>Xem thêm</Text>
                                             </TouchableOpacity>
                                         </>
@@ -309,9 +236,25 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                     )}
                 </View>
             </ScrollView>
+
+            {/* FINPET FLOATING BUTTON */}
+            <TouchableOpacity 
+                style={styles.finpetFab} 
+                onPress={() => navigateTo('Finpet')}
+                activeOpacity={0.8}
+            >
+                <Image 
+                    source={require('../../assets/images/piggy-bank.png')} 
+                    style={styles.finpetIcon} 
+                />
+                <View style={styles.finpetBadge}>
+                     <Text style={styles.finpetText}>AI</Text>
+                </View>
+            </TouchableOpacity>
+
         </SafeAreaView>
     );
-};
+}
 
 export default HomeScreen;
 
@@ -323,6 +266,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'transparent',
+        position: 'relative', // Để FAB định vị
     },
     scrollView: {
         flex: 1,
@@ -330,7 +274,7 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         paddingHorizontal: scale(20),
         paddingVertical: scale(10),
-        paddingBottom: scale(120),
+        paddingBottom: scale(120)
     },
     sectionContainer: {
         marginBottom: scale(20),
@@ -362,8 +306,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     managementIcon: {
-        width: scale(50),
-        height: scale(50),
+        width: scale(55),
+        height: scale(55),
         resizeMode: 'contain',
     },
     statisticCard: {
@@ -400,75 +344,75 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    noDataText: {
-        textAlign: 'center',
-        padding: scale(20),
-        fontFamily: 'BeVietnamPro-Regular',
+    noDataText: { 
+        textAlign: 'center', 
+        padding: scale(20), 
+        fontFamily: 'BeVietnamPro-Regular' 
     },
     summaryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: scale(10),
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+         flexDirection: 'row', 
+         justifyContent: 'space-between', 
+         paddingVertical: scale(10), 
+         borderBottomWidth: 1, 
+         borderBottomColor: '#F0F0F0' 
+        },
+    summaryLabel: { 
+        fontFamily: 'BeVietnamPro-Bold', 
+        fontSize: scale(15) 
     },
-    summaryLabel: {
-        fontFamily: 'BeVietnamPro-Bold',
-        fontSize: scale(15),
+    summaryAmountIncome: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#28A745' 
     },
-    summaryAmountIncome: {
-        fontFamily: 'Coiny-Regular',
-        fontSize: scale(16),
-        color: '#28A745',
+    summaryAmountExpense: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#D9435E' 
     },
-    summaryAmountExpense: {
-        fontFamily: 'Coiny-Regular',
-        fontSize: scale(16),
-        color: '#D9435E',
+    summaryAmountBalance: { 
+        fontFamily: 'Coiny-Regular', 
+        fontSize: scale(16), 
+        color: '#007BFF' 
     },
-    summaryAmountBalance: {
-        fontFamily: 'Coiny-Regular',
-        fontSize: scale(16),
-        color: '#007BFF',
+    monthSelector: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: scale(10), 
+        paddingHorizontal: scale(10) 
     },
-    monthSelector: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: scale(10),
-        paddingHorizontal: scale(10),
+    arrow: { 
+        fontSize: scale(24), 
+        fontFamily: 'Coiny-Regular', 
+        color: '#04D1C1', 
+        paddingHorizontal: scale(10) 
     },
-    arrow: {
-        fontSize: scale(24),
-        fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
-        paddingHorizontal: scale(10),
+    chartContainer: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-around', 
+        width: '100%' 
     },
-    chartContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        width: '100%',
+    legendContainer: { 
+        marginLeft: scale(10), 
+        flex: 1 
     },
-    legendContainer: {
-        marginLeft: scale(10),
-        flex: 1,
+    legendItem: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        marginVertical: scale(4) 
     },
-    legendItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: scale(4),
+    legendColor: { 
+        width: scale(12), 
+        height: scale(12), 
+        borderRadius: scale(6), 
+        marginRight: scale(8) 
     },
-    legendColor: {
-        width: scale(12),
-        height: scale(12),
-        borderRadius: scale(6),
-        marginRight: scale(8),
-    },
-    legendText: {
-        fontFamily: 'BeVietnamPro-Regular',
-        fontSize: scale(13),
-        flexShrink: 1,
+    legendText: { 
+        fontFamily: 'BeVietnamPro-Regular', 
+        fontSize: scale(13), 
+        flexShrink: 1 
     },
     viewMoreButton: {
         marginTop: scale(15),
@@ -488,4 +432,45 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         color: '#04D1C1',
     },
+    // STYLES CHO FINPET BUTTON
+    finpetFab: {
+        position: 'absolute',
+        bottom: scale(100), // Cao hơn navbar một chút
+        right: scale(20),
+        width: scale(60),
+        height: scale(60),
+        borderRadius: scale(30),
+        backgroundColor: '#FFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#04D1C1",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+        elevation: 8,
+        borderWidth: 2,
+        borderColor: '#04D1C1'
+    },
+    finpetIcon: {
+        width: scale(35),
+        height: scale(35),
+        resizeMode: 'contain',
+    },
+    finpetBadge: {
+        position: 'absolute',
+        top: -5,
+        right: -5,
+        backgroundColor: '#FFC107',
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+    },
+    finpetText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: 'white'
+    }
 });

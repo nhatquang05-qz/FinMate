@@ -10,7 +10,7 @@ const userRoutes = require('./src/routes/userRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
-
+const chatRoutes = require('./src/routes/chatRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,7 +22,7 @@ app.use(
         tempFileDir: '/tmp/',
     }),
 );
-
+app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
