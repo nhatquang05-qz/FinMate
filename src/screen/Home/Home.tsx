@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-    SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions
+    SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, ActivityIndicator
 } from "react-native";
 import { scale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 import { Transaction, SummaryData, PieChartData } from '../../types/data';
 import TransactionItem from '../../components/TransactionItem';
 import { PieChart } from "react-native-gifted-charts";
+import FinPetButton from '../../components/FinPetButton';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -172,6 +173,9 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                 <TouchableOpacity onPress={() => navigateTo('Chart')}>
                                     <Image source={require('./Statistic.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigateTo('Goal')}>
+                                    <Image source={require('../../assets/images/piggy-bank.png')} style={styles.managementIcon} />
+                                </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('Setting')}>
                                     <Image source={require('./Setting.png')} style={styles.managementIcon} />
                                 </TouchableOpacity>
@@ -237,20 +241,10 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                 </View>
             </ScrollView>
 
-            {/* FINPET FLOATING BUTTON */}
-            <TouchableOpacity 
-                style={styles.finpetFab} 
-                onPress={() => navigateTo('Finpet')}
-                activeOpacity={0.8}
-            >
-                <Image 
-                    source={require('../../assets/images/piggy-bank.png')} 
-                    style={styles.finpetIcon} 
-                />
-                <View style={styles.finpetBadge}>
-                     <Text style={styles.finpetText}>AI</Text>
-                </View>
-            </TouchableOpacity>
+            <FinPetButton 
+                summary={summary} 
+                onPress={() => navigateTo('Finpet')} 
+            />
 
         </SafeAreaView>
     );
@@ -266,7 +260,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'transparent',
-        position: 'relative', // Để FAB định vị
+        position: 'relative',
     },
     scrollView: {
         flex: 1,
@@ -432,45 +426,4 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         color: '#04D1C1',
     },
-    // STYLES CHO FINPET BUTTON
-    finpetFab: {
-        position: 'absolute',
-        bottom: scale(100), // Cao hơn navbar một chút
-        right: scale(20),
-        width: scale(60),
-        height: scale(60),
-        borderRadius: scale(30),
-        backgroundColor: '#FFF',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: "#04D1C1",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
-        borderWidth: 2,
-        borderColor: '#04D1C1'
-    },
-    finpetIcon: {
-        width: scale(35),
-        height: scale(35),
-        resizeMode: 'contain',
-    },
-    finpetBadge: {
-        position: 'absolute',
-        top: -5,
-        right: -5,
-        backgroundColor: '#FFC107',
-        borderRadius: 10,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-    },
-    finpetText: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        color: 'white'
-    }
 });

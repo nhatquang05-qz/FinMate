@@ -22,6 +22,7 @@ import NotificationScreen from '../screen/NotificationScreen';
 import { NotificationManager } from '../utils/NotificationManager'; 
 import SettingScreen from '../screen/SettingScreen'; 
 import ChatScreen from '../screen/Chat/ChatScreen'; 
+import GoalScreen from '../screen/Goal/GoalScreen';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
@@ -74,6 +75,8 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
         return <ChartScreen navigateToHistoryWithFilter={navigateToHistoryWithFilter} />;
       case 'History':
         return <HistoryScreen initialFilter={initialHistoryFilter} onClearFilter={clearHistoryFilter} />;
+      case 'Goal':
+        return <GoalScreen />;
       case 'User':
         if (currentUserScreen === 'Profile') {
             return <ProfileScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
