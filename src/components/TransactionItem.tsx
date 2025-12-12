@@ -18,7 +18,7 @@ const TransactionItem: React.FC<{ item: Transaction }> = ({ item }) => {
             <View style={styles.left}>
                 <View>
                     <Text style={styles.category}>{item.category_name}</Text>
-                    {!!item.note && <Text style={styles.note}>{item.note}</Text>}
+                    {item.note && <Text style={styles.note}>{item.note}</Text>}
                     <Text style={styles.date}>{formatDate(item.transaction_date)}</Text>
                 </View>
             </View>
