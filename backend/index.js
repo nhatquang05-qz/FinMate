@@ -11,6 +11,8 @@ const transactionRoutes = require('./src/routes/transactionRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const receiptRoutes = require('./src/routes/receiptRoutes'); 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,11 +24,14 @@ app.use(
         tempFileDir: '/tmp/',
     }),
 );
+
 app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/goals', goalRoutes);
+// [THÊM] Đăng ký route cho receipt
+app.use('/api/receipts', receiptRoutes);
 
 cron.schedule('0 0 * * *', async () => {
     console.log('Running Recurring Transactions Job...');

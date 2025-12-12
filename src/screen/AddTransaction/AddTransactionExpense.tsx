@@ -21,6 +21,7 @@ import { Category } from '../../types/data';
 import { NotificationManager } from '../../utils/NotificationManager';
 import apiClient from '../../api/apiClient';
 import { format } from 'date-fns';
+import * as ImagePicker from 'expo-image-picker';
 
 const AddTransactionExpense = () => {
     const {
@@ -43,6 +44,7 @@ const AddTransactionExpense = () => {
 
     const [isRecurring, setIsRecurring] = useState(false);
     const [localLoading, setLocalLoading] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     useEffect(() => {
         if (isSuccessVisible) {
@@ -62,6 +64,75 @@ const AddTransactionExpense = () => {
 
     const formattedSelectedCategory =
         formattedCategories.find(c => c.id === selectedCategory?.id) || null;
+
+    const pickAndScanImage = async () => {
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permissionResult.granted === false) {
+                Alert.alert('Cần quyền truy cập', 'Vui lòng cấp quyền truy cập thư viện ảnh để quét hóa đơn.');
+                return;
+            }
+
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                quality: 0.8,
+            });
+
+            if (pickerResult.canceled) {
+                return;
+            }
+
+            setIsScanning(true);
+            const imageUri = pickerResult.assets[0].uri;
+
+            const formData = new FormData();
+            formData.append('file', {
+                uri: imageUri,
+                type: 'image/jpeg',
+                name: 'receipt.jpg',
+            } as any);
+
+            const scanRes = await apiClient.post('/receipts/scan', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            
+            if (scanRes.data.success) {
+                const text = scanRes.data.data;
+                processScannedText(text);
+                Alert.alert("Thành công", "Đã quét thông tin từ hóa đơn!");
+            } else {
+                Alert.alert("Lỗi", "Không thể đọc nội dung hóa đơn.");
+            }
+
+        } catch (error) {
+            console.error("Scan error:", error);
+            Alert.alert("Lỗi", "Có lỗi xảy ra khi quét hóa đơn.");
+        } finally {
+            setIsScanning(false);
+        }
+    };
+
+    const processScannedText = (text: string) => {
+        const moneyRegex = /\d{1,3}(?:[.,]\d{3})+(?:\.\d+)?/g;
+        const potentialAmounts = text.match(moneyRegex);
+
+        if (potentialAmounts && potentialAmounts.length > 0) {
+            const validAmounts = potentialAmounts.map(s => {
+                const cleanStr = s.replace(/[^\d]/g, ''); 
+                return parseInt(cleanStr, 10);
+            });
+            
+            const maxAmount = Math.max(...validAmounts);
+            
+            if (maxAmount > 0) {
+                const formattedAmount = maxAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                setAmount(formattedAmount);
+            }
+        }
+
+        setNote("Hóa đơn quét tự động");
+    };
 
     const handleCustomSave = async () => {
         if (isRecurring) {
@@ -84,7 +155,6 @@ const AddTransactionExpense = () => {
 
                 Alert.alert('Thành công', 'Đã tạo lịch giao dịch tự động hàng tháng!');
 
-                // Reset form thủ công
                 setAmount('');
                 setNote('');
                 setIsRecurring(false);
@@ -100,7 +170,7 @@ const AddTransactionExpense = () => {
         }
     };
 
-    const isLoading = hookLoading || localLoading;
+    const isLoading = hookLoading || localLoading || isScanning;
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -108,6 +178,19 @@ const AddTransactionExpense = () => {
                 style={styles.container}
                 contentContainerStyle={{ paddingBottom: verticalScale(200) }}
                 showsVerticalScrollIndicator={false}>
+                
+                <TouchableOpacity 
+                    style={styles.scanButton} 
+                    onPress={pickAndScanImage}
+                    disabled={isLoading}
+                >
+                    {isScanning ? (
+                        <ActivityIndicator size="small" color="#04D1C1" />
+                    ) : (
+                        <Text style={styles.scanButtonText}>📸 Quét Hóa Đơn</Text>
+                    )}
+                </TouchableOpacity>
+
                 <Detail
                     date={date}
                     onDateChange={setDate}
@@ -178,6 +261,25 @@ const styles = StyleSheet.create({
         paddingHorizontal: moderateScale(20),
         paddingTop: verticalScale(10),
     },
+    scanButton: {
+        alignSelf: 'center',
+        paddingVertical: verticalScale(8),
+        paddingHorizontal: moderateScale(15),
+        backgroundColor: '#fff',
+        borderRadius: scale(20),
+        marginBottom: verticalScale(10),
+        borderWidth: 1,
+        borderColor: '#04D1C1',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        elevation: 2,
+    },
+    scanButtonText: {
+        color: '#04D1C1',
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: moderateScale(14),
+    },
     shadowbox: {
         width: '50%',
         alignItems: 'center',
@@ -219,7 +321,6 @@ const styles = StyleSheet.create({
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
     },
-    // Style mới cho phần Recurring
     recurringContainer: {
         marginTop: verticalScale(15),
         backgroundColor: '#fff',
