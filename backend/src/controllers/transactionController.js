@@ -1,7 +1,6 @@
 const db = require('../config/db');
 const { validationResult } = require('express-validator');
 
-// @desc    Create a new transaction
 exports.createTransaction = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -12,7 +11,6 @@ exports.createTransaction = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // **Security Check**: Verify the category belongs to the user
     const [categories] = await db.query('SELECT user_id FROM categories WHERE id = ?', [category_id]);
     if (categories.length === 0) {
       return res.status(404).json({ message: 'Category not found' });
@@ -35,10 +33,29 @@ exports.createTransaction = async (req, res) => {
   }
 };
 
-// @desc    Get all transactions for the logged-in user
+exports.createRecurringTransaction = async (req, res) => {
+    const { amount, type, note, category_id, start_date } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const sql = `INSERT INTO recurring_transactions 
+        (amount, type, note, category_id, user_id, frequency, start_date, next_run_date) 
+        VALUES (?, ?, ?, ?, ?, 'monthly', ?, ?)`;
+        
+        const nextDate = new Date(start_date);
+        nextDate.setMonth(nextDate.getMonth() + 1);
+
+        await db.execute(sql, [amount, type, note, category_id, userId, start_date, nextDate]);
+        res.status(201).json({ message: 'Recurring transaction created' });
+    } catch (error) {
+        console.error('Error recurring:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 exports.getTransactionsByUser = async (req, res) => {
   const userId = req.user.id;
-  const { type, limit, category_ids } = req.query; // << SỬA `category_id` THÀNH `category_ids`
+  const { type, limit, category_ids } = req.query;
 
   try {
     let sql = `
@@ -79,7 +96,6 @@ exports.getTransactionsByUser = async (req, res) => {
   }
 };
 
-// @desc    Update a transaction
 exports.updateTransaction = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -91,7 +107,6 @@ exports.updateTransaction = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        // **Security Check**: Verify the transaction belongs to the user
         const [transactions] = await db.query('SELECT user_id FROM transactions WHERE id = ?', [id]);
         if (transactions.length === 0) {
             return res.status(404).json({ message: 'Transaction not found' });
@@ -100,7 +115,6 @@ exports.updateTransaction = async (req, res) => {
             return res.status(403).json({ message: 'User not authorized to update this transaction' });
         }
 
-        // (Optional but good) Security check for new category_id
         if(category_id) {
             const [categories] = await db.query('SELECT user_id FROM categories WHERE id = ?', [category_id]);
             if (categories.length === 0 || categories[0].user_id !== userId) {
@@ -118,13 +132,11 @@ exports.updateTransaction = async (req, res) => {
     }
 };
 
-// @desc    Delete a transaction
 exports.deleteTransaction = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
     try {
-        // **Security Check**: Verify the transaction belongs to the user
         const [transactions] = await db.query('SELECT user_id FROM transactions WHERE id = ?', [id]);
         if (transactions.length === 0) {
             return res.status(404).json({ message: 'Transaction not found' });
@@ -142,10 +154,9 @@ exports.deleteTransaction = async (req, res) => {
     }
 };
 
-// @desc    Get monthly summary (total income, expense, balance)
 exports.getTransactionSummary = async (req, res) => {
     const userId = req.user.id;
-    const { month, year } = req.query; // e.g., month=11, year=2025
+    const { month, year } = req.query; 
 
     if (!month || !year) {
         return res.status(400).json({ message: 'Month and year are required' });
@@ -179,7 +190,6 @@ exports.getTransactionSummary = async (req, res) => {
     }
 };
 
-// @desc    Get data for pie chart (expenses grouped by category)
 exports.getPieChartData = async (req, res) => {
     const userId = req.user.id;
     const { month, year } = req.query;
@@ -212,7 +222,6 @@ exports.getPieChartData = async (req, res) => {
     }
 };
 
-// @desc    Get all unique months/years that have transactions
 exports.getMonthsWithData = async (req, res) => {
     const userId = req.user.id;
     try {
@@ -232,7 +241,6 @@ exports.getMonthsWithData = async (req, res) => {
     }
 };
 
-// @desc    Get the 3 most recent transactions for the logged-in user
 exports.getRecentTransactions = async (req, res) => {
   const userId = req.user.id;
   try {
@@ -255,82 +263,76 @@ exports.getRecentTransactions = async (req, res) => {
   }
 };
 
-// @desc Get comprehensive statistics for a given period (week, month, year)
 exports.getStatistics = async (req, res) => {
-const userId = req.user.id;
-const { periodType, year, month, startDate, endDate } = req.query;
-if (!periodType || !year) {
-    return res.status(400).json({ message: 'Period type and year are required.' });
-}
+    const userId = req.user.id;
+    const { periodType, year, month, startDate, endDate } = req.query;
+    
+    let dateCondition = '';
+    const params = [userId];
 
-let dateCondition = '';
-const params = [userId];
-
-switch (periodType) {
-    case 'year':
+    if (periodType === 'year') {
         dateCondition = 'AND YEAR(t.transaction_date) = ?';
         params.push(year);
-        break;
-    case 'month':
+    } else if (periodType === 'month') {
         if (!month) return res.status(400).json({ message: 'Month is required.' });
         dateCondition = 'AND YEAR(t.transaction_date) = ? AND MONTH(t.transaction_date) = ?';
         params.push(year, month);
-        break;
-    case 'week':
+    } else if (periodType === 'week') {
         if (!startDate || !endDate) return res.status(400).json({ message: 'Start and end dates are required for weekly view.' });
         dateCondition = 'AND t.transaction_date BETWEEN ? AND ?';
         params.push(startDate, endDate);
-        break;
-    default:
+    } else {
         return res.status(400).json({ message: 'Invalid period type.' });
-}
+    }
 
-  try {
-    // Query 1: Lấy Tổng thu, Tổng chi
-    const summarySql = `
-        SELECT
-            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
-            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS totalExpense
-        FROM transactions t
-        WHERE t.user_id = ? ${dateCondition}
-    `;
-
-    // Query 2: Lấy chi tiết chi tiêu theo từng danh mục
-    const expenseByCategorySql = `
-            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
-            FROM transactions t JOIN categories c ON t.category_id = c.id
-            WHERE t.user_id = ? AND t.type = 'expense' ${dateCondition}
-            GROUP BY c.id, c.name, c.icon ORDER BY totalAmount DESC;
+    try {
+        const summarySql = `
+            SELECT
+                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
+                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS totalExpense
+            FROM transactions t
+            WHERE t.user_id = ? ${dateCondition}
         `;
 
-    // << QUERY 3: LẤY CHI TIẾT THU NHẬP THEO DANH MỤC >>
-    const incomeByCategorySql = `
-            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
+        const expenseByCategorySql = `
+            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, c.budget_limit AS budgetLimit, 
+                   SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
+            FROM transactions t JOIN categories c ON t.category_id = c.id
+            WHERE t.user_id = ? AND t.type = 'expense' ${dateCondition}
+            GROUP BY c.id, c.name, c.icon, c.budget_limit ORDER BY totalAmount DESC;
+        `;
+
+        const incomeByCategorySql = `
+            SELECT c.id AS categoryId, c.name AS categoryName, c.icon AS categoryIcon, 
+                   SUM(t.amount) AS totalAmount, COUNT(t.id) AS transactionCount
             FROM transactions t JOIN categories c ON t.category_id = c.id
             WHERE t.user_id = ? AND t.type = 'income' ${dateCondition}
             GROUP BY c.id, c.name, c.icon ORDER BY totalAmount DESC;
         `;
 
-    // Chạy cả 3 query song song để tối ưu hiệu suất
-    const [summaryResult, expenseByCategory, incomeByCategory] = await Promise.all([
-      db.query(summarySql, params),
-      db.query(expenseByCategorySql, params),
-      db.query(incomeByCategorySql, params)
-    ]);
+        const [summaryResult, expenseByCategory, incomeByCategory] = await Promise.all([
+            db.query(summarySql, params),
+            db.query(expenseByCategorySql, params),
+            db.query(incomeByCategorySql, params)
+        ]);
 
-    res.json({
-      summary: {
-        totalIncome: parseFloat(summaryResult[0][0].totalIncome) || 0,
-        totalExpense: parseFloat(summaryResult[0][0].totalExpense) || 0,
-      },
-      expenseByCategory: expenseByCategory[0].map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })),
-      incomeByCategory: incomeByCategory[0].map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })),
-    });
+        res.json({
+            summary: {
+                totalIncome: parseFloat(summaryResult[0][0].totalIncome) || 0,
+                totalExpense: parseFloat(summaryResult[0][0].totalExpense) || 0,
+            },
+            expenseByCategory: expenseByCategory[0].map(item => ({ 
+                ...item, 
+                totalAmount: parseFloat(item.totalAmount),
+                budgetLimit: parseFloat(item.budgetLimit) 
+            })),
+            incomeByCategory: incomeByCategory[0].map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })),
+        });
 
-  } catch (error) {
-    console.error('Error fetching statistics:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+    } catch (error) {
+        console.error('Error fetching statistics:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 // @desc Get all data needed for the calendar view for a specific month
@@ -342,7 +344,6 @@ if (!month || !year) {
 }
 
 try {
-    // Query 1: Lấy tóm tắt Tổng thu, Tổng chi của cả tháng
     const summarySql = `
         SELECT
             SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS totalIncome,
@@ -351,7 +352,6 @@ try {
         WHERE user_id = ? AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?;
     `;
 
-    // Query 2: Lấy tóm tắt chênh lệch Thu-Chi cho mỗi ngày có giao dịch
     const dailySummarySql = `
         SELECT
             DATE(transaction_date) as date,
@@ -361,7 +361,6 @@ try {
         GROUP BY DATE(transaction_date);
     `;
 
-    // Query 3: Lấy tất cả giao dịch trong tháng
     const allTransactionsSql = `
         SELECT t.id, t.amount, t.type, t.transaction_date, t.note, c.name AS category_name
         FROM transactions t JOIN categories c ON t.category_id = c.id
@@ -369,7 +368,6 @@ try {
         ORDER BY t.transaction_date DESC;
     `;
     
-    // Chạy cả 3 query song song
     const [summaryResult, dailySummaryResult, allTransactionsResult] = await Promise.all([
         db.query(summarySql, [userId, month, year]),
         db.query(dailySummarySql, [userId, month, year]),

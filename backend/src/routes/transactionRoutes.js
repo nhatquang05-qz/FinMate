@@ -53,5 +53,6 @@ router.get('/statistics', transactionController.getStatistics);
 // @route   GET /api/transactions/calendar-view
 // @desc    Get data for the calendar screen
 router.get('/calendar-view', transactionController.getCalendarView);
+router.post('/recurring', transactionController.createRecurringTransaction);
 
 module.exports = router;
