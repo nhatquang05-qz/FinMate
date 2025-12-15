@@ -23,15 +23,28 @@ const TransactionItem: React.FC<{ item: Transaction }> = ({ item }) => {
                 </View>
             </View>
             <Text style={[styles.amount, { color: isExpense ? '#D9435E' : '#28A745' }]}>
-                {isExpense ? '-' : '+'}{formatCurrency(item.amount)}
+                {isExpense ? '-' : '+'}
+                {formatCurrency(item.amount)}
             </Text>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: scale(12), borderBottomWidth: 1, borderBottomColor: '#EEE' },
-    date: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(12), color: '#AAA', paddingTop: scale(2) },
+    container: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: scale(12),
+        borderBottomWidth: 1,
+        borderBottomColor: '#EEE',
+    },
+    date: {
+        fontFamily: 'BeVietnamPro-Regular',
+        fontSize: scale(12),
+        color: '#AAA',
+        paddingTop: scale(2),
+    },
     left: { flexDirection: 'row', alignItems: 'center' },
     category: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(15), color: '#333' },
     note: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(12), color: '#888' },

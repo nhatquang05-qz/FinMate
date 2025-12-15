@@ -11,7 +11,7 @@ const transactionRoutes = require('./src/routes/transactionRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
-const receiptRoutes = require('./src/routes/receiptRoutes'); 
+const receiptRoutes = require('./src/routes/receiptRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

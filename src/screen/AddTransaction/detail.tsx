@@ -3,7 +3,6 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CustomDatePickerModal from '../../components/CustomDatePickerModal';
 
-// Định nghĩa kiểu cho các props mà component sẽ nhận từ cha
 type DetailProps = {
     date: Date;
     onDateChange: (date: Date) => void;
@@ -43,7 +42,7 @@ const Detail = ({
                     placeholderTextColor="#c0c0c0"
                     keyboardType="numeric"
                     value={amount}
-                    onChangeText={onAmountChange} // Sử dụng hàm từ props
+                    onChangeText={onAmountChange}
                 />
             </View>
 
@@ -55,7 +54,7 @@ const Detail = ({
                     placeholder="Thêm ghi chú"
                     placeholderTextColor="#c0c0c0"
                     value={note}
-                    onChangeText={onNoteChange} // Sử dụng hàm từ props
+                    onChangeText={onNoteChange}
                 />
             </View>
 

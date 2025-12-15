@@ -4,12 +4,9 @@ const { body } = require('express-validator');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { uploadAvatar } = require('../config/cloudinaryConfig');
-// @route   GET /api/users/profile
-// @desc    Get user profile
+
 router.get('/profile', authMiddleware, userController.getUserProfile);
 
-// @route   POST /api/users/register
-// @desc    Register a new user
 router.post(
     '/register',
     [
@@ -24,8 +21,6 @@ router.post(
     userController.registerUser,
 );
 
-// @route   POST /api/users/login
-// @desc    Authenticate user & get token
 router.post(
     '/login',
     [
@@ -35,8 +30,6 @@ router.post(
     userController.loginUser,
 );
 
-// @route   PUT /api/users/change-password
-// @desc    Change user password (Protected)
 router.put(
     '/change-password',
     [
@@ -47,8 +40,6 @@ router.put(
     userController.changePassword,
 );
 
-// @route   PUT /api/users/profile
-// @desc    Update user profile
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.patch('/avatar', authMiddleware, uploadAvatar, userController.updateAvatar);
 

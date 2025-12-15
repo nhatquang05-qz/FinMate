@@ -24,48 +24,53 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
                     duration: 1500,
                     useNativeDriver: true,
                 }),
-            ])
+            ]),
         ).start();
     }, []);
 
     // Logic xác định tâm trạng
     const getMood = () => {
-        if (income === 0 && expense === 0) return {
-            status: 'waiting',
-            message: "Chào bạn! Hãy nhập thu nhập để mình giúp bạn quản lý nhé.",
-            color: '#888'
-        };
-        
-        if (income === 0 && expense > 0) return {
-            status: 'worried',
-            message: "Bạn đang chi tiêu mà chưa có thu nhập. Cẩn thận nhé!",
-            color: '#FFA500' // Cam
-        };
+        if (income === 0 && expense === 0)
+            return {
+                status: 'waiting',
+                message: 'Chào bạn! Hãy nhập thu nhập để mình giúp bạn quản lý nhé.',
+                color: '#888',
+            };
+
+        if (income === 0 && expense > 0)
+            return {
+                status: 'worried',
+                message: 'Bạn đang chi tiêu mà chưa có thu nhập. Cẩn thận nhé!',
+                color: '#FFA500', // Cam
+            };
 
         const ratio = (expense / income) * 100;
 
-        if (ratio > 90) return {
-            status: 'sick',
-            message: "Ối! Bạn sắp 'cháy túi' rồi. Hãy dừng chi tiêu ngay!",
-            color: '#D9435E' // Đỏ
-        };
+        if (ratio > 90)
+            return {
+                status: 'sick',
+                message: "Ối! Bạn sắp 'cháy túi' rồi. Hãy dừng chi tiêu ngay!",
+                color: '#D9435E', // Đỏ
+            };
 
-        if (ratio > 70) return {
-            status: 'sad',
-            message: "Hic... Bạn đã tiêu hơn 70% thu nhập rồi đó.",
-            color: '#FFC107' // Vàng
-        };
+        if (ratio > 70)
+            return {
+                status: 'sad',
+                message: 'Hic... Bạn đã tiêu hơn 70% thu nhập rồi đó.',
+                color: '#FFC107', // Vàng
+            };
 
-        if (ratio < 50) return {
-            status: 'happy',
-            message: "Tuyệt vời! Bạn đang tiết kiệm rất tốt. Tiếp tục phát huy nhé!",
-            color: '#28A745' // Xanh lá
-        };
+        if (ratio < 50)
+            return {
+                status: 'happy',
+                message: 'Tuyệt vời! Bạn đang tiết kiệm rất tốt. Tiếp tục phát huy nhé!',
+                color: '#28A745', // Xanh lá
+            };
 
         return {
             status: 'normal',
-            message: "Tài chính ổn định. Hãy chi tiêu hợp lý nhé.",
-            color: '#04D1C1' // Xanh ngọc
+            message: 'Tài chính ổn định. Hãy chi tiêu hợp lý nhé.',
+            color: '#04D1C1', // Xanh ngọc
         };
     };
 
@@ -76,11 +81,11 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
             <View style={[styles.bubble, { borderColor: mood.color }]}>
                 <Text style={[styles.message, { color: mood.color }]}>{mood.message}</Text>
             </View>
-            
-            <Animated.Image 
+
+            <Animated.Image
                 // Sử dụng ảnh heo đất hiện có. Bạn có thể thay đổi ảnh khác (buồn/vui) tùy theo mood.status sau này
-                source={require('../assets/images/piggy-bank.png')} 
-                style={[styles.petImage, { transform: [{ scale: scaleAnim }] }]} 
+                source={require('../assets/images/piggy-bank.png')}
+                style={[styles.petImage, { transform: [{ scale: scaleAnim }] }]}
             />
         </View>
     );
@@ -117,7 +122,7 @@ const styles = StyleSheet.create({
         fontFamily: 'BeVietnamPro-Bold', // Dùng font Bold để nhấn mạnh
         fontSize: scale(13),
         textAlign: 'left',
-    }
+    },
 });
 
 export default FinPet;

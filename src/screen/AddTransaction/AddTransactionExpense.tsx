@@ -69,7 +69,10 @@ const AddTransactionExpense = () => {
         try {
             const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (permissionResult.granted === false) {
-                Alert.alert('Cần quyền truy cập', 'Vui lòng cấp quyền truy cập thư viện ảnh để quét hóa đơn.');
+                Alert.alert(
+                    'Cần quyền truy cập',
+                    'Vui lòng cấp quyền truy cập thư viện ảnh để quét hóa đơn.',
+                );
                 return;
             }
 
@@ -96,18 +99,17 @@ const AddTransactionExpense = () => {
             const scanRes = await apiClient.post('/receipts/scan', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            
+
             if (scanRes.data.success) {
                 const text = scanRes.data.data;
                 processScannedText(text);
-                Alert.alert("Thành công", "Đã quét thông tin từ hóa đơn!");
+                Alert.alert('Thành công', 'Đã quét thông tin từ hóa đơn!');
             } else {
-                Alert.alert("Lỗi", "Không thể đọc nội dung hóa đơn.");
+                Alert.alert('Lỗi', 'Không thể đọc nội dung hóa đơn.');
             }
-
         } catch (error) {
-            console.error("Scan error:", error);
-            Alert.alert("Lỗi", "Có lỗi xảy ra khi quét hóa đơn.");
+            console.error('Scan error:', error);
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi quét hóa đơn.');
         } finally {
             setIsScanning(false);
         }
@@ -119,19 +121,19 @@ const AddTransactionExpense = () => {
 
         if (potentialAmounts && potentialAmounts.length > 0) {
             const validAmounts = potentialAmounts.map(s => {
-                const cleanStr = s.replace(/[^\d]/g, ''); 
+                const cleanStr = s.replace(/[^\d]/g, '');
                 return parseInt(cleanStr, 10);
             });
-            
+
             const maxAmount = Math.max(...validAmounts);
-            
+
             if (maxAmount > 0) {
-                const formattedAmount = maxAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                const formattedAmount = maxAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 setAmount(formattedAmount);
             }
         }
 
-        setNote("Hóa đơn quét tự động");
+        setNote('Hóa đơn quét tự động');
     };
 
     const handleCustomSave = async () => {
@@ -176,14 +178,12 @@ const AddTransactionExpense = () => {
         <SafeAreaView style={styles.safeArea}>
             <ScrollView
                 style={styles.container}
-                contentContainerStyle={{ paddingBottom: verticalScale(200) }}
+                contentContainerStyle={{ paddingBottom: verticalScale(150) }}
                 showsVerticalScrollIndicator={false}>
-                
-                <TouchableOpacity 
-                    style={styles.scanButton} 
+                <TouchableOpacity
+                    style={styles.scanButton}
                     onPress={pickAndScanImage}
-                    disabled={isLoading}
-                >
+                    disabled={isLoading}>
                     {isScanning ? (
                         <ActivityIndicator size="small" color="#04D1C1" />
                     ) : (
@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
         color: '#04D1C1',
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(14),
+        lineHeight: moderateScale(20),
     },
     shadowbox: {
         width: '50%',
@@ -302,12 +303,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(17),
         color: '#000000ff',
+        lineHeight: moderateScale(24),
     },
     saveButtonContainer: {
         bottom: scale(110),
         width: '35%',
         alignSelf: 'center',
         position: 'absolute',
+        zIndex: 100,
     },
     saveButton: {
         backgroundColor: '#04D1C1',
@@ -315,11 +318,16 @@ const styles = StyleSheet.create({
         paddingVertical: verticalScale(8),
         alignItems: 'center',
         justifyContent: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
     },
     saveButtonText: {
         color: '#ffffff',
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
+        lineHeight: scale(28),
     },
     recurringContainer: {
         marginTop: verticalScale(15),
@@ -340,6 +348,7 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(16),
         fontFamily: 'BeVietnamPro-Bold',
         color: '#04D1C1',
+        lineHeight: moderateScale(24),
     },
     hint: {
         fontSize: moderateScale(12),
@@ -347,6 +356,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: 5,
         fontFamily: 'BeVietnamPro-Regular',
+        lineHeight: moderateScale(16),
     },
 });
 

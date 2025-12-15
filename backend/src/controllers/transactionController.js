@@ -63,6 +63,64 @@ exports.createRecurringTransaction = async (req, res) => {
     }
 };
 
+exports.getRecurringTransactions = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const sql = `
+            SELECT rt.*, c.name as category_name, c.icon as category_icon 
+            FROM recurring_transactions rt
+            JOIN categories c ON rt.category_id = c.id
+            WHERE rt.user_id = ?
+            ORDER BY rt.created_at DESC
+        `;
+        const [recurrings] = await db.query(sql, [userId]);
+        res.json(recurrings);
+    } catch (error) {
+        console.error('Error fetching recurring:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.toggleRecurringStatus = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const [exists] = await db.query(
+            'SELECT id, is_active FROM recurring_transactions WHERE id = ? AND user_id = ?',
+            [id, userId],
+        );
+        if (exists.length === 0) return res.status(404).json({ message: 'Not found' });
+
+        const newStatus = !exists[0].is_active;
+        await db.execute('UPDATE recurring_transactions SET is_active = ? WHERE id = ?', [
+            newStatus,
+            id,
+        ]);
+
+        res.json({ message: 'Updated successfully', is_active: newStatus });
+    } catch (error) {
+        console.error('Error toggling recurring:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.deleteRecurringTransaction = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+    try {
+        const [result] = await db.execute(
+            'DELETE FROM recurring_transactions WHERE id = ? AND user_id = ?',
+            [id, userId],
+        );
+        if (result.affectedRows === 0) return res.status(404).json({ message: 'Not found' });
+        res.json({ message: 'Deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting recurring:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 exports.getTransactionsByUser = async (req, res) => {
     const userId = req.user.id;
     const { type, limit, category_ids } = req.query;
@@ -233,7 +291,7 @@ exports.getPieChartData = async (req, res) => {
                 YEAR(t.transaction_date) = ?
             GROUP BY c.name
             ORDER BY totalAmount DESC
-            LIMIT 5; -- Lấy 5 danh mục chi nhiều nhất
+            LIMIT 5; 
         `;
         const [pieData] = await db.query(sql, [userId, month, year]);
         res.json(pieData.map(item => ({ ...item, totalAmount: parseFloat(item.totalAmount) })));
@@ -361,7 +419,6 @@ exports.getStatistics = async (req, res) => {
     }
 };
 
-// @desc Get all data needed for the calendar view for a specific month
 exports.getCalendarView = async (req, res) => {
     const userId = req.user.id;
     const { month, year } = req.query;

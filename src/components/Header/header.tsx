@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: scale(30),
         color: '#04D1C1',
+        lineHeight: scale(40),
     },
     rightIconContainer: {
         flex: 1,

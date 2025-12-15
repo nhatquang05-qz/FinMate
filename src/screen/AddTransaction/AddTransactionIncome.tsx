@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,8 @@ import {
     ScrollView,
     SafeAreaView,
     ActivityIndicator,
+    Switch,
+    Alert,
 } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CategoryPicker from '../../components/CategoryPicker';
@@ -17,6 +19,8 @@ import { useTransactionForm } from '../../hooks/useTransactionForm';
 import { iconMap } from '../../utils/iconMap';
 import { Category } from '../../types/data';
 import { NotificationManager } from '../../utils/NotificationManager';
+import apiClient from '../../api/apiClient';
+import { format } from 'date-fns';
 
 const AddTransactionIncome = () => {
     const {
@@ -25,7 +29,7 @@ const AddTransactionIncome = () => {
         date,
         amount,
         note,
-        isLoading,
+        isLoading: hookLoading,
         isSuccessVisible,
         isFailedVisible,
         setSelectedCategory,
@@ -36,6 +40,9 @@ const AddTransactionIncome = () => {
         handleSuccessClose,
         setFailedVisible,
     } = useTransactionForm('income');
+
+    const [isRecurring, setIsRecurring] = useState(false);
+    const [localLoading, setLocalLoading] = useState(false);
 
     useEffect(() => {
         if (isSuccessVisible) {
@@ -48,6 +55,41 @@ const AddTransactionIncome = () => {
         }
     }, [isSuccessVisible]);
 
+    const handleCustomSave = async () => {
+        if (isRecurring) {
+            if (!amount || !selectedCategory) {
+                Alert.alert('Lỗi', 'Vui lòng nhập số tiền và chọn danh mục');
+                return;
+            }
+            setLocalLoading(true);
+            try {
+                const payload = {
+                    amount: parseFloat(amount.replace(/\./g, '').replace(/,/g, '')),
+                    type: 'income',
+                    transaction_date: date,
+                    note: note,
+                    category_id: selectedCategory.id,
+                    start_date: format(date, 'yyyy-MM-dd'),
+                };
+
+                await apiClient.post('/transactions/recurring', payload);
+                Alert.alert('Thành công', 'Đã tạo lịch thu nhập tự động hàng tháng!');
+
+                setAmount('');
+                setNote('');
+                setIsRecurring(false);
+                setSelectedCategory(null);
+            } catch (error) {
+                console.error(error);
+                Alert.alert('Lỗi', 'Không thể lưu giao dịch định kỳ');
+            } finally {
+                setLocalLoading(false);
+            }
+        } else {
+            handleSave();
+        }
+    };
+
     const formattedCategories = categories.map((cat: Category) => ({
         ...cat,
         icon: iconMap[cat.icon] || iconMap.default,
@@ -55,6 +97,8 @@ const AddTransactionIncome = () => {
 
     const formattedSelectedCategory =
         formattedCategories.find(c => c.id === selectedCategory?.id) || null;
+
+    const isLoading = hookLoading || localLoading;
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -70,6 +114,23 @@ const AddTransactionIncome = () => {
                     note={note}
                     onNoteChange={setNote}
                 />
+
+                <View style={styles.recurringContainer}>
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Lặp lại hàng tháng</Text>
+                        <Switch
+                            trackColor={{ false: '#767577', true: '#04D1C1' }}
+                            value={isRecurring}
+                            onValueChange={setIsRecurring}
+                        />
+                    </View>
+                    {isRecurring ? (
+                        <Text style={styles.hint}>
+                            Thu nhập sẽ tự động cộng vào ngày {date.getDate()} hàng tháng.
+                        </Text>
+                    ) : null}
+                </View>
+
                 <View style={styles.shadowbox}>
                     <Text style={styles.categoryTitle}>Chọn danh mục</Text>
                 </View>
@@ -87,7 +148,7 @@ const AddTransactionIncome = () => {
             <View style={styles.saveButtonContainer}>
                 <TouchableOpacity
                     style={styles.saveButton}
-                    onPress={handleSave}
+                    onPress={handleCustomSave}
                     disabled={isLoading}>
                     {isLoading ? (
                         <ActivityIndicator color="#fff" />
@@ -113,6 +174,26 @@ const styles = StyleSheet.create({
         paddingHorizontal: moderateScale(20),
         paddingTop: verticalScale(10),
     },
+    scanButton: {
+        alignSelf: 'center',
+        paddingVertical: verticalScale(8),
+        paddingHorizontal: moderateScale(15),
+        backgroundColor: '#fff',
+        borderRadius: scale(20),
+        marginBottom: verticalScale(10),
+        borderWidth: 1,
+        borderColor: '#04D1C1',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        elevation: 2,
+    },
+    scanButtonText: {
+        color: '#04D1C1',
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: moderateScale(14),
+        lineHeight: moderateScale(20),
+    },
     shadowbox: {
         width: '50%',
         alignItems: 'center',
@@ -135,12 +216,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(17),
         color: '#000000ff',
+        lineHeight: moderateScale(24),
     },
     saveButtonContainer: {
         bottom: scale(110),
         width: '35%',
         alignSelf: 'center',
         position: 'absolute',
+        zIndex: 100,
     },
     saveButton: {
         backgroundColor: '#04D1C1',
@@ -148,11 +231,45 @@ const styles = StyleSheet.create({
         paddingVertical: verticalScale(8),
         alignItems: 'center',
         justifyContent: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
     },
     saveButtonText: {
         color: '#ffffff',
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
+        lineHeight: scale(28),
+    },
+    recurringContainer: {
+        marginTop: verticalScale(15),
+        backgroundColor: '#fff',
+        padding: scale(15),
+        borderRadius: scale(20),
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    label: {
+        fontSize: moderateScale(16),
+        fontFamily: 'BeVietnamPro-Bold',
+        color: '#04D1C1',
+        lineHeight: moderateScale(24),
+    },
+    hint: {
+        fontSize: moderateScale(12),
+        color: '#888',
+        fontStyle: 'italic',
+        marginTop: 5,
+        fontFamily: 'BeVietnamPro-Regular',
+        lineHeight: moderateScale(16),
     },
 });
 

@@ -9,8 +9,7 @@ import {
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { scale } from '../../utils/scaling';
+import { scale, moderateScale } from '../../utils/scaling';
 import apiClient from '../../api/apiClient';
 
 const userAvatar = require('../../assets/images/user_avatar.png');
@@ -63,7 +62,7 @@ const UserScreen: React.FC<UserScreenProps> = ({
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.profileHeader}>
                     <Image
@@ -83,12 +82,11 @@ const UserScreen: React.FC<UserScreenProps> = ({
 
                     <TouchableOpacity
                         style={styles.menuItem}
-                        onPress={() => alert('Chuyển đến trang Quản lý danh mục')}>
-                        <Text style={styles.menuText}>Quản lý danh mục</Text>
+                        onPress={() => navigateToSubScreen('Recurring')}>
+                        <Text style={styles.menuText}>Quản lý thu chi định kỳ</Text>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
 
-                    {/* << 2. Cập nhật sự kiện onPress cho nút này >> */}
                     <TouchableOpacity style={styles.menuItem} onPress={onNavigateToSettings}>
                         <Text style={styles.menuText}>Quản lý cài đặt</Text>
                         <Text style={styles.arrow}>›</Text>
@@ -112,7 +110,7 @@ const UserScreen: React.FC<UserScreenProps> = ({
                     <Text style={styles.logoutButtonText}>Đăng xuất</Text>
                 </TouchableOpacity>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -130,7 +128,12 @@ const styles = StyleSheet.create({
         borderRadius: scale(50),
         marginBottom: scale(15),
     },
-    userName: { fontFamily: 'Coiny-Regular', fontSize: scale(24), color: '#04D1C1' },
+    userName: {
+        fontFamily: 'Coiny-Regular',
+        fontSize: scale(24),
+        color: '#04D1C1',
+        lineHeight: moderateScale(30),
+    },
     menuContainer: { marginBottom: scale(40) },
     menuItem: {
         backgroundColor: 'white',
@@ -146,8 +149,13 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
     },
-    menuText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16), color: '#333' },
-    arrow: { fontSize: scale(24), color: '#04D1C1' },
+    menuText: {
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: scale(16),
+        color: '#333',
+        lineHeight: moderateScale(24),
+    },
+    arrow: { fontSize: scale(24), color: '#04D1C1', lineHeight: moderateScale(28) },
     logoutButton: {
         backgroundColor: '#04D1C1',
         borderRadius: scale(30),
@@ -160,7 +168,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 3,
     },
-    logoutButtonText: { fontFamily: 'Coiny-Regular', fontSize: scale(18), color: 'white' },
+    logoutButtonText: {
+        fontFamily: 'Coiny-Regular',
+        fontSize: scale(18),
+        color: 'white',
+        lineHeight: moderateScale(24),
+    },
 });
 
 export default UserScreen;
