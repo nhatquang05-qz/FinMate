@@ -34,14 +34,12 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
     const [allCategories, setAllCategories] = useState<Category[]>([]);
     const [isFilterModalVisible, setFilterModalVisible] = useState(false);
 
-    // Dọn dẹp bộ lọc ở component cha sau khi đã sử dụng (chỉ chạy 1 lần)
     useEffect(() => {
         if (initialFilter) {
             onClearFilter();
         }
     }, []);
 
-    // Lấy danh sách tất cả danh mục (chỉ chạy 1 lần)
     useEffect(() => {
         const fetchAllCategories = async () => {
             try {
@@ -54,8 +52,6 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
         fetchAllCategories();
     }, []);
 
-    // Tải lại dữ liệu khi tab hoặc filter thay đổi.
-    // Lần đầu tiên chạy, nó sẽ dùng state đã được khởi tạo đúng.
     useEffect(() => {
         fetchData();
     }, [activeTab, selectedCategoryIds]);
@@ -80,10 +76,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
         }
     };
 
-    // XỬ LÝ VIỆC CHUYỂN TAB
     const handleTabChange = (tab: HistoryTab) => {
         setActiveTab(tab);
-        // Reset bộ lọc mỗi khi chuyển tab
+
         setSelectedCategoryIds([]);
     };
 
@@ -97,7 +92,6 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ initialFilter, onClearFil
         </View>
     );
 
-    // Lọc danh sách category để hiển thị trong modal dựa trên tab đang chọn
     const categoriesForFilter = allCategories.filter(
         cat => activeTab === 'all' || cat.type === activeTab,
     );

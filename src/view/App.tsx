@@ -18,16 +18,18 @@ import UserScreen from '../screen/User/UserScreen';
 import ProfileScreen from '../screen/User/ProfileScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CalendarScreen from '../screen/Calendar/CalendarScreen';
-import NotificationScreen from '../screen/NotificationScreen'; 
-import { NotificationManager } from '../utils/NotificationManager'; 
-import SettingScreen from '../screen/SettingScreen'; 
-import ChatScreen from '../screen/Chat/ChatScreen'; 
+import NotificationScreen from '../screen/NotificationScreen';
+import { NotificationManager } from '../utils/NotificationManager';
+import SettingScreen from '../screen/SettingScreen';
+import ChatScreen from '../screen/Chat/ChatScreen';
 import GoalScreen from '../screen/Goal/GoalScreen';
+import BudgetScreen from '../screen/Budget/BudgetScreen';
+import RecurringListScreen from '../screen/Recurring/RecurringListScreen';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
 interface MainAppProps {
-  onLogout: () => void;
+    onLogout: () => void;
 }
 
 type HistoryFilter = {
@@ -36,203 +38,203 @@ type HistoryFilter = {
 };
 
 const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
-  const [activeScreen, setActiveScreen] = useState('Home');
-  const [currentUserScreen, setCurrentUserScreen] = useState('UserRoot');
-  const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
+    const [activeScreen, setActiveScreen] = useState('Home');
+    const [currentUserScreen, setCurrentUserScreen] = useState('UserRoot');
+    const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
 
-  useEffect(() => {
-    NotificationManager.checkAndGenerateReports();
-  }, []);
+    useEffect(() => {
+        NotificationManager.checkAndGenerateReports();
+    }, []);
 
-  const PlaceholderScreen = ({ routeName }: { routeName: string }) => (
-    <View style={styles.placeholderContainer}>
-      <Text style={styles.placeholderText}>{routeName} Screen</Text>
-    </View>
-  );
+    const navigateToHistoryWithFilter = (filter: HistoryFilter) => {
+        setInitialHistoryFilter(filter);
+        setActiveScreen('History');
+    };
 
-  const navigateToHistoryWithFilter = (filter: HistoryFilter) => {
-      setInitialHistoryFilter(filter);
-      setActiveScreen('History');
-  };
+    const clearHistoryFilter = () => {
+        setInitialHistoryFilter(null);
+    };
 
-  const clearHistoryFilter = () => {
-      setInitialHistoryFilter(null);
-  };
+    const handleNavigateFromNotification = () => {
+        setActiveScreen('Chart');
+    };
 
-  const handleNavigateFromNotification = () => {
-    setActiveScreen('Chart');
-  };
-
-  const renderScreen = () => {
-    switch (activeScreen) {
-      case 'Home':
-        return <HomeScreen navigateTo={setActiveScreen} activeScreen={activeScreen} />;
-      case 'Money':
-        return <AddTransactionScreen />;
-      case 'Calendar':
-        return <CalendarScreen />;
-      case 'Chart':
-        return <ChartScreen navigateToHistoryWithFilter={navigateToHistoryWithFilter} />;
-      case 'History':
-        return <HistoryScreen initialFilter={initialHistoryFilter} onClearFilter={clearHistoryFilter} />;
-      case 'Goal':
-        return <GoalScreen />;
-      case 'User':
-        if (currentUserScreen === 'Profile') {
-            return <ProfileScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
+    const renderScreen = () => {
+        switch (activeScreen) {
+            case 'Home':
+                return <HomeScreen navigateTo={setActiveScreen} activeScreen={activeScreen} />;
+            case 'Money':
+                return <AddTransactionScreen />;
+            case 'Calendar':
+                return <CalendarScreen />;
+            case 'Chart':
+                return <ChartScreen navigateToHistoryWithFilter={navigateToHistoryWithFilter} />;
+            case 'History':
+                return (
+                    <HistoryScreen
+                        initialFilter={initialHistoryFilter}
+                        onClearFilter={clearHistoryFilter}
+                    />
+                );
+            case 'Goal':
+                return <GoalScreen />;
+            case 'User':
+                if (currentUserScreen === 'Profile') {
+                    return <ProfileScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
+                }
+                if (currentUserScreen === 'Recurring') {
+                    return <RecurringListScreen onBack={() => setCurrentUserScreen('UserRoot')} />;
+                }
+                return (
+                    <UserScreen
+                        onLogout={onLogout}
+                        navigateToSubScreen={setCurrentUserScreen}
+                        onNavigateToSettings={() => setActiveScreen('Setting')}
+                    />
+                );
+            case 'Notification':
+                return <NotificationScreen onNavigateToReport={handleNavigateFromNotification} />;
+            case 'Setting':
+                return <SettingScreen onNavigateToBudget={() => setActiveScreen('Budget')} />;
+            case 'Budget':
+                return <BudgetScreen onBack={() => setActiveScreen('Setting')} />;
+            case 'Finpet':
+                return <ChatScreen onBack={() => setActiveScreen('Home')} />;
+            default:
+                return <HomeScreen navigateTo={setActiveScreen} activeScreen={activeScreen} />;
         }
-        return (
-          <UserScreen 
-            onLogout={onLogout} 
-            navigateToSubScreen={setCurrentUserScreen} 
-            onNavigateToSettings={() => setActiveScreen('Setting')} 
-          />
-        );
-      case 'Notification':
-        return <NotificationScreen onNavigateToReport={handleNavigateFromNotification} />;
-      case 'Setting':
-        return <SettingScreen />;
-      case 'Finpet': 
-        return <ChatScreen onBack={() => setActiveScreen('Home')} />;
-      default:
-        return <HomeScreen navigateTo={setActiveScreen} activeScreen={activeScreen} />;
-    }
-  };
+    };
 
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-      {activeScreen !== 'Finpet' && (
-        <ImageBackground 
-            source={require('../assets/images/background.png')}
-            style={StyleSheet.absoluteFillObject}
-        />
-      )}
-      <View style={styles.safeArea}>
-        {activeScreen !== 'Finpet' && (
-             <Header 
-             activeTab={activeScreen} 
-             onNotificationPress={() => setActiveScreen('Notification')}
-           />
-        )}
-       
-        <View style={{ flex: 1 }}>
-            {renderScreen()}
+    const isUserSubScreen = activeScreen === 'User' && currentUserScreen !== 'UserRoot';
+    const shouldShowHeader =
+        activeScreen !== 'Finpet' && activeScreen !== 'Budget' && !isUserSubScreen;
+
+    const shouldShowNavbar = activeScreen !== 'Finpet' && activeScreen !== 'Budget';
+
+    return (
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+            {activeScreen !== 'Finpet' && (
+                <ImageBackground
+                    source={require('../assets/images/background.png')}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            )}
+            <View style={styles.safeArea}>
+                {shouldShowHeader && (
+                    <Header
+                        activeTab={activeScreen}
+                        onNotificationPress={() => setActiveScreen('Notification')}
+                    />
+                )}
+
+                <View style={{ flex: 1 }}>{renderScreen()}</View>
+
+                {shouldShowNavbar && (
+                    <Navbar activeTab={activeScreen} onTabPress={setActiveScreen} />
+                )}
+            </View>
         </View>
-        
-        {activeScreen !== 'Finpet' && (
-            <Navbar 
-            activeTab={activeScreen} 
-            onTabPress={setActiveScreen} 
-          />
-        )}
-      </View>
-    </View>
-  );
+    );
 };
 
 const App = () => {
-  const fontsLoaded = useCustomFonts();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
-  const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
-  const [isLoading, setIsLoading] = useState(true);
+    const fontsLoaded = useCustomFonts();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [currentAuthScreen, setCurrentAuthScreen] = useState('Login');
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const checkToken = async () => {
-        try {
-            const token = await AsyncStorage.getItem('userToken');
-            if (token) {
-                setIsLoggedIn(true);
+    useEffect(() => {
+        const checkToken = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                if (token) {
+                    setIsLoggedIn(true);
+                }
+            } catch (e) {
+                console.error('Failed to fetch the token from storage', e);
+            } finally {
+                setIsLoading(false);
             }
+        };
+        checkToken();
+    }, []);
+
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await ExpoSplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
+
+    if (!fontsLoaded || isLoading) {
+        return <SplashScreen />;
+    }
+
+    const navigateToRegister = () => {
+        setCurrentAuthScreen('Register');
+    };
+
+    const navigateToLogin = () => {
+        setCurrentAuthScreen('Login');
+    };
+
+    const handleLoginSuccess = () => {
+        setIsLoggedIn(true);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('userToken');
+            setIsLoggedIn(false);
         } catch (e) {
-            console.error("Failed to fetch the token from storage", e);
-        } finally {
-            setIsLoading(false);
+            console.error('Failed to remove token on logout', e);
+            setIsLoggedIn(false);
         }
     };
-    checkToken();
-  }, []);
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await ExpoSplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
+    const renderContent = () => {
+        if (isLoggedIn) {
+            return <MainApp onLogout={handleLogout} />;
+        }
 
-  if (!fontsLoaded || isLoading) {
-    return <SplashScreen />;
-  }
+        if (currentAuthScreen === 'Login') {
+            return (
+                <LoginScreen
+                    onNavigateToRegister={navigateToRegister}
+                    onLoginSuccess={handleLoginSuccess}
+                />
+            );
+        } else {
+            return <RegisterScreen onNavigateToLogin={navigateToLogin} />;
+        }
+    };
 
-  const navigateToRegister = () => {
-    setCurrentAuthScreen('Register');
-  };
-
-  const navigateToLogin = () => {
-    setCurrentAuthScreen('Login');
-  };
-
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-  };
-
-
-  const handleLogout = async () => {
-    try {
-        await AsyncStorage.removeItem('userToken');
-        setIsLoggedIn(false);
-    } catch (e) {
-        console.error("Failed to remove token on logout", e);
-        setIsLoggedIn(false);
-    }
-  };
-
-  const renderContent = () => {
-    if (isLoggedIn) {
-      return <MainApp onLogout={handleLogout} />;
-    }
-
-    if (currentAuthScreen === 'Login') {
-      return (
-        <LoginScreen
-          onNavigateToRegister={navigateToRegister}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      );
-    } else {
-      return (
-        <RegisterScreen
-          onNavigateToLogin={navigateToLogin}
-        />
-      );
-    }
-  };
-
-  return (
-    <SafeAreaProvider>
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        {renderContent()}
-      </View>
-    </SafeAreaProvider>
-  );
+    return (
+        <SafeAreaProvider>
+            <View style={styles.container} onLayout={onLayoutRootView}>
+                {renderContent()}
+            </View>
+        </SafeAreaProvider>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: scale(24),
-    fontWeight: 'bold',
-  },
+    container: {
+        flex: 1,
+    },
+    safeArea: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    placeholderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    placeholderText: {
+        fontSize: scale(24),
+        fontWeight: 'bold',
+    },
 });
 
 export default App;

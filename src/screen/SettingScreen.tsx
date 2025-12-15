@@ -13,7 +13,11 @@ import { scale, moderateScale, verticalScale } from '../utils/scaling';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { exportToExcel } from '../utils/ExcelExporter';
 
-const SettingScreen = () => {
+interface SettingScreenProps {
+    onNavigateToBudget?: () => void;
+}
+
+const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget }) => {
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
     const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -80,7 +84,7 @@ const SettingScreen = () => {
             activeOpacity={0.7}>
             <View style={styles.leftContent}>
                 <View style={[styles.iconPlaceholder, isDestructive && styles.destructiveIcon]}>
-                    {/* Placeholder icon */}
+                    {}
                 </View>
                 <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>
                     {title}
@@ -110,6 +114,8 @@ const SettingScreen = () => {
                 showsVerticalScrollIndicator={false}>
                 <Text style={styles.sectionTitle}>Chung</Text>
                 <View style={styles.sectionContainer}>
+                    <SettingItem title="Hạn mức chi tiêu (Budget)" onToggle={onNavigateToBudget} />
+                    <View style={styles.separator} />
                     <SettingItem
                         title="Nhắc nhở nhập liệu hàng ngày"
                         isSwitch={true}
@@ -141,7 +147,7 @@ const SettingScreen = () => {
                     />
                 </View>
 
-                {/* Section: Thông tin */}
+                {}
                 <Text style={styles.sectionTitle}>Thông tin ứng dụng</Text>
                 <View style={styles.sectionContainer}>
                     <SettingItem title="Phiên bản" onToggle={() => {}} hideArrow={true} />

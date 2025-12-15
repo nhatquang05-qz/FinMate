@@ -10,13 +10,13 @@ interface FinPetButtonProps {
 
 const getFinPetStatus = (income: number, expense: number) => {
     if (income === 0 && expense === 0) return { text: 'Zzz... Ghi chép đi nào!' };
-    
+
     const ratio = expense / (income || 1);
-    
+
     if (ratio > 1) return { text: 'Báo động! Đang âm vốn rồi 😭' };
     if (ratio > 0.8) return { text: 'Cẩn thận, sắp hết tiền tiêu 💸' };
     if (ratio < 0.5) return { text: 'Tháng này tiết kiệm tốt quá! 😍' };
-    
+
     return { text: 'Mọi thứ vẫn trong tầm kiểm soát 😎' };
 };
 
@@ -47,17 +47,13 @@ const FinPetButton = ({ summary, onPress }: FinPetButtonProps) => {
                     <View style={styles.speechArrow} />
                 </View>
             )}
-            <TouchableOpacity 
-                style={styles.finpetFab} 
-                onPress={handlePress}
-                activeOpacity={0.8}
-            >
-                <Image 
-                    source={require('../assets/images/piggy-bank.png')} 
-                    style={styles.finpetIcon} 
+            <TouchableOpacity style={styles.finpetFab} onPress={handlePress} activeOpacity={0.8}>
+                <Image
+                    source={require('../assets/images/piggy-bank.png')}
+                    style={styles.finpetIcon}
                 />
                 <View style={styles.finpetBadge}>
-                     <Text style={styles.finpetText}>AI</Text>
+                    <Text style={styles.finpetText}>AI</Text>
                 </View>
             </TouchableOpacity>
         </View>
@@ -78,7 +74,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: "#04D1C1",
+        shadowColor: '#04D1C1',
         shadowOffset: {
             width: 0,
             height: 4,
@@ -87,7 +83,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4.65,
         elevation: 8,
         borderWidth: 2,
-        borderColor: '#04D1C1'
+        borderColor: '#04D1C1',
     },
     finpetIcon: {
         width: scale(35),
@@ -106,7 +102,7 @@ const styles = StyleSheet.create({
     finpetText: {
         fontSize: 10,
         fontWeight: 'bold',
-        color: 'white'
+        color: 'white',
     },
     speechBubble: {
         backgroundColor: 'white',
@@ -114,7 +110,7 @@ const styles = StyleSheet.create({
         borderRadius: scale(10),
         marginBottom: scale(10),
         maxWidth: scale(150),
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 3,
