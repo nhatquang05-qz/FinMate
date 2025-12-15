@@ -10,13 +10,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig, DateData } from 'react-native-calendars';
-import { scale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
-import { Transaction } from '../../types/data';
-import TransactionItem from '../../components/TransactionItem';
+import { scale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
+import { Transaction } from '../types/data';
+import TransactionItem from '../components/TransactionItem';
 import { format, addMonths, subMonths, isSameMonth, isAfter } from 'date-fns';
 
-// Cấu hình tiếng Việt cho lịch
+
 LocaleConfig.locales['vi'] = {
     monthNames: [
         'Tháng 1',
@@ -37,7 +37,7 @@ LocaleConfig.locales['vi'] = {
 };
 LocaleConfig.defaultLocale = 'vi';
 
-// Kiểu dữ liệu từ API
+
 interface CalendarData {
     summary: { totalIncome: number; totalExpense: number; balance: number };
     dailySummaries: {
@@ -49,9 +49,9 @@ interface CalendarData {
     transactions: Transaction[];
 }
 
-// Định dạng tiền tệ
+
 const formatCurrency = (amount: number, short = false) => {
-    // an toàn: nếu amount không phải số -> trả 0₫
+    
     const num = Number(amount || 0);
     if (isNaN(num)) return '0 ₫';
     if (short) {
@@ -94,7 +94,7 @@ const CalendarScreen = () => {
         setSelectedDate(prev => (prev === day.dateString ? null : day.dateString));
     };
 
-    // Custom render từng ngày (không thay style)
+    
     const dayComponent = ({ date }: { date?: DateData }) => {
         if (!date) return null;
 
@@ -112,7 +112,7 @@ const CalendarScreen = () => {
         const amount = day ? formatCurrency(day.netAmount, true) : '';
         const color = day ? (day.netAmount < 0 ? '#D9435E' : '#28A745') : '#999';
 
-        // Disable touch for future or other month
+        
         const disabled = isFuture || isOtherMonth;
 
         return (
@@ -160,7 +160,7 @@ const CalendarScreen = () => {
         );
     }, [calendarData, selectedDate]);
 
-    // ---- helper: phân loại giao dịch thành income/expense robust ----
+    
     const classifyAndSum = (txs: (Transaction & Record<string, any>)[]) => {
         let income = 0;
         let expense = 0;
@@ -172,13 +172,13 @@ const CalendarScreen = () => {
                 (t.type || t.transaction_type || t.txn_type || '') + ''
             ).toLowerCase();
 
-            // If explicit sign
+            
             if (!isNaN(amt) && amt < 0) {
                 expense += Math.abs(amt);
                 continue;
             }
             if (!isNaN(amt) && amt > 0) {
-                // But check if type says expense (some APIs store positive amounts for expenses)
+                
                 if (
                     typeHint.includes('exp') ||
                     typeHint.includes('chi') ||
@@ -192,7 +192,7 @@ const CalendarScreen = () => {
                 continue;
             }
 
-            // amt is 0 or NaN: use type hint
+            
             if (
                 typeHint.includes('exp') ||
                 typeHint.includes('chi') ||
@@ -208,11 +208,11 @@ const CalendarScreen = () => {
         return { income, expense, balance: income - expense };
     };
 
-    // ✅ Logic tính tổng hiển thị: ưu tiên dailySummaries, fallback transactions (robust)
+    
     const displayedSummary = useMemo(() => {
         if (!calendarData) return { totalIncome: 0, totalExpense: 0, balance: 0 };
 
-        // nếu chưa chọn ngày -> hiển thị tổng tháng từ API (an toàn)
+        
         if (!selectedDate) {
             return {
                 totalIncome: Number(calendarData.summary?.totalIncome) || 0,
@@ -221,13 +221,13 @@ const CalendarScreen = () => {
             };
         }
 
-        // tìm day summary trong API
+        
         const day = calendarData.dailySummaries.find(
             d => format(new Date(d.date), 'yyyy-MM-dd') === selectedDate,
         );
 
         if (day) {
-            // nếu API cung cấp totalIncome/totalExpense cho ngày thì dùng (an toàn)
+            
             const tInc = Number((day as any).totalIncome);
             const tExp = Number((day as any).totalExpense);
             if (!isNaN(tInc) || !isNaN(tExp)) {
@@ -243,10 +243,10 @@ const CalendarScreen = () => {
                     balance: (totalIncome || 0) - (totalExpense || 0),
                 };
             }
-            // nếu chỉ có netAmount, fallback: try compute from transactions (below)
+            
         }
 
-        // fallback: tính từ transactions của ngày (với phân loại linh hoạt)
+        
         const dailyTxs =
             calendarData.transactions.filter(
                 t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate,
@@ -260,7 +260,7 @@ const CalendarScreen = () => {
         };
     }, [calendarData, selectedDate]);
 
-    // Logic chuyển tháng (giữ nguyên)
+    
     const handlePrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
     const handleNextMonth = () => {
         const nextMonth = addMonths(currentMonth, 1);
@@ -279,7 +279,7 @@ const CalendarScreen = () => {
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: scale(150) }}>
-                {/* Header */}
+                {}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={handlePrevMonth}>
                         <Text style={styles.arrow}>{'<'}</Text>
@@ -313,7 +313,7 @@ const CalendarScreen = () => {
                 ) : (
                     calendarData && (
                         <>
-                            {/* Summary */}
+                            {}
                             <View style={styles.summaryContainer}>
                                 <View style={styles.summaryItem}>
                                     <Text style={styles.summaryLabel}>Tổng Thu</Text>
@@ -341,7 +341,7 @@ const CalendarScreen = () => {
                                 </View>
                             </View>
 
-                            {/* Calendar */}
+                            {}
                             <Calendar
                                 current={format(currentMonth, 'yyyy-MM-dd')}
                                 onMonthChange={month => setCurrentMonth(new Date(month.timestamp))}
@@ -357,7 +357,7 @@ const CalendarScreen = () => {
                                 }}
                             />
 
-                            {/* Transaction List */}
+                            {}
                             <Text style={styles.listTitle}>
                                 {selectedDate
                                     ? `Giao dịch ngày ${format(new Date(selectedDate), 'dd/MM/yyyy')}`
@@ -382,7 +382,7 @@ const CalendarScreen = () => {
     );
 };
 
-// STYLE (không thay đổi)
+
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F9FAFB' },
     header: {

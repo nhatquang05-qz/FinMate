@@ -11,9 +11,9 @@ import {
     Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import apiClient from '../../api/apiClient';
-import { scale, moderateScale, verticalScale } from '../../utils/scaling';
-import { iconMap } from '../../utils/iconMap';
+import apiClient from '../api/apiClient';
+import { scale, moderateScale, verticalScale } from '../utils/scaling';
+import { iconMap } from '../utils/iconMap';
 import { format } from 'date-fns';
 
 const RecurringListScreen = ({ onBack }: { onBack: () => void }) => {

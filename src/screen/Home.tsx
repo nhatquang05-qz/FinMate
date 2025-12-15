@@ -9,12 +9,12 @@ import {
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
-import { scale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
-import { Transaction, SummaryData, PieChartData } from '../../types/data';
-import TransactionItem from '../../components/TransactionItem';
+import { scale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
+import { Transaction, SummaryData, PieChartData } from '../types/data';
+import TransactionItem from '../components/TransactionItem';
 import { PieChart } from 'react-native-gifted-charts';
-import FinPetButton from '../../components/FinPetButton';
+import FinPetButton from '../components/FinPetButton';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -188,31 +188,31 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                             <View style={styles.managementIconsContainer}>
                                 <TouchableOpacity onPress={() => navigateTo('Money')}>
                                     <Image
-                                        source={require('./AddTrans.png')}
+                                        source={require('../assets/images/AddTrans.png')}
                                         style={styles.managementIcon}
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('History')}>
                                     <Image
-                                        source={require('./History.png')}
+                                        source={require('../assets/images/History.png')}
                                         style={styles.managementIcon}
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('Chart')}>
                                     <Image
-                                        source={require('./Statistic.png')}
+                                        source={require('../assets/images/Statistic.png')}
                                         style={styles.managementIcon}
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('Goal')}>
                                     <Image
-                                        source={require('../../assets/images/piggy-bank.png')}
+                                        source={require('../assets/images/piggy-bank.png')}
                                         style={styles.managementIcon}
                                     />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => navigateTo('Setting')}>
                                     <Image
-                                        source={require('./Setting.png')}
+                                        source={require('../assets/images/Setting.png')}
                                         style={styles.managementIcon}
                                     />
                                 </TouchableOpacity>

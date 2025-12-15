@@ -9,7 +9,7 @@ import {
     SafeAreaView,
 } from 'react-native';
 import { scale } from '../utils/scaling';
-import { Category } from '../types/data'; // Import kiểu Category
+import { Category } from '../types/data'; 
 
 interface Props {
     visible: boolean;
@@ -29,7 +29,7 @@ const CategoryFilterModal: React.FC<Props> = ({
     const [tempSelectedIds, setTempSelectedIds] = useState<number[]>(initialSelectedIds);
 
     useEffect(() => {
-        // Cập nhật state tạm thời khi modal được mở
+        
         setTempSelectedIds(initialSelectedIds);
     }, [visible, initialSelectedIds]);
 

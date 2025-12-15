@@ -12,8 +12,8 @@ import {
     ImageBackground,
     SafeAreaView,
 } from 'react-native';
-import { scale } from '../../utils/scaling';
-import { sendMessageToGroq } from '../../api/groqService';
+import { scale } from '../utils/scaling';
+import { sendMessageToGroq } from '../api/groqService';
 
 interface Message {
     id: string;
@@ -52,7 +52,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
         setInputText('');
         setIsLoading(true);
 
-        // Chuẩn bị payload cho API (loại bỏ id)
+        
         const apiMessages = newMessages.map(({ role, content }) => ({ role, content }));
 
         try {
@@ -97,7 +97,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground
-                source={require('../../assets/images/background.png')} // Tận dụng background cũ
+                source={require('../assets/images/background.png')} 
                 style={StyleSheet.absoluteFillObject}
             />
             <View style={styles.header}>

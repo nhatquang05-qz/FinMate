@@ -16,16 +16,16 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { scale } from '../../utils/scaling';
-import PopupWrongPassword from '../../components/popups/PopupWrongPassword';
-import PopupLoginSuccess from '../../components/popups/PopupLoginSuccess';
-import PopupLoginFailed from '../../components/popups/PopupLoginFailed';
-import PopupAccountNotExist from '../../components/popups/PopupAccountNotExist';
-import apiClient from '../../api/apiClient';
+import { scale } from '../utils/scaling';
+import PopupWrongPassword from '../components/popups/PopupWrongPassword';
+import PopupLoginSuccess from '../components/popups/PopupLoginSuccess';
+import PopupLoginFailed from '../components/popups/PopupLoginFailed';
+import PopupAccountNotExist from '../components/popups/PopupAccountNotExist';
+import apiClient from '../api/apiClient';
 
-const guestImage = require('./guest.png');
-const backgroundImage = require('../../assets/images/background.png');
-const logoImage = require('../../assets/images/logo.png');
+const guestImage = require('../assets/images/guest.png');
+const backgroundImage = require('../assets/images/background.png');
+const logoImage = require('../assets/images/logo.png');
 
 type LoginScreenProps = {
     onNavigateToRegister: () => void;

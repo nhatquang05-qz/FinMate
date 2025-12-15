@@ -13,15 +13,15 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import axios from 'axios';
-import { scale } from '../../utils/scaling';
-import PopupRegisterSuccess from '../../components/popups/PopupRegisterSuccess';
-import PopupAccountExisted from '../../components/popups/PopupAccountExisted';
-import PopupPassNotMatch from '../../components/popups/PopupPassNotMatch';
-import PopupNotEnoughInfo from '../../components/popups/PopupNotEnoughInfo';
-import apiClient from '../../api/apiClient';
+import { scale } from '../utils/scaling';
+import PopupRegisterSuccess from '../components/popups/PopupRegisterSuccess';
+import PopupAccountExisted from '../components/popups/PopupAccountExisted';
+import PopupPassNotMatch from '../components/popups/PopupPassNotMatch';
+import PopupNotEnoughInfo from '../components/popups/PopupNotEnoughInfo';
+import apiClient from '../api/apiClient';
 
-const backgroundImage = require('../../assets/images/background.png');
-const logoImage = require('../../assets/images/logo.png');
+const backgroundImage = require('../assets/images/background.png');
+const logoImage = require('../assets/images/logo.png');
 
 type RegisterScreenProps = {
     onNavigateToLogin: () => void;
@@ -42,7 +42,7 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [showNotEnoughInfoPopup, setShowNotEnoughInfoPopup] = useState(false);
 
     const handleRegister = async () => {
-        // Validation phía client
+        
         if (!username || !email || !fullName || !dateOfBirth || !password || !confirmPassword) {
             setShowNotEnoughInfoPopup(true);
             return;
@@ -61,23 +61,23 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                 email,
                 password,
                 fullName,
-                dateOfBirth, // API yêu cầu định dạng 'YYYY-MM-DD'
+                dateOfBirth, 
             });
 
-            // Nếu không có lỗi, tức là đăng ký thành công
+            
             setShowRegisterSuccessPopup(true);
-            // Popup này sẽ tự động gọi onNavigateToLogin khi đóng
+            
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 if (error.response.status === 409) {
-                    // 409 Conflict: Username hoặc email đã tồn tại
+                    
                     setShowAccountExistedPopup(true);
                 } else {
-                    // Các lỗi khác từ server (ví dụ: 400 - validation sai)
+                    
                     setShowNotEnoughInfoPopup(true);
                 }
             } else {
-                // Lỗi mạng hoặc lỗi không xác định
+                
                 setShowNotEnoughInfoPopup(true);
                 console.error('Register Error: ', error);
             }
@@ -265,9 +265,9 @@ const styles = StyleSheet.create({
     inputContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: scale(57),
-        marginBottom: scale(15), // Giảm margin một chút
+        marginBottom: scale(15), 
         paddingHorizontal: scale(20),
-        paddingVertical: Platform.OS === 'ios' ? scale(12) : scale(8), // Dùng padding thay vì height
+        paddingVertical: Platform.OS === 'ios' ? scale(12) : scale(8), 
         ...Platform.select({
             ios: {
                 shadowColor: 'rgba(0, 0, 0, 0.1)',

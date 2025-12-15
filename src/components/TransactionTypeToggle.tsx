@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { scale, moderateScale, verticalScale } from '../../utils/scaling';
+import { scale, moderateScale, verticalScale } from '../utils/scaling';
 
 type TransactionType = 'expense' | 'income';
 

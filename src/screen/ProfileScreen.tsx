@@ -11,11 +11,11 @@ import {
     Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { scale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
+import { scale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
 import * as ImagePicker from 'expo-image-picker';
 
-const defaultAvatar = require('../../assets/images/user_avatar.png');
+const defaultAvatar = require('../assets/images/user_avatar.png');
 
 interface UserProfile {
     id: number;

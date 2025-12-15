@@ -7,13 +7,13 @@ import {
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
-import { scale, moderateScale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
+import { scale, moderateScale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
 import { PieChart } from 'react-native-gifted-charts';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
-import CustomDatePickerModal from '../../components/CustomDatePickerModal';
-import TransactionTypeToggle from '../../components/TransactionTypeToggle/TransactionTypeToggle';
-import { NotificationManager } from '../../utils/NotificationManager';
+import CustomDatePickerModal from '../components/CustomDatePickerModal';
+import TransactionTypeToggle from '../components/TransactionTypeToggle';
+import { NotificationManager } from '../utils/NotificationManager';
 
 interface CategoryStats {
     categoryId: number;

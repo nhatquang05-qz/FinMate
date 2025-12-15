@@ -9,10 +9,10 @@ import {
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
-import { scale, moderateScale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
+import { scale, moderateScale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
 
-const userAvatar = require('../../assets/images/user_avatar.png');
+const userAvatar = require('../assets/images/user_avatar.png');
 
 interface UserProfile {
     id: number;

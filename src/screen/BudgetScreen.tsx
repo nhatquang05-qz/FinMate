@@ -13,9 +13,9 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { scale, verticalScale, moderateScale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
-import { Category } from '../../types/data';
+import { scale, verticalScale, moderateScale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
+import { Category } from '../types/data';
 
 interface BudgetScreenProps {
     onBack: () => void;

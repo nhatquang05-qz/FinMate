@@ -11,11 +11,11 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { scale } from '../../utils/scaling';
-import apiClient from '../../api/apiClient';
-import CustomDatePickerModal from '../../components/CustomDatePickerModal';
+import { scale } from '../utils/scaling';
+import apiClient from '../api/apiClient';
+import CustomDatePickerModal from '../components/CustomDatePickerModal';
 import { format, differenceInDays } from 'date-fns';
-import { NotificationManager } from '../../utils/NotificationManager';
+import { NotificationManager } from '../utils/NotificationManager';
 
 interface Goal {
     id: number;
