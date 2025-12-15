@@ -157,7 +157,6 @@ exports.updateUserProfile = async (req, res) => {
 };
 
 exports.updateAvatar = async (req, res) => {
-    // SỬA LỖI: Đọc avatarURL từ req (do middleware truyền sang)
     const { avatarURL } = req;
     const userId = req.user.id;
 
