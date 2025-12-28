@@ -6,7 +6,39 @@ const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1
 const createRange = (start: number, end: number) =>
     Array.from({ length: end - start + 1 }, (_, i) => String(start + i));
 
-type DatePickerMode = 'day' | 'month' | 'year';
+const getWeeksInMonth = (year: number, month: number) => {
+    const weeks = [];
+    const firstDayOfMonth = new Date(year, month, 1);
+    
+    const dayOfWeek = firstDayOfMonth.getDay(); 
+    const diff = firstDayOfMonth.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    
+    let currentWeekStart = new Date(year, month, diff);
+
+    for (let i = 0; i < 6; i++) {
+        const currentWeekEnd = new Date(currentWeekStart);
+        currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+
+        const startStr = `${currentWeekStart.getDate()}/${currentWeekStart.getMonth() + 1}`;
+        const endStr = `${currentWeekEnd.getDate()}/${currentWeekEnd.getMonth() + 1}`;
+        const label = `${startStr} - ${endStr}`;
+
+        if (currentWeekStart.getMonth() > month && currentWeekStart.getFullYear() === year) break;
+        if (currentWeekStart.getFullYear() > year) break;
+
+        weeks.push({
+            label: label,
+            value: currentWeekStart.toISOString(), 
+            startDate: new Date(currentWeekStart)
+        });
+
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    }
+    
+    return weeks;
+};
+
+export type DatePickerMode = 'day' | 'month' | 'year' | 'week';
 
 type CustomDatePickerModalProps = {
     visible: boolean;
@@ -63,6 +95,24 @@ const CustomDatePickerModal = ({
         return createRange(1, end);
     }, [year, month, maximumDate]);
 
+    const WEEKS = useMemo(() => {
+        return getWeeksInMonth(year, month);
+    }, [year, month]);
+
+    const selectedWeekValue = useMemo(() => {
+        if (mode !== 'week') return '';
+        const found = WEEKS.find(w => {
+            const start = w.startDate;
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            return d >= s && d <= e;
+        });
+        return found ? found.label : (WEEKS[0]?.label || '');
+    }, [date, WEEKS, mode]);
+
     const updateDate = (newDatePart: { day?: number; month?: number; year?: number }) => {
         const newYear = newDatePart.year || year;
         const newMonth = newDatePart.month ? newDatePart.month - 1 : month;
@@ -81,6 +131,13 @@ const CustomDatePickerModal = ({
         setDate(finalDate);
     };
 
+    const handleWeekChange = (selectedLabel: string) => {
+        const selectedWeek = WEEKS.find(w => w.label === selectedLabel);
+        if (selectedWeek) {
+            setDate(selectedWeek.startDate);
+        }
+    };
+
     const handleConfirm = () => {
         onConfirm(date);
     };
@@ -88,6 +145,7 @@ const CustomDatePickerModal = ({
     const headerTitle = useMemo(() => {
         if (mode === 'year') return 'Chọn Năm';
         if (mode === 'month') return 'Chọn Tháng';
+        if (mode === 'week') return 'Chọn Tuần';
         return 'Chọn Ngày';
     }, [mode]);
 
@@ -113,7 +171,7 @@ const CustomDatePickerModal = ({
                         </>
                     )}
 
-                    {(mode === 'day' || mode === 'month') && (
+                    {(mode === 'day' || mode === 'month' || mode === 'week') && (
                         <>
                             <WheelPicker
                                 data={MONTHS}
@@ -123,12 +181,25 @@ const CustomDatePickerModal = ({
                             <View style={styles.columnSeparator} />
                         </>
                     )}
-
+                    
                     <WheelPicker
                         data={YEARS}
                         selectedValue={String(year)}
                         onValueChange={newYear => updateDate({ year: Number(newYear) })}
                     />
+
+                    {mode === 'week' && (
+                        <>
+                            <View style={styles.columnSeparator} />
+                            <View style={{flex: 2}}> 
+                                <WheelPicker
+                                    data={WEEKS.map(w => w.label)}
+                                    selectedValue={selectedWeekValue}
+                                    onValueChange={handleWeekChange}
+                                />
+                            </View>
+                        </>
+                    )}
                 </View>
 
                 <View style={styles.buttonsContainer}>

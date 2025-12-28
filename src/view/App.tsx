@@ -95,7 +95,12 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
             case 'Notification':
                 return <NotificationScreen onNavigateToReport={handleNavigateFromNotification} />;
             case 'Setting':
-                return <SettingScreen onNavigateToBudget={() => setActiveScreen('Budget')} />;
+                return (
+                    <SettingScreen 
+                        onNavigateToBudget={() => setActiveScreen('Budget')} 
+                        onBack={() => setActiveScreen('User')}
+                    />
+                );
             case 'Budget':
                 return <BudgetScreen onBack={() => setActiveScreen('Setting')} />;
             case 'Finpet':
@@ -106,6 +111,7 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
     };
 
     const isUserSubScreen = activeScreen === 'User' && currentUserScreen !== 'UserRoot';
+      
     const shouldShowHeader =
         activeScreen !== 'Finpet' && activeScreen !== 'Budget' && !isUserSubScreen;
 

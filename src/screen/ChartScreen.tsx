@@ -11,7 +11,7 @@ import { scale, moderateScale } from '../utils/scaling';
 import apiClient from '../api/apiClient';
 import { PieChart } from 'react-native-gifted-charts';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
-import CustomDatePickerModal from '../components/CustomDatePickerModal';
+import CustomDatePickerModal, { DatePickerMode } from '../components/CustomDatePickerModal';
 import TransactionTypeToggle from '../components/TransactionTypeToggle';
 import { NotificationManager } from '../utils/NotificationManager';
 
@@ -29,7 +29,6 @@ interface StatsData {
 }
 type PeriodType = 'week' | 'month' | 'year';
 type ChartType = 'income' | 'expense';
-type DatePickerMode = 'day' | 'month' | 'year';
 
 const formatCurrency = (amount: any) => {
     const num = parseFloat(amount);
@@ -135,7 +134,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
         if (period === 'week') {
             const start = startOfWeek(selectedDate, { weekStartsOn: 1 });
             const end = endOfWeek(selectedDate, { weekStartsOn: 1 });
-            return `${format(start, 'dd/MM')} - ${format(end, 'dd/MM/yyyy')}`;
+            return `Tuần: ${format(start, 'dd/MM')} - ${format(end, 'dd/MM')}`;
         }
         return '';
     };
@@ -143,6 +142,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
     const datePickerMode: DatePickerMode = useMemo(() => {
         if (period === 'year') return 'year';
         if (period === 'month') return 'month';
+        if (period === 'week') return 'week'; 
         return 'day';
     }, [period]);
 

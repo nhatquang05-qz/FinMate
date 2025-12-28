@@ -6,11 +6,10 @@ import {
     isMonday,
     startOfWeek,
     endOfWeek,
-    subYears,
     differenceInDays,
 } from 'date-fns';
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 
 export interface NotificationItem {
     id: string;
@@ -24,6 +23,7 @@ export interface NotificationItem {
 const NOTIFICATION_KEY = 'user_notifications';
 const LAST_CHECK_KEY = 'last_report_check';
 const GOAL_NOTIFIED_KEY = 'goal_notified_history';
+const BUDGET_NOTIFIED_KEY = 'budget_notified_history';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -87,6 +87,49 @@ export const NotificationManager = {
         }
 
         return finalStatus === 'granted';
+    },
+
+    
+    scheduleDailyReminder: async () => {
+        const hasPermission = await NotificationManager.requestPermissions();
+        if (!hasPermission) {
+            return false;
+        }
+
+        try {
+            
+            await Notifications.cancelAllScheduledNotificationsAsync();
+
+            
+            
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Nhắc nhở nhập liệu 📝',
+                    body: 'Bạn đã chi tiêu gì hôm nay chưa? Hãy ghi lại ngay nhé!',
+                    sound: true,
+                    priority: Notifications.AndroidNotificationPriority.HIGH,
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.DAILY,
+                    hour: 20,
+                    minute: 0,
+                },
+            });
+            console.log('✅ Đã lên lịch nhắc nhở 20:00 hàng ngày');
+            return true;
+        } catch (error) {
+            console.error('❌ Lỗi khi đặt thông báo:', error);
+            return false;
+        }
+    },
+
+    cancelAllNotifications: async () => {
+        try {
+            await Notifications.cancelAllScheduledNotificationsAsync();
+            console.log('✅ Đã hủy tất cả thông báo');
+        } catch (error) {
+            console.error('Error canceling notifications:', error);
+        }
     },
 
     checkAndGenerateReports: async () => {
@@ -183,29 +226,60 @@ export const NotificationManager = {
             'success',
         );
     },
+
     checkBudgetExceeded: async (categories: any[]) => {
+        const now = new Date();
+        const currentMonthStr = format(now, 'yyyy-MM');
+        
+        let budgetHistory: Record<string, string> = {}; 
+
+        try {
+            const historyJson = await AsyncStorage.getItem(BUDGET_NOTIFIED_KEY);
+            if (historyJson) budgetHistory = JSON.parse(historyJson);
+        } catch (e) {
+            console.error('Error reading budget history', e);
+        }
+
+        let hasChange = false;
+
         for (const cat of categories) {
             if (!cat.budgetLimit || cat.budgetLimit === 0) continue;
 
             const percent = (cat.totalAmount / cat.budgetLimit) * 100;
+            const historyKey = `${cat.id}_${currentMonthStr}`;
+            const lastNotifiedLevel = budgetHistory[historyKey] || '0'; 
 
             if (percent >= 100) {
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: '⚠️ Vượt hạn mức chi tiêu!',
-                        body: `Bạn đã chi vượt quá ngân sách cho danh mục "${cat.categoryName}".`,
-                    },
-                    trigger: null,
-                });
+                if (lastNotifiedLevel !== '100') {
+                    await Notifications.scheduleNotificationAsync({
+                        content: {
+                            title: '⚠️ Vượt hạn mức chi tiêu!',
+                            body: `Bạn đã chi vượt quá ngân sách cho danh mục "${cat.categoryName}".`,
+                        },
+                        trigger: null,
+                    });
+                    
+                    budgetHistory[historyKey] = '100';
+                    hasChange = true;
+                }
             } else if (percent >= 80) {
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: 'Cảnh báo ngân sách',
-                        body: `Bạn đã dùng ${Math.round(percent)}% ngân sách cho "${cat.categoryName}".`,
-                    },
-                    trigger: null,
-                });
+                if (lastNotifiedLevel !== '80' && lastNotifiedLevel !== '100') {
+                    await Notifications.scheduleNotificationAsync({
+                        content: {
+                            title: 'Cảnh báo ngân sách',
+                            body: `Bạn đã dùng ${Math.round(percent)}% ngân sách cho "${cat.categoryName}".`,
+                        },
+                        trigger: null,
+                    });
+
+                    budgetHistory[historyKey] = '80';
+                    hasChange = true;
+                }
             }
+        }
+
+        if (hasChange) {
+            await AsyncStorage.setItem(BUDGET_NOTIFIED_KEY, JSON.stringify(budgetHistory));
         }
     },
 };
