@@ -66,6 +66,7 @@ const CalendarScreen = () => {
     const today = new Date();
 
     useEffect(() => {
+        setSelectedDate(null);
         fetchData();
     }, [currentMonth]);
 
