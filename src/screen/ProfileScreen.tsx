@@ -157,7 +157,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
-                {/* KHÔI PHỤC NÚT QUAY LẠI CỦA BẠN (Dòng này đã bị tôi xóa nhầm) */}
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
                     <Text style={styles.backButtonText}>‹ Quay lại</Text>
                 </TouchableOpacity>

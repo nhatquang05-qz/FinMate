@@ -42,7 +42,6 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     const [showNotEnoughInfoPopup, setShowNotEnoughInfoPopup] = useState(false);
 
     const handleRegister = async () => {
-        
         if (!username || !email || !fullName || !dateOfBirth || !password || !confirmPassword) {
             setShowNotEnoughInfoPopup(true);
             return;
@@ -61,23 +60,18 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
                 email,
                 password,
                 fullName,
-                dateOfBirth, 
+                dateOfBirth,
             });
 
-            
             setShowRegisterSuccessPopup(true);
-            
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 if (error.response.status === 409) {
-                    
                     setShowAccountExistedPopup(true);
                 } else {
-                    
                     setShowNotEnoughInfoPopup(true);
                 }
             } else {
-                
                 setShowNotEnoughInfoPopup(true);
                 console.error('Register Error: ', error);
             }
@@ -265,9 +259,9 @@ const styles = StyleSheet.create({
     inputContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: scale(57),
-        marginBottom: scale(15), 
+        marginBottom: scale(15),
         paddingHorizontal: scale(20),
-        paddingVertical: Platform.OS === 'ios' ? scale(12) : scale(8), 
+        paddingVertical: Platform.OS === 'ios' ? scale(12) : scale(8),
         ...Platform.select({
             ios: {
                 shadowColor: 'rgba(0, 0, 0, 0.1)',

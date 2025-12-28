@@ -16,7 +16,6 @@ import { Transaction } from '../types/data';
 import TransactionItem from '../components/TransactionItem';
 import { format, addMonths, subMonths, isSameMonth, isAfter } from 'date-fns';
 
-
 LocaleConfig.locales['vi'] = {
     monthNames: [
         'Tháng 1',
@@ -37,7 +36,6 @@ LocaleConfig.locales['vi'] = {
 };
 LocaleConfig.defaultLocale = 'vi';
 
-
 interface CalendarData {
     summary: { totalIncome: number; totalExpense: number; balance: number };
     dailySummaries: {
@@ -49,9 +47,7 @@ interface CalendarData {
     transactions: Transaction[];
 }
 
-
 const formatCurrency = (amount: number, short = false) => {
-    
     const num = Number(amount || 0);
     if (isNaN(num)) return '0 ₫';
     if (short) {
@@ -94,7 +90,6 @@ const CalendarScreen = () => {
         setSelectedDate(prev => (prev === day.dateString ? null : day.dateString));
     };
 
-    
     const dayComponent = ({ date }: { date?: DateData }) => {
         if (!date) return null;
 
@@ -112,7 +107,6 @@ const CalendarScreen = () => {
         const amount = day ? formatCurrency(day.netAmount, true) : '';
         const color = day ? (day.netAmount < 0 ? '#D9435E' : '#28A745') : '#999';
 
-        
         const disabled = isFuture || isOtherMonth;
 
         return (
@@ -160,7 +154,6 @@ const CalendarScreen = () => {
         );
     }, [calendarData, selectedDate]);
 
-    
     const classifyAndSum = (txs: (Transaction & Record<string, any>)[]) => {
         let income = 0;
         let expense = 0;
@@ -172,13 +165,11 @@ const CalendarScreen = () => {
                 (t.type || t.transaction_type || t.txn_type || '') + ''
             ).toLowerCase();
 
-            
             if (!isNaN(amt) && amt < 0) {
                 expense += Math.abs(amt);
                 continue;
             }
             if (!isNaN(amt) && amt > 0) {
-                
                 if (
                     typeHint.includes('exp') ||
                     typeHint.includes('chi') ||
@@ -192,7 +183,6 @@ const CalendarScreen = () => {
                 continue;
             }
 
-            
             if (
                 typeHint.includes('exp') ||
                 typeHint.includes('chi') ||
@@ -208,11 +198,9 @@ const CalendarScreen = () => {
         return { income, expense, balance: income - expense };
     };
 
-    
     const displayedSummary = useMemo(() => {
         if (!calendarData) return { totalIncome: 0, totalExpense: 0, balance: 0 };
 
-        
         if (!selectedDate) {
             return {
                 totalIncome: Number(calendarData.summary?.totalIncome) || 0,
@@ -221,13 +209,11 @@ const CalendarScreen = () => {
             };
         }
 
-        
         const day = calendarData.dailySummaries.find(
             d => format(new Date(d.date), 'yyyy-MM-dd') === selectedDate,
         );
 
         if (day) {
-            
             const tInc = Number((day as any).totalIncome);
             const tExp = Number((day as any).totalExpense);
             if (!isNaN(tInc) || !isNaN(tExp)) {
@@ -243,10 +229,8 @@ const CalendarScreen = () => {
                     balance: (totalIncome || 0) - (totalExpense || 0),
                 };
             }
-            
         }
 
-        
         const dailyTxs =
             calendarData.transactions.filter(
                 t => format(new Date(t.transaction_date), 'yyyy-MM-dd') === selectedDate,
@@ -260,7 +244,6 @@ const CalendarScreen = () => {
         };
     }, [calendarData, selectedDate]);
 
-    
     const handlePrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
     const handleNextMonth = () => {
         const nextMonth = addMonths(currentMonth, 1);
@@ -381,7 +364,6 @@ const CalendarScreen = () => {
         </SafeAreaView>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F9FAFB' },

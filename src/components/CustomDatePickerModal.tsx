@@ -9,10 +9,10 @@ const createRange = (start: number, end: number) =>
 const getWeeksInMonth = (year: number, month: number) => {
     const weeks = [];
     const firstDayOfMonth = new Date(year, month, 1);
-    
-    const dayOfWeek = firstDayOfMonth.getDay(); 
+
+    const dayOfWeek = firstDayOfMonth.getDay();
     const diff = firstDayOfMonth.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    
+
     let currentWeekStart = new Date(year, month, diff);
 
     for (let i = 0; i < 6; i++) {
@@ -28,13 +28,13 @@ const getWeeksInMonth = (year: number, month: number) => {
 
         weeks.push({
             label: label,
-            value: currentWeekStart.toISOString(), 
-            startDate: new Date(currentWeekStart)
+            value: currentWeekStart.toISOString(),
+            startDate: new Date(currentWeekStart),
         });
 
         currentWeekStart.setDate(currentWeekStart.getDate() + 7);
     }
-    
+
     return weeks;
 };
 
@@ -110,7 +110,7 @@ const CustomDatePickerModal = ({
             const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
             return d >= s && d <= e;
         });
-        return found ? found.label : (WEEKS[0]?.label || '');
+        return found ? found.label : WEEKS[0]?.label || '';
     }, [date, WEEKS, mode]);
 
     const updateDate = (newDatePart: { day?: number; month?: number; year?: number }) => {
@@ -181,7 +181,7 @@ const CustomDatePickerModal = ({
                             <View style={styles.columnSeparator} />
                         </>
                     )}
-                    
+
                     <WheelPicker
                         data={YEARS}
                         selectedValue={String(year)}
@@ -191,7 +191,7 @@ const CustomDatePickerModal = ({
                     {mode === 'week' && (
                         <>
                             <View style={styles.columnSeparator} />
-                            <View style={{flex: 2}}> 
+                            <View style={{ flex: 2 }}>
                                 <WheelPicker
                                     data={WEEKS.map(w => w.label)}
                                     selectedValue={selectedWeekValue}

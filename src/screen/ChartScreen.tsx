@@ -142,7 +142,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
     const datePickerMode: DatePickerMode = useMemo(() => {
         if (period === 'year') return 'year';
         if (period === 'month') return 'month';
-        if (period === 'week') return 'week'; 
+        if (period === 'week') return 'week';
         return 'day';
     }, [period]);
 

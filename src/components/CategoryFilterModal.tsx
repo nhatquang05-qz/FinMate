@@ -9,7 +9,7 @@ import {
     SafeAreaView,
 } from 'react-native';
 import { scale } from '../utils/scaling';
-import { Category } from '../types/data'; 
+import { Category } from '../types/data';
 
 interface Props {
     visible: boolean;
@@ -29,7 +29,6 @@ const CategoryFilterModal: React.FC<Props> = ({
     const [tempSelectedIds, setTempSelectedIds] = useState<number[]>(initialSelectedIds);
 
     useEffect(() => {
-        
         setTempSelectedIds(initialSelectedIds);
     }, [visible, initialSelectedIds]);
 

@@ -8,9 +8,12 @@ import {
     Switch,
     ScrollView,
     ActivityIndicator,
+    Alert,
 } from 'react-native';
 import { scale, moderateScale } from '../utils/scaling';
 import apiClient from '../api/apiClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NotificationManager } from '../utils/NotificationManager';
 
 const userAvatar = require('../assets/images/user_avatar.png');
 
@@ -52,6 +55,45 @@ const UserScreen: React.FC<UserScreenProps> = ({
         };
         fetchUserProfile();
     }, []);
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const notiStatus = await AsyncStorage.getItem('user_notifications_enabled');
+
+                setNotificationsEnabled(notiStatus === 'true');
+            } catch (error) {
+                console.error('Failed to load settings', error);
+            }
+        };
+        loadSettings();
+    }, []);
+
+    const toggleNotification = async () => {
+        const newState = !notificationsEnabled;
+
+        setNotificationsEnabled(newState);
+
+        try {
+            await AsyncStorage.setItem('user_notifications_enabled', String(newState));
+
+            if (newState) {
+                const success = await NotificationManager.scheduleDailyReminder();
+
+                if (!success) {
+                    Alert.alert(
+                        'Lưu ý',
+                        'Đã bật tính năng, nhưng ứng dụng chưa có quyền gửi thông báo. Vui lòng kiểm tra Cài đặt điện thoại.',
+                    );
+                }
+            } else {
+                await NotificationManager.cancelAllNotifications();
+            }
+        } catch (error) {
+            console.error('Error toggling notification:', error);
+            Alert.alert('Lỗi', 'Không thể lưu cài đặt.');
+        }
+    };
 
     const handleLogout = () => {
         onLogout();
@@ -98,9 +140,7 @@ const UserScreen: React.FC<UserScreenProps> = ({
                             trackColor={{ false: '#767577', true: '#81e9e1' }}
                             thumbColor={notificationsEnabled ? '#04D1C1' : '#f4f3f4'}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={() =>
-                                setNotificationsEnabled(previousState => !previousState)
-                            }
+                            onValueChange={toggleNotification}
                             value={notificationsEnabled}
                         />
                     </View>

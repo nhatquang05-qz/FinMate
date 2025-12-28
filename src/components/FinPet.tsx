@@ -8,7 +8,6 @@ interface FinPetProps {
 }
 
 const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
-    
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
@@ -28,7 +27,6 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
         ).start();
     }, []);
 
-    
     const getMood = () => {
         if (income === 0 && expense === 0)
             return {
@@ -41,7 +39,7 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
             return {
                 status: 'worried',
                 message: 'Bạn đang chi tiêu mà chưa có thu nhập. Cẩn thận nhé!',
-                color: '#FFA500', 
+                color: '#FFA500',
             };
 
         const ratio = (expense / income) * 100;
@@ -50,27 +48,27 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
             return {
                 status: 'sick',
                 message: "Ối! Bạn sắp 'cháy túi' rồi. Hãy dừng chi tiêu ngay!",
-                color: '#D9435E', 
+                color: '#D9435E',
             };
 
         if (ratio > 70)
             return {
                 status: 'sad',
                 message: 'Hic... Bạn đã tiêu hơn 70% thu nhập rồi đó.',
-                color: '#FFC107', 
+                color: '#FFC107',
             };
 
         if (ratio < 50)
             return {
                 status: 'happy',
                 message: 'Tuyệt vời! Bạn đang tiết kiệm rất tốt. Tiếp tục phát huy nhé!',
-                color: '#28A745', 
+                color: '#28A745',
             };
 
         return {
             status: 'normal',
             message: 'Tài chính ổn định. Hãy chi tiêu hợp lý nhé.',
-            color: '#04D1C1', 
+            color: '#04D1C1',
         };
     };
 
@@ -83,7 +81,6 @@ const FinPet: React.FC<FinPetProps> = ({ income, expense }) => {
             </View>
 
             <Animated.Image
-                
                 source={require('../assets/images/piggy-bank.png')}
                 style={[styles.petImage, { transform: [{ scale: scaleAnim }] }]}
             />
@@ -103,7 +100,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
-        marginHorizontal: scale(5), 
+        marginHorizontal: scale(5),
     },
     petImage: {
         width: scale(60),
@@ -119,7 +116,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9F9F9',
     },
     message: {
-        fontFamily: 'BeVietnamPro-Bold', 
+        fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(13),
         textAlign: 'left',
     },

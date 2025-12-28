@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -12,72 +12,56 @@ import {
 import { scale, moderateScale, verticalScale } from '../utils/scaling';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { exportToExcel } from '../utils/ExcelExporter';
-import { NotificationManager } from '../utils/NotificationManager';
 
 interface SettingScreenProps {
     onNavigateToBudget?: () => void;
     onBack?: () => void;
 }
 
+const SettingItem = ({
+    title,
+    icon,
+    isSwitch,
+    value,
+    onToggle,
+    isDestructive,
+    hideArrow,
+    isLoading,
+}: any) => (
+    <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={isSwitch ? onToggle : onToggle}
+        disabled={isSwitch || isLoading}
+        activeOpacity={0.7}>
+        <View style={styles.leftContent}>
+            <View style={[styles.iconPlaceholder, isDestructive && styles.destructiveIcon]}>
+                {}
+            </View>
+            <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>{title}</Text>
+        </View>
+
+        {isSwitch ? (
+            <Switch
+                trackColor={{ false: '#767577', true: '#04D1C1' }}
+                thumbColor={value ? '#f4f3f4' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={onToggle}
+                value={value}
+            />
+        ) : isLoading ? (
+            <ActivityIndicator size="small" color="#04D1C1" />
+        ) : (
+            !hideArrow && <Text style={styles.arrow}>{'>'}</Text>
+        )}
+    </TouchableOpacity>
+);
+
 const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBack }) => {
-    const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+    const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
     const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
 
-    
-    useEffect(() => {
-        const loadSettings = async () => {
-            try {
-                
-                const notiStatus = await AsyncStorage.getItem('user_notifications_enabled');
-                console.log('Current notification status in storage:', notiStatus);
-                
-                
-                if (notiStatus === 'true') {
-                    setIsNotificationEnabled(true);
-                } else {
-                    setIsNotificationEnabled(false);
-                }
-            } catch (error) {
-                console.error('Failed to load settings', error);
-            }
-        };
-        loadSettings();
-    }, []);
-
-    const toggleNotification = async () => {
-        const newState = !isNotificationEnabled;
-        
-        
-        setIsNotificationEnabled(newState);
-        
-        try {
-            
-            
-            await AsyncStorage.setItem('user_notifications_enabled', String(newState));
-            
-            if (newState) {
-                
-                const success = await NotificationManager.scheduleDailyReminder();
-                
-                
-                if (!success) {
-                    Alert.alert(
-                        'Lưu ý',
-                        'Đã bật tính năng, nhưng ứng dụng chưa có quyền gửi thông báo. Vui lòng kiểm tra Cài đặt điện thoại.'
-                    );
-                    
-                }
-            } else {
-                
-                await NotificationManager.cancelAllNotifications();
-            }
-        } catch (error) {
-            console.error('Error toggling notification:', error);
-            
-            Alert.alert('Lỗi', 'Không thể lưu cài đặt.');
-        }
-    };
+    const toggleNotification = () => setIsNotificationEnabled(previousState => !previousState);
 
     const toggleBiometrics = () => {
         if (!isBiometricsEnabled) {
@@ -108,16 +92,11 @@ const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBac
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            
                             await AsyncStorage.multiRemove([
                                 'user_notifications',
                                 'user_notifications_enabled',
                                 'last_report_check',
                             ]);
-                            await NotificationManager.cancelAllNotifications();
-                            
-                            
-                            setIsNotificationEnabled(false);
                             Alert.alert('Thành công', 'Đã xóa bộ nhớ đệm ứng dụng.');
                         } catch (e) {
                             console.error(e);
@@ -127,46 +106,6 @@ const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBac
             ],
         );
     };
-
-    const SettingItem = ({
-        title,
-        icon,
-        isSwitch,
-        value,
-        onToggle,
-        isDestructive,
-        hideArrow,
-        isLoading,
-    }: any) => (
-        <TouchableOpacity
-            style={styles.itemContainer}
-            onPress={isSwitch ? onToggle : onToggle}
-            disabled={isSwitch || isLoading}
-            activeOpacity={0.7}>
-            <View style={styles.leftContent}>
-                <View style={[styles.iconPlaceholder, isDestructive && styles.destructiveIcon]}>
-                    {}
-                </View>
-                <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>
-                    {title}
-                </Text>
-            </View>
-
-            {isSwitch ? (
-                <Switch
-                    trackColor={{ false: '#767577', true: '#04D1C1' }}
-                    thumbColor={value ? '#f4f3f4' : '#f4f3f4'}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={onToggle}
-                    value={value}
-                />
-            ) : isLoading ? (
-                <ActivityIndicator size="small" color="#04D1C1" />
-            ) : (
-                !hideArrow && <Text style={styles.arrow}>{'>'}</Text>
-            )}
-        </TouchableOpacity>
-    );
 
     return (
         <View style={styles.container}>

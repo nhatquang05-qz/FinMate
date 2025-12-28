@@ -1,7 +1,5 @@
 import { ImageSourcePropType } from 'react-native';
 
-
-
 const mealIcon = require('../assets/images/fast-food.png');
 const transportIcon = require('../assets/images/bike.png');
 const clothesIcon = require('../assets/images/clothes.png');
@@ -14,11 +12,9 @@ const bonusIcon = require('../assets/images/pay-day.png');
 const investIcon = require('../assets/images/earning.png');
 const friendsIcon = require('../assets/images/friends.png');
 const piggyBankIcon = require('../assets/images/piggy-bank.png');
-const defaultIcon = require('../assets/images/bike.png'); 
-
+const defaultIcon = require('../assets/images/bike.png');
 
 export const iconMap: { [key: string]: ImageSourcePropType } = {
-    
     'food-icon': mealIcon,
     'transport-icon': transportIcon,
     'clothes-icon': clothesIcon,
@@ -26,7 +22,6 @@ export const iconMap: { [key: string]: ImageSourcePropType } = {
     'education-icon': eduIcon,
     'friends-icon': friendsIcon,
 
-    
     'salary-icon': salaryIcon,
     'subsidy-icon': subsidyIcon,
     'part-time-icon': partimeIcon,
@@ -34,6 +29,5 @@ export const iconMap: { [key: string]: ImageSourcePropType } = {
     'investment-icon': investIcon,
     'piggy-bank-icon': piggyBankIcon,
 
-    
     default: defaultIcon,
 };

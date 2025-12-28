@@ -89,7 +89,6 @@ export const NotificationManager = {
         return finalStatus === 'granted';
     },
 
-    
     scheduleDailyReminder: async () => {
         const hasPermission = await NotificationManager.requestPermissions();
         if (!hasPermission) {
@@ -97,11 +96,8 @@ export const NotificationManager = {
         }
 
         try {
-            
             await Notifications.cancelAllScheduledNotificationsAsync();
 
-            
-            
             await Notifications.scheduleNotificationAsync({
                 content: {
                     title: 'Nhắc nhở nhập liệu 📝',
@@ -230,8 +226,8 @@ export const NotificationManager = {
     checkBudgetExceeded: async (categories: any[]) => {
         const now = new Date();
         const currentMonthStr = format(now, 'yyyy-MM');
-        
-        let budgetHistory: Record<string, string> = {}; 
+
+        let budgetHistory: Record<string, string> = {};
 
         try {
             const historyJson = await AsyncStorage.getItem(BUDGET_NOTIFIED_KEY);
@@ -247,7 +243,7 @@ export const NotificationManager = {
 
             const percent = (cat.totalAmount / cat.budgetLimit) * 100;
             const historyKey = `${cat.id}_${currentMonthStr}`;
-            const lastNotifiedLevel = budgetHistory[historyKey] || '0'; 
+            const lastNotifiedLevel = budgetHistory[historyKey] || '0';
 
             if (percent >= 100) {
                 if (lastNotifiedLevel !== '100') {
@@ -258,7 +254,7 @@ export const NotificationManager = {
                         },
                         trigger: null,
                     });
-                    
+
                     budgetHistory[historyKey] = '100';
                     hasChange = true;
                 }

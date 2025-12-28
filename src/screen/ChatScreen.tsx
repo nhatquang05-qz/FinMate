@@ -52,7 +52,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
         setInputText('');
         setIsLoading(true);
 
-        
         const apiMessages = newMessages.map(({ role, content }) => ({ role, content }));
 
         try {
@@ -97,7 +96,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground
-                source={require('../assets/images/background.png')} 
+                source={require('../assets/images/background.png')}
                 style={StyleSheet.absoluteFillObject}
             />
             <View style={styles.header}>
