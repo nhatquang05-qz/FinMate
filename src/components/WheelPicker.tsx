@@ -6,6 +6,7 @@ import {
     StyleSheet,
     NativeSyntheticEvent,
     NativeScrollEvent,
+    DimensionValue, 
 } from 'react-native';
 
 const ITEM_HEIGHT = 50;
@@ -15,9 +16,19 @@ type WheelPickerProps = {
     data: string[];
     selectedValue: string;
     onValueChange: (value: string) => void;
+    width?: DimensionValue; 
+    fontSize?: number;
+    selectedFontSize?: number;
 };
 
-const WheelPicker = ({ data, selectedValue, onValueChange }: WheelPickerProps) => {
+const WheelPicker = ({ 
+    data, 
+    selectedValue, 
+    onValueChange,
+    width = 100,
+    fontSize = 22,
+    selectedFontSize = 26
+}: WheelPickerProps) => {
     const flatListRef = useRef<FlatList>(null);
     const PADDING = ((VISIBLE_ITEMS - 1) / 2) * ITEM_HEIGHT;
 
@@ -43,13 +54,19 @@ const WheelPicker = ({ data, selectedValue, onValueChange }: WheelPickerProps) =
         const isSelected = item === selectedValue;
         return (
             <View style={styles.itemContainer}>
-                <Text style={[styles.itemText, isSelected && styles.selectedItemText]}>{item}</Text>
+                <Text style={[
+                    styles.itemText, 
+                    { fontSize },
+                    isSelected && { color: '#04D1C1', fontSize: selectedFontSize }
+                ]}>
+                    {item}
+                </Text>
             </View>
         );
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { width }]}>
             <View style={styles.highlight} />
             <FlatList
                 ref={flatListRef}
@@ -74,7 +91,6 @@ const WheelPicker = ({ data, selectedValue, onValueChange }: WheelPickerProps) =
 
 const styles = StyleSheet.create({
     container: {
-        width: 100,
         height: ITEM_HEIGHT * VISIBLE_ITEMS,
     },
     highlight: {
@@ -94,12 +110,7 @@ const styles = StyleSheet.create({
     },
     itemText: {
         fontFamily: 'Coiny-Regular',
-        fontSize: 22,
         color: '#A9A9A9',
-    },
-    selectedItemText: {
-        color: '#04D1C1',
-        fontSize: 26,
     },
 });
 

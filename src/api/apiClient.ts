@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // !! QUAN TRỌNG: THAY ĐỔI ĐỊA CHỈ IP NÀY !!
 // ====================================================================
 
-const API_BASE_URL = 'http://10.0.126.176:3000/api'; // Đảm bảo IP này đúng với máy tính của bạn
+const API_BASE_URL = 'http://10.0.153.120:3000/api'; // Đảm bảo IP này đúng với máy tính của bạn
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,

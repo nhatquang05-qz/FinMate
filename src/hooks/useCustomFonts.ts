@@ -1,9 +1,5 @@
 import { useFonts } from 'expo-font';
 
-/**
- * Hook tùy chỉnh để tải và quản lý tất cả các font chữ trong ứng dụng.
- * Mọi font mới chỉ cần được thêm vào đây.
- */
 export const useCustomFonts = () => {
     const [fontsLoaded, fontError] = useFonts({
         'BeVietnamPro-Black': require('../assets/fonts/Be-Vietnam/BeVietnamPro-Black.ttf'),
@@ -22,7 +18,6 @@ export const useCustomFonts = () => {
         'BalooTammudu2-Medium': require('../assets/fonts/BalooTammudu2-Medium.ttf'),
     });
 
-    // Bạn cũng có thể xử lý lỗi tải font ở đây nếu cần
     if (fontError) {
         console.error('Lỗi khi tải font:', fontError);
     }

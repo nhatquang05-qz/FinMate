@@ -149,6 +149,11 @@ const CustomDatePickerModal = ({
         return 'Chọn Ngày';
     }, [mode]);
 
+    const isWeekMode = mode === 'week';
+    const commonWidth = isWeekMode ? 80 : 100; 
+    const commonFontSize = isWeekMode ? 15 : 22;
+    const commonSelectedFontSize = isWeekMode ? 18 : 26;
+
     const PickerContent = (
         <SafeAreaView
             style={[styles.modalContainer, !useNativeModal && styles.nestedContainer]}
@@ -177,6 +182,9 @@ const CustomDatePickerModal = ({
                                 data={MONTHS}
                                 selectedValue={String(month + 1)}
                                 onValueChange={newMonth => updateDate({ month: Number(newMonth) })}
+                                width={commonWidth}
+                                fontSize={commonFontSize}
+                                selectedFontSize={commonSelectedFontSize}
                             />
                             <View style={styles.columnSeparator} />
                         </>
@@ -186,6 +194,9 @@ const CustomDatePickerModal = ({
                         data={YEARS}
                         selectedValue={String(year)}
                         onValueChange={newYear => updateDate({ year: Number(newYear) })}
+                        width={commonWidth}
+                        fontSize={commonFontSize}
+                        selectedFontSize={commonSelectedFontSize}
                     />
 
                     {mode === 'week' && (
@@ -196,6 +207,9 @@ const CustomDatePickerModal = ({
                                     data={WEEKS.map(w => w.label)}
                                     selectedValue={selectedWeekValue}
                                     onValueChange={handleWeekChange}
+                                    width="100%"
+                                    fontSize={15}
+                                    selectedFontSize={18}
                                 />
                             </View>
                         </>
