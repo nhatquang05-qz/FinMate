@@ -21,7 +21,7 @@ export const useTransactionForm = (type: TransactionType) => {
                 const response = await apiClient.get<Category[]>(`/categories?type=${type}`);
                 setCategories(response.data);
                 if (response.data.length > 0) {
-                    setSelectedCategory(response.data[0]); 
+                    setSelectedCategory(response.data[0]);
                 }
             } catch (error) {
                 console.error(`Error fetching ${type} categories:`, error);
@@ -30,7 +30,7 @@ export const useTransactionForm = (type: TransactionType) => {
         };
 
         fetchCategories();
-    }, [type]); 
+    }, [type]);
 
     const resetForm = () => {
         setAmount('');

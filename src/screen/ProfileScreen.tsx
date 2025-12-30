@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../utils/scaling';
 import apiClient from '../api/apiClient';
 import * as ImagePicker from 'expo-image-picker';
+import { useTheme } from '../context/ThemeContext';
 
 const defaultAvatar = require('../assets/images/user_avatar.png');
 
@@ -31,6 +32,7 @@ interface ProfileScreenProps {
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
+    const { colors, isDarkMode } = useTheme();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -135,11 +137,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         onChangeText?: (text: string) => void,
     ) => (
         <View style={styles.fieldContainer}>
-            <Text style={styles.label}>{label}</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
             {editable ? (
-                <TextInput style={styles.input} value={value} onChangeText={onChangeText} />
+                <TextInput
+                    style={[
+                        styles.input,
+                        { color: colors.text, borderBottomColor: colors.primary },
+                    ]}
+                    value={value}
+                    onChangeText={onChangeText}
+                />
             ) : (
-                <Text style={styles.value}>{value}</Text>
+                <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
             )}
         </View>
     );
@@ -148,20 +157,22 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
         return (
             <ActivityIndicator
                 size="large"
-                color="#04D1C1"
+                color={colors.primary}
                 style={{ flex: 1, justifyContent: 'center' }}
             />
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.content}>
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                    <Text style={styles.backButtonText}>‹ Quay lại</Text>
+                    <Text style={[styles.backButtonText, { color: colors.primary }]}>
+                        ‹ Quay lại
+                    </Text>
                 </TouchableOpacity>
 
-                <Text style={styles.title}>Thông tin cá nhân</Text>
+                <Text style={[styles.title, { color: colors.primary }]}>Thông tin cá nhân</Text>
 
                 <TouchableOpacity
                     style={styles.avatarContainer}
@@ -169,9 +180,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                     disabled={isUploading}>
                     <Image
                         source={user?.avatar_url ? { uri: user.avatar_url } : defaultAvatar}
-                        style={styles.avatar}
+                        style={[styles.avatar, { borderColor: colors.card }]}
                     />
-                    <View style={styles.editIcon}>
+                    <View
+                        style={[
+                            styles.editIcon,
+                            { backgroundColor: colors.primary, borderColor: colors.card },
+                        ]}>
                         {isUploading ? (
                             <ActivityIndicator size="small" color="#fff" />
                         ) : (
@@ -180,7 +195,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                     </View>
                 </TouchableOpacity>
 
-                <View style={styles.card}>
+                <View style={[styles.card, { backgroundColor: colors.card }]}>
                     {renderField('Tên đăng nhập', user?.username || '', false)}
                     {renderField('Email', user?.email || '', false)}
                     {renderField(
@@ -204,13 +219,27 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                 {isEditing ? (
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
+                            style={[
+                                styles.button,
+                                styles.cancelButton,
+                                { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' },
+                            ]}
                             onPress={() => setIsEditing(false)}
                             disabled={isLoading}>
-                            <Text style={styles.cancelButtonText}>Hủy</Text>
+                            <Text
+                                style={[
+                                    styles.cancelButtonText,
+                                    { color: isDarkMode ? '#AAA' : '#555' },
+                                ]}>
+                                Hủy
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.button, styles.saveButton]}
+                            style={[
+                                styles.button,
+                                styles.saveButton,
+                                { backgroundColor: colors.primary },
+                            ]}
                             onPress={handleSaveTextChanges}
                             disabled={isLoading}>
                             {isLoading ? (
@@ -222,9 +251,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
                     </View>
                 ) : (
                     <TouchableOpacity
-                        style={[styles.button, styles.editButton]}
+                        style={[
+                            styles.button,
+                            styles.editButton,
+                            { backgroundColor: isDarkMode ? '#1E3A3A' : '#E6FFFD' },
+                        ]}
                         onPress={() => setIsEditing(true)}>
-                        <Text style={styles.editButtonText}>Chỉnh sửa</Text>
+                        <Text style={[styles.editButtonText, { color: colors.primary }]}>
+                            Chỉnh sửa
+                        </Text>
                     </TouchableOpacity>
                 )}
             </ScrollView>
@@ -233,18 +268,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: 'transparent' },
+    container: { flex: 1 },
     content: {
         paddingHorizontal: scale(20),
         paddingTop: scale(20),
         paddingBottom: scale(120),
     },
     backButton: { marginBottom: scale(20) },
-    backButtonText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16), color: '#04D1C1' },
+    backButtonText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16) },
     title: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(28),
-        color: '#04D1C1',
         textAlign: 'center',
         marginBottom: scale(20),
     },
@@ -258,20 +292,17 @@ const styles = StyleSheet.create({
         height: scale(120),
         borderRadius: scale(60),
         borderWidth: 4,
-        borderColor: '#fff',
     },
     editIcon: {
         position: 'absolute',
         bottom: 0,
         right: 0,
-        backgroundColor: '#04D1C1',
         borderRadius: scale(20),
         width: scale(35),
         height: scale(35),
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#fff',
     },
     editText: {
         color: 'white',
@@ -280,7 +311,6 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(20),
         elevation: 3,
@@ -290,26 +320,23 @@ const styles = StyleSheet.create({
     label: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(14),
-        color: '#888',
         marginBottom: scale(5),
     },
-    value: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(16), color: '#333' },
+    value: { fontFamily: 'BeVietnamPro-Regular', fontSize: scale(16) },
     input: {
         fontFamily: 'BeVietnamPro-Regular',
         fontSize: scale(16),
-        color: '#333',
         borderBottomWidth: 1,
-        borderBottomColor: '#04D1C1',
         paddingBottom: scale(5),
     },
     buttonContainer: { flexDirection: 'row', marginTop: scale(30) },
     button: { flex: 1, padding: scale(15), borderRadius: scale(30), alignItems: 'center' },
-    editButton: { backgroundColor: '#E6FFFD', marginTop: scale(30) },
-    editButtonText: { fontFamily: 'Coiny-Regular', color: '#04D1C1', fontSize: scale(18) },
-    saveButton: { backgroundColor: '#04D1C1', marginLeft: scale(10) },
+    editButton: { marginTop: scale(30) },
+    editButtonText: { fontFamily: 'Coiny-Regular', fontSize: scale(18) },
+    saveButton: { marginLeft: scale(10) },
     saveButtonText: { fontFamily: 'Coiny-Regular', color: 'white', fontSize: scale(18) },
-    cancelButton: { backgroundColor: '#F0F0F0', marginRight: scale(10) },
-    cancelButtonText: { fontFamily: 'Coiny-Regular', color: '#555', fontSize: scale(18) },
+    cancelButton: { marginRight: scale(10) },
+    cancelButtonText: { fontFamily: 'Coiny-Regular', fontSize: scale(18) },
 });
 
 export default ProfileScreen;

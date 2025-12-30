@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { scale, moderateScale, verticalScale } from '../utils/scaling';
+import { useTheme } from '../context/ThemeContext';
 
 type TransactionType = 'expense' | 'income';
 
@@ -13,13 +14,22 @@ const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({
     activeType,
     onSelectionChange,
 }) => {
+    const { colors, isDarkMode } = useTheme();
+
     return (
         <View style={styles.wrapper}>
-            <View style={styles.container}>
+            <View
+                style={[
+                    styles.container,
+                    { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                ]}>
+                {}
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        activeType === 'income' ? styles.selectedButton : styles.unselectedButton,
+                        activeType === 'income'
+                            ? [styles.selectedButton, { backgroundColor: colors.primary }]
+                            : styles.unselectedButton,
                     ]}
                     onPress={() => onSelectionChange('income')}
                     activeOpacity={0.8}>
@@ -28,16 +38,19 @@ const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({
                             styles.buttonText,
                             activeType === 'income'
                                 ? styles.selectedButtonText
-                                : styles.unselectedButtonText,
+                                : [styles.unselectedButtonText, { color: colors.primary }],
                         ]}>
                         Thu
                     </Text>
                 </TouchableOpacity>
 
+                {}
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        activeType === 'expense' ? styles.selectedButton : styles.unselectedButton,
+                        activeType === 'expense'
+                            ? [styles.selectedButton, { backgroundColor: colors.primary }]
+                            : styles.unselectedButton,
                     ]}
                     onPress={() => onSelectionChange('expense')}
                     activeOpacity={0.8}>
@@ -46,7 +59,7 @@ const TransactionTypeToggle: React.FC<TransactionTypeToggleProps> = ({
                             styles.buttonText,
                             activeType === 'expense'
                                 ? styles.selectedButtonText
-                                : styles.unselectedButtonText,
+                                : [styles.unselectedButtonText, { color: colors.primary }],
                         ]}>
                         Chi
                     </Text>
@@ -63,7 +76,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
+
         borderRadius: moderateScale(30),
         padding: scale(4),
         width: scale(200),
@@ -72,7 +85,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         ...Platform.select({
             ios: {
-                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
                 shadowRadius: 3,
@@ -89,9 +101,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: moderateScale(25),
     },
-    selectedButton: {
-        backgroundColor: '#04D1C1',
-    },
+    selectedButton: {},
     unselectedButton: {
         backgroundColor: 'transparent',
     },
@@ -102,9 +112,7 @@ const styles = StyleSheet.create({
     selectedButtonText: {
         color: '#FFFFFF',
     },
-    unselectedButtonText: {
-        color: '#04D1C1',
-    },
+    unselectedButtonText: {},
 });
 
 export default TransactionTypeToggle;

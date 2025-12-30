@@ -9,11 +9,11 @@ import {
     KeyboardAvoidingView,
     Platform,
     ActivityIndicator,
-    ImageBackground,
     SafeAreaView,
 } from 'react-native';
 import { scale } from '../utils/scaling';
 import { sendMessageToGroq } from '../api/groqService';
+import { useTheme } from '../context/ThemeContext';
 
 interface Message {
     id: string;
@@ -26,6 +26,7 @@ interface ChatScreenProps {
 }
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
+    const { colors, isDarkMode } = useTheme();
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
@@ -85,8 +86,21 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
     const renderItem = ({ item }: { item: Message }) => {
         const isUser = item.role === 'user';
         return (
-            <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.botBubble]}>
-                <Text style={[styles.messageText, isUser ? styles.userText : styles.botText]}>
+            <View
+                style={[
+                    styles.messageBubble,
+                    isUser
+                        ? [styles.userBubble, { backgroundColor: colors.primary }]
+                        : [
+                              styles.botBubble,
+                              { backgroundColor: colors.card, borderColor: colors.border },
+                          ],
+                ]}>
+                <Text
+                    style={[
+                        styles.messageText,
+                        isUser ? styles.userText : [styles.botText, { color: colors.text }],
+                    ]}>
                     {item.content}
                 </Text>
             </View>
@@ -94,16 +108,17 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ImageBackground
-                source={require('../assets/images/background.png')}
-                style={StyleSheet.absoluteFillObject}
-            />
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            {}
+            <View
+                style={[
+                    styles.header,
+                    { backgroundColor: colors.card, borderBottomColor: colors.border },
+                ]}>
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                    <Text style={styles.backText}>{'< Trở về'}</Text>
+                    <Text style={[styles.backText, { color: colors.primary }]}>{'< Trở về'}</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Trợ lý Finpet AI</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Trợ lý Finpet AI</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -118,25 +133,37 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
 
             {isLoading && (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="small" color="#04D1C1" />
-                    <Text style={styles.loadingText}>Finpet đang suy nghĩ...</Text>
+                    <ActivityIndicator size="small" color={colors.primary} />
+                    <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+                        Finpet đang suy nghĩ...
+                    </Text>
                 </View>
             )}
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
-                <View style={styles.inputContainer}>
+                <View
+                    style={[
+                        styles.inputContainer,
+                        { backgroundColor: colors.card, borderTopColor: colors.border },
+                    ]}>
                     <TextInput
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            {
+                                backgroundColor: isDarkMode ? colors.background : '#F0F2F5',
+                                color: colors.text,
+                            },
+                        ]}
                         value={inputText}
                         onChangeText={setInputText}
                         placeholder="Hỏi Finpet về tài chính..."
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                     <TouchableOpacity
                         onPress={handleSend}
-                        style={styles.sendButton}
+                        style={[styles.sendButton, { backgroundColor: colors.primary }]}
                         disabled={isLoading}>
                         <Text style={styles.sendButtonText}>Gửi</Text>
                     </TouchableOpacity>
@@ -149,7 +176,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ onBack }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F7FA',
     },
     header: {
         height: scale(60),
@@ -157,23 +183,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: scale(15),
-        backgroundColor: 'rgba(255,255,255,0.9)',
         borderBottomWidth: 1,
-        borderBottomColor: '#EEE',
         marginTop: Platform.OS === 'android' ? scale(25) : 0,
     },
     backButton: {
         padding: scale(10),
     },
     backText: {
-        color: '#04D1C1',
         fontFamily: 'Coiny-Regular',
         fontSize: scale(14),
     },
     headerTitle: {
         fontSize: scale(18),
         fontFamily: 'Coiny-Regular',
-        color: '#333',
     },
     listContent: {
         padding: scale(15),
@@ -187,15 +209,12 @@ const styles = StyleSheet.create({
     },
     userBubble: {
         alignSelf: 'flex-end',
-        backgroundColor: '#04D1C1',
         borderBottomRightRadius: 2,
     },
     botBubble: {
         alignSelf: 'flex-start',
-        backgroundColor: '#FFF',
         borderBottomLeftRadius: 2,
         borderWidth: 1,
-        borderColor: '#EEE',
     },
     messageText: {
         fontSize: scale(15),
@@ -205,20 +224,15 @@ const styles = StyleSheet.create({
     userText: {
         color: '#FFF',
     },
-    botText: {
-        color: '#333',
-    },
+    botText: {},
     inputContainer: {
         flexDirection: 'row',
         padding: scale(10),
-        backgroundColor: '#FFF',
         borderTopWidth: 1,
-        borderTopColor: '#EEE',
         alignItems: 'center',
     },
     input: {
         flex: 1,
-        backgroundColor: '#F0F2F5',
         borderRadius: scale(20),
         paddingHorizontal: scale(15),
         paddingVertical: scale(10),
@@ -226,10 +240,8 @@ const styles = StyleSheet.create({
         fontFamily: 'BeVietnamPro-Regular',
         maxHeight: scale(100),
         marginRight: scale(10),
-        color: '#333',
     },
     sendButton: {
-        backgroundColor: '#04D1C1',
         borderRadius: scale(20),
         paddingVertical: scale(10),
         paddingHorizontal: scale(20),
@@ -247,7 +259,6 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         marginLeft: scale(8),
-        color: '#666',
         fontFamily: 'BeVietnamPro-Italic',
         fontSize: scale(12),
     },

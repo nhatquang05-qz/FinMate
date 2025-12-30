@@ -16,6 +16,7 @@ import apiClient from '../api/apiClient';
 import CustomDatePickerModal from '../components/CustomDatePickerModal';
 import { format, differenceInDays } from 'date-fns';
 import { NotificationManager } from '../utils/NotificationManager';
+import { useTheme } from '../context/ThemeContext';
 
 interface Goal {
     id: number;
@@ -27,6 +28,7 @@ interface Goal {
 }
 
 const GoalScreen = () => {
+    const { colors, isDarkMode } = useTheme();
     const [goals, setGoals] = useState<Goal[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -192,12 +194,16 @@ const GoalScreen = () => {
         const isCompleted = item.current_amount >= item.target_amount;
         const daysLeft = differenceInDays(new Date(item.deadline), new Date());
 
-        const cardStyle = isCompleted ? styles.completedCard : styles.card;
-        const titleColor = isCompleted ? '#B8860B' : '#333';
+        const cardBg = isCompleted ? (isDarkMode ? '#332b00' : '#FFFBE6') : colors.card;
+        const borderColor = isCompleted ? '#FFD700' : 'transparent';
+        const titleColor = isCompleted ? '#B8860B' : colors.text;
 
         return (
             <TouchableOpacity
-                style={cardStyle}
+                style={[
+                    styles.baseCard,
+                    { backgroundColor: cardBg, borderColor, borderWidth: isCompleted ? 2 : 0 },
+                ]}
                 onPress={() => openAddMoneyModal(item.id)}
                 onLongPress={() => openEditModal(item)}>
                 <View style={styles.cardHeader}>
@@ -205,7 +211,7 @@ const GoalScreen = () => {
                         <Text style={[styles.goalName, { color: titleColor }]}>
                             {item.name} {isCompleted && '🏆'}
                         </Text>
-                        <Text style={styles.deadlineText}>
+                        <Text style={[styles.deadlineText, { color: colors.textSecondary }]}>
                             Hạn: {format(new Date(item.deadline), 'dd/MM/yyyy')}
                             {!isCompleted && daysLeft >= 0 && daysLeft <= 3 && (
                                 <Text style={{ color: 'red', fontWeight: 'bold' }}> (Gấp!)</Text>
@@ -224,25 +230,33 @@ const GoalScreen = () => {
                 </View>
 
                 <View style={styles.amountRow}>
-                    <Text style={styles.amountText}>{formatCurrency(item.current_amount)}</Text>
-                    <Text style={styles.targetText}>/ {formatCurrency(item.target_amount)}</Text>
+                    <Text style={[styles.amountText, { color: colors.primary }]}>
+                        {formatCurrency(item.current_amount)}
+                    </Text>
+                    <Text style={[styles.targetText, { color: colors.textSecondary }]}>
+                        / {formatCurrency(item.target_amount)}
+                    </Text>
                 </View>
 
-                <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarBg, { backgroundColor: colors.border }]}>
                     <View
                         style={[
                             styles.progressBarFill,
                             {
                                 width: `${progress}%`,
-                                backgroundColor: isCompleted ? '#FFD700' : item.color || '#04D1C1',
+                                backgroundColor: isCompleted
+                                    ? '#FFD700'
+                                    : item.color || colors.primary,
                             },
                         ]}
                     />
                 </View>
 
                 <View style={styles.cardFooter}>
-                    <Text style={styles.percentText}>{Math.round(progress)}%</Text>
-                    <Text style={styles.hintText}>
+                    <Text style={[styles.percentText, { color: colors.textSecondary }]}>
+                        {Math.round(progress)}%
+                    </Text>
+                    <Text style={[styles.hintText, { color: colors.textSecondary }]}>
                         {isCompleted ? 'Đã hoàn thành xuất sắc!' : 'Chạm để nạp thêm'}
                     </Text>
                 </View>
@@ -251,13 +265,13 @@ const GoalScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Hũ Tiết Kiệm</Text>
+                <Text style={[styles.headerTitle, { color: colors.primary }]}>Hũ Tiết Kiệm</Text>
             </View>
 
             {isLoading ? (
-                <ActivityIndicator color="#04D1C1" size="large" style={{ marginTop: 20 }} />
+                <ActivityIndicator color={colors.primary} size="large" style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
                     data={goals}
@@ -265,47 +279,70 @@ const GoalScreen = () => {
                     keyExtractor={item => item.id.toString()}
                     contentContainerStyle={{ padding: scale(20), paddingBottom: scale(100) }}
                     ListEmptyComponent={
-                        <Text style={styles.emptyText}>Bạn chưa có mục tiêu nào.</Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                            Bạn chưa có mục tiêu nào.
+                        </Text>
                     }
                 />
             )}
 
-            <TouchableOpacity style={styles.fab} onPress={openCreateModal}>
+            <TouchableOpacity
+                style={[styles.fab, { backgroundColor: colors.primary }]}
+                onPress={openCreateModal}>
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
 
             <Modal visible={modalVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>
                             {isEditing ? 'Chỉnh sửa mục tiêu' : 'Mục tiêu mới'}
                         </Text>
 
-                        <Text style={styles.label}>Tên mục tiêu</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                            Tên mục tiêu
+                        </Text>
                         <TextInput
                             placeholder="VD: Mua xe, Du lịch..."
-                            style={styles.input}
+                            placeholderTextColor={colors.textSecondary}
+                            style={[
+                                styles.input,
+                                { borderColor: colors.border, color: colors.text },
+                            ]}
                             value={goalName}
                             onChangeText={setGoalName}
                         />
 
-                        <Text style={styles.label}>Số tiền cần (VNĐ)</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                            Số tiền cần (VNĐ)
+                        </Text>
                         <TextInput
                             placeholder="0"
-                            style={styles.input}
+                            placeholderTextColor={colors.textSecondary}
+                            style={[
+                                styles.input,
+                                { borderColor: colors.border, color: colors.text },
+                            ]}
                             keyboardType="numeric"
                             value={goalAmount}
                             onChangeText={setGoalAmount}
                         />
 
-                        <Text style={styles.label}>Ngày kết thúc</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>
+                            Ngày kết thúc
+                        </Text>
                         <TouchableOpacity
-                            style={styles.dateInput}
+                            style={[styles.dateInput, { borderColor: colors.border }]}
                             onPress={() => setShowDatePicker(true)}>
-                            <Text style={{ fontSize: 16, fontFamily: 'BeVietnamPro-Regular' }}>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontFamily: 'BeVietnamPro-Regular',
+                                    color: colors.text,
+                                }}>
                                 {format(goalDeadline, 'dd/MM/yyyy')}
                             </Text>
-                            <Text style={{ fontSize: 12, color: '#999' }}>
+                            <Text style={{ fontSize: 12, color: colors.textSecondary }}>
                                 (Còn {differenceInDays(goalDeadline, new Date())} ngày)
                             </Text>
                         </TouchableOpacity>
@@ -323,11 +360,22 @@ const GoalScreen = () => {
 
                             <TouchableOpacity
                                 onPress={() => setModalVisible(false)}
-                                style={styles.cancelButton}>
-                                <Text style={styles.cancelButtonText}>Hủy</Text>
+                                style={[
+                                    styles.cancelButton,
+                                    { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' },
+                                ]}>
+                                <Text
+                                    style={[
+                                        styles.cancelButtonText,
+                                        { color: isDarkMode ? '#AAA' : '#666' },
+                                    ]}>
+                                    Hủy
+                                </Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity onPress={handleSaveGoal} style={styles.saveButton}>
+                            <TouchableOpacity
+                                onPress={handleSaveGoal}
+                                style={[styles.saveButton, { backgroundColor: colors.primary }]}>
                                 <Text style={styles.saveButtonText}>Lưu</Text>
                             </TouchableOpacity>
                         </View>
@@ -350,11 +398,17 @@ const GoalScreen = () => {
 
             <Modal visible={addMoneyModalVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Nạp thêm tiền</Text>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>
+                            Nạp thêm tiền
+                        </Text>
                         <TextInput
                             placeholder="Số tiền (VNĐ)"
-                            style={styles.input}
+                            placeholderTextColor={colors.textSecondary}
+                            style={[
+                                styles.input,
+                                { borderColor: colors.border, color: colors.text },
+                            ]}
                             keyboardType="numeric"
                             value={addMoneyAmount}
                             onChangeText={setAddMoneyAmount}
@@ -363,10 +417,21 @@ const GoalScreen = () => {
                         <View style={styles.modalButtons}>
                             <TouchableOpacity
                                 onPress={() => setAddMoneyModalVisible(false)}
-                                style={styles.cancelButton}>
-                                <Text style={styles.cancelButtonText}>Hủy</Text>
+                                style={[
+                                    styles.cancelButton,
+                                    { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' },
+                                ]}>
+                                <Text
+                                    style={[
+                                        styles.cancelButtonText,
+                                        { color: isDarkMode ? '#AAA' : '#666' },
+                                    ]}>
+                                    Hủy
+                                </Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={handleAddMoney} style={styles.saveButton}>
+                            <TouchableOpacity
+                                onPress={handleAddMoney}
+                                style={[styles.saveButton, { backgroundColor: colors.primary }]}>
                                 <Text style={styles.saveButtonText}>Nạp ngay</Text>
                             </TouchableOpacity>
                         </View>
@@ -378,30 +443,19 @@ const GoalScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F5F5F5' },
+    container: { flex: 1 },
     headerContainer: { marginTop: scale(10), marginBottom: scale(5) },
     headerTitle: {
         fontSize: scale(24),
         fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
         textAlign: 'center',
     },
 
-    card: {
-        backgroundColor: 'white',
+    baseCard: {
         borderRadius: scale(15),
         padding: scale(15),
         marginBottom: scale(15),
         elevation: 3,
-    },
-    completedCard: {
-        backgroundColor: '#FFFBE6',
-        borderRadius: scale(15),
-        padding: scale(15),
-        marginBottom: scale(15),
-        elevation: 3,
-        borderWidth: 2,
-        borderColor: '#FFD700',
     },
 
     cardHeader: {
@@ -410,30 +464,28 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         marginBottom: scale(5),
     },
-    goalName: { fontSize: scale(18), fontFamily: 'BeVietnamPro-Bold', color: '#333' },
+    goalName: { fontSize: scale(18), fontFamily: 'BeVietnamPro-Bold' },
     deadlineText: {
         fontSize: scale(12),
-        color: '#666',
         marginTop: 2,
         fontFamily: 'BeVietnamPro-Regular',
     },
     editIconBtn: { padding: 5, marginLeft: 10 },
 
     amountRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: scale(10) },
-    amountText: { fontSize: scale(16), fontFamily: 'BeVietnamPro-Bold', color: '#04D1C1' },
-    targetText: { fontSize: scale(14), color: '#999' },
+    amountText: { fontSize: scale(16), fontFamily: 'BeVietnamPro-Bold' },
+    targetText: { fontSize: scale(14) },
 
     progressBarBg: {
         height: scale(10),
-        backgroundColor: '#E0E0E0',
         borderRadius: scale(5),
         overflow: 'hidden',
     },
     progressBarFill: { height: '100%', borderRadius: scale(5) },
 
     cardFooter: { flexDirection: 'row', justifyContent: 'space-between', marginTop: scale(5) },
-    percentText: { fontSize: scale(14), fontFamily: 'BeVietnamPro-Bold', color: '#666' },
-    hintText: { fontSize: scale(10), color: '#999', fontStyle: 'italic' },
+    percentText: { fontSize: scale(14), fontFamily: 'BeVietnamPro-Bold' },
+    hintText: { fontSize: scale(10), fontStyle: 'italic' },
 
     fab: {
         position: 'absolute',
@@ -442,7 +494,6 @@ const styles = StyleSheet.create({
         width: scale(56),
         height: scale(56),
         borderRadius: scale(28),
-        backgroundColor: '#04D1C1',
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
@@ -452,7 +503,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
     },
     fabText: { fontSize: scale(30), color: 'white', marginTop: -scale(4) },
-    emptyText: { textAlign: 'center', color: '#999', marginTop: scale(50) },
+    emptyText: { textAlign: 'center', marginTop: scale(50) },
 
     modalOverlay: {
         flex: 1,
@@ -461,7 +512,6 @@ const styles = StyleSheet.create({
         padding: scale(20),
     },
     modalContent: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(20),
         elevation: 5,
@@ -471,18 +521,15 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         textAlign: 'center',
         marginBottom: scale(15),
-        color: '#333',
     },
     label: {
         fontSize: scale(14),
-        color: '#666',
         marginBottom: scale(5),
         marginLeft: scale(5),
         fontFamily: 'BeVietnamPro-SemiBold',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#DDD',
         borderRadius: scale(10),
         padding: scale(12),
         marginBottom: scale(15),
@@ -491,7 +538,6 @@ const styles = StyleSheet.create({
     },
     dateInput: {
         borderWidth: 1,
-        borderColor: '#DDD',
         borderRadius: scale(10),
         padding: scale(12),
         marginBottom: scale(15),
@@ -503,13 +549,11 @@ const styles = StyleSheet.create({
         padding: scale(12),
         flex: 1,
         alignItems: 'center',
-        backgroundColor: '#F0F0F0',
         borderRadius: scale(10),
         marginRight: scale(5),
     },
-    cancelButtonText: { color: '#666', fontFamily: 'BeVietnamPro-Bold' },
+    cancelButtonText: { fontFamily: 'BeVietnamPro-Bold' },
     saveButton: {
-        backgroundColor: '#04D1C1',
         padding: scale(12),
         borderRadius: scale(10),
         flex: 1,

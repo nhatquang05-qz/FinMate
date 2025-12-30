@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     SafeAreaView,
     View,
-    ImageBackground,
     ScrollView,
     Image,
     Text,
@@ -12,6 +11,7 @@ import {
     Platform,
     Alert,
     ActivityIndicator,
+    useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -24,7 +24,7 @@ import PopupAccountNotExist from '../components/popups/PopupAccountNotExist';
 import apiClient from '../api/apiClient';
 
 const guestImage = require('../assets/images/guest.png');
-const backgroundImage = require('../assets/images/background.png');
+
 const logoImage = require('../assets/images/logo.png');
 
 type LoginScreenProps = {
@@ -33,6 +33,12 @@ type LoginScreenProps = {
 };
 
 const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) => {
+    const theme = useColorScheme();
+    const isDarkMode = theme === 'dark';
+    const backgroundColor = isDarkMode ? '#121212' : '#FFFFFF';
+    const textColor = isDarkMode ? '#FFFFFF' : '#333333';
+    const containerColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -125,85 +131,95 @@ const LoginScreen = ({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps)
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ImageBackground
-                source={backgroundImage}
-                resizeMode="cover"
-                style={styles.backgroundImage}>
-                <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                    <View style={styles.mainContent}>
-                        <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
-                        <View style={styles.formContainer}>
-                            <Text style={styles.title}>{'Đăng nhập'}</Text>
-                            <Text style={styles.label}>{'Tài khoản'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={username}
-                                    onChangeText={setUsername}
-                                    placeholder="Nhập tài khoản của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                />
-                            </View>
-                            <Text style={styles.label}>{'Mật khẩu'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    placeholder="Nhập mật khẩu của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                    secureTextEntry={true}
-                                />
-                            </View>
+        <SafeAreaView style={[styles.container, { backgroundColor }]}>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <View style={styles.mainContent}>
+                    <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
+                    <View
+                        style={[
+                            styles.formContainer,
+                            {
+                                backgroundColor: containerColor,
+                                borderColor: isDarkMode ? '#333' : '#E0E0E0',
+                            },
+                        ]}>
+                        <Text style={styles.title}>{'Đăng nhập'}</Text>
+                        <Text style={styles.label}>{'Tài khoản'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={username}
+                                onChangeText={setUsername}
+                                placeholder="Nhập tài khoản của bạn"
+                                placeholderTextColor="#BDBDBD"
+                            />
+                        </View>
+                        <Text style={styles.label}>{'Mật khẩu'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="Nhập mật khẩu của bạn"
+                                placeholderTextColor="#BDBDBD"
+                                secureTextEntry={true}
+                            />
+                        </View>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={handleLogin}
+                            disabled={isLoading}>
+                            {isLoading ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                <Text style={styles.buttonText}>{'Đăng nhập'}</Text>
+                            )}
+                        </TouchableOpacity>
+                        <View style={styles.footer}>
                             <TouchableOpacity
-                                style={styles.button}
-                                onPress={handleLogin}
-                                disabled={isLoading}>
-                                {isLoading ? (
-                                    <ActivityIndicator size="small" color="#FFFFFF" />
-                                ) : (
-                                    <Text style={styles.buttonText}>{'Đăng nhập'}</Text>
-                                )}
+                                style={styles.guestLink}
+                                onPress={handleBiometricLogin}>
+                                <Image
+                                    source={guestImage}
+                                    resizeMode={'contain'}
+                                    style={styles.guestIcon}
+                                />
+                                <Text style={styles.footerText}>{'Vân tay / FaceID'}</Text>
                             </TouchableOpacity>
-                            <View style={styles.footer}>
-                                <TouchableOpacity
-                                    style={styles.guestLink}
-                                    onPress={handleBiometricLogin}>
-                                    <Image
-                                        source={guestImage}
-                                        resizeMode={'contain'}
-                                        style={styles.guestIcon}
-                                    />
-                                    <Text style={styles.footerText}>{'Vân tay / FaceID'}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={onNavigateToRegister}>
-                                    <Text style={styles.footerText}>{'Tạo tài khoản'}</Text>
-                                </TouchableOpacity>
-                            </View>
+                            <TouchableOpacity onPress={onNavigateToRegister}>
+                                <Text style={styles.footerText}>{'Tạo tài khoản'}</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </ScrollView>
-                <PopupWrongPassword
-                    visible={showWrongPasswordPopup}
-                    onClose={() => setShowWrongPasswordPopup(false)}
-                />
-                <PopupLoginSuccess
-                    visible={showLoginSuccessPopup}
-                    onClose={() => {
-                        setShowLoginSuccessPopup(false);
-                        onLoginSuccess();
-                    }}
-                />
-                <PopupLoginFailed
-                    visible={showLoginFailedPopup}
-                    onClose={() => setShowLoginFailedPopup(false)}
-                />
-                <PopupAccountNotExist
-                    visible={showAccountNotExistPopup}
-                    onClose={() => setShowAccountNotExistPopup(false)}
-                />
-            </ImageBackground>
+                </View>
+            </ScrollView>
+            <PopupWrongPassword
+                visible={showWrongPasswordPopup}
+                onClose={() => setShowWrongPasswordPopup(false)}
+            />
+            <PopupLoginSuccess
+                visible={showLoginSuccessPopup}
+                onClose={() => {
+                    setShowLoginSuccessPopup(false);
+                    onLoginSuccess();
+                }}
+            />
+            <PopupLoginFailed
+                visible={showLoginFailedPopup}
+                onClose={() => setShowLoginFailedPopup(false)}
+            />
+            <PopupAccountNotExist
+                visible={showAccountNotExistPopup}
+                onClose={() => setShowAccountNotExistPopup(false)}
+            />
         </SafeAreaView>
     );
 };
@@ -212,12 +228,8 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         flex: 1,
-        backgroundColor: '#FFFFFF',
     },
-    backgroundImage: {
-        justifyContent: 'center',
-        flex: 1,
-    },
+
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'center',
@@ -235,9 +247,9 @@ const styles = StyleSheet.create({
     formContainer: {
         width: '100%',
         height: '63%',
-        backgroundColor: '#FFFF',
+
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+
         borderRadius: scale(25),
         shadowRadius: scale(35),
         paddingHorizontal: scale(24),
@@ -272,7 +284,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
         height: '12%',
-        backgroundColor: '#ffffffff',
+
         borderRadius: scale(57),
         marginBottom: scale(20),
         justifyContent: 'center',
@@ -292,7 +304,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontSize: scale(16),
-        color: '#333',
+
         fontFamily: 'BeVietnamPro-Regular',
     },
     button: {

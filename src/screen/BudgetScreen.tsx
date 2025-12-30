@@ -16,12 +16,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { scale, verticalScale, moderateScale } from '../utils/scaling';
 import apiClient from '../api/apiClient';
 import { Category } from '../types/data';
+import { useTheme } from '../context/ThemeContext';
 
 interface BudgetScreenProps {
     onBack: () => void;
 }
 
 const BudgetScreen: React.FC<BudgetScreenProps> = ({ onBack }) => {
+    const { colors, isDarkMode } = useTheme();
     const insets = useSafeAreaInsets();
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
@@ -89,40 +91,53 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ onBack }) => {
 
     const renderItem = ({ item }: { item: Category }) => (
         <TouchableOpacity
-            style={styles.itemContainer}
+            style={[styles.itemContainer, { backgroundColor: colors.card }]}
             onPress={() => handleEditBudget(item)}
             activeOpacity={0.7}>
             <View style={styles.iconContainer}>
-                <View style={styles.iconPlaceholder} />
+                <View
+                    style={[
+                        styles.iconPlaceholder,
+                        { backgroundColor: isDarkMode ? '#333' : '#E0F7FA' },
+                    ]}
+                />
             </View>
             <View style={styles.infoContainer}>
-                <Text style={styles.categoryName}>{item.name}</Text>
-                <Text style={styles.budgetLimit}>
+                <Text style={[styles.categoryName, { color: colors.text }]}>{item.name}</Text>
+                <Text style={[styles.budgetLimit, { color: colors.textSecondary }]}>
                     Hạn mức:{' '}
                     {item.budget_limit && item.budget_limit > 0
                         ? formatCurrency(item.budget_limit)
                         : 'Chưa thiết lập'}
                 </Text>
             </View>
-            <Text style={styles.editButton}>Sửa</Text>
+            <Text style={[styles.editButton, { color: colors.primary }]}>Sửa</Text>
         </TouchableOpacity>
     );
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.header}>
+        <View
+            style={[
+                styles.container,
+                { backgroundColor: colors.background, paddingTop: insets.top },
+            ]}>
+            <View
+                style={[
+                    styles.header,
+                    { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                ]}>
                 <TouchableOpacity
                     onPress={onBack}
                     style={styles.backButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.backText}>{'< Trở về'}</Text>
+                    <Text style={[styles.backText, { color: colors.primary }]}>{'< Trở về'}</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Hạn Mức Chi Tiêu</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Hạn Mức Chi Tiêu</Text>
                 <View style={{ width: 40 }} />
             </View>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} />
+                <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
                     data={categories}
@@ -133,7 +148,9 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ onBack }) => {
                         { paddingBottom: insets.bottom + 20 },
                     ]}
                     ListEmptyComponent={
-                        <Text style={styles.emptyText}>Không có danh mục chi tiêu nào.</Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                            Không có danh mục chi tiêu nào.
+                        </Text>
                     }
                     showsVerticalScrollIndicator={false}
                 />
@@ -147,26 +164,44 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ onBack }) => {
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>
                             Đặt hạn mức cho {selectedCategory?.name}
                         </Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                { color: colors.text, borderColor: colors.border },
+                            ]}
                             keyboardType="numeric"
                             value={newLimit}
                             onChangeText={setNewLimit}
                             placeholder="Nhập số tiền (VNĐ)"
+                            placeholderTextColor={colors.textSecondary}
                             autoFocus
                         />
                         <View style={styles.modalButtons}>
                             <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
+                                style={[
+                                    styles.modalButton,
+                                    styles.cancelButton,
+                                    { backgroundColor: isDarkMode ? '#333' : '#F5F5F5' },
+                                ]}
                                 onPress={() => setModalVisible(false)}>
-                                <Text style={styles.cancelButtonText}>Hủy</Text>
+                                <Text
+                                    style={[
+                                        styles.cancelButtonText,
+                                        { color: isDarkMode ? '#AAA' : '#666' },
+                                    ]}>
+                                    Hủy
+                                </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.modalButton, styles.saveButton]}
+                                style={[
+                                    styles.modalButton,
+                                    styles.saveButton,
+                                    { backgroundColor: colors.primary },
+                                ]}
                                 onPress={handleSaveBudget}>
                                 <Text style={styles.saveButtonText}>Lưu</Text>
                             </TouchableOpacity>
@@ -181,7 +216,6 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ onBack }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
     },
     header: {
         flexDirection: 'row',
@@ -189,9 +223,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: scale(15),
         paddingVertical: verticalScale(15),
-        backgroundColor: '#FFF',
         elevation: 2,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 3,
@@ -202,15 +234,12 @@ const styles = StyleSheet.create({
     },
     backText: {
         fontSize: moderateScale(14),
-        color: '#04D1C1',
         fontFamily: 'BeVietnamPro-Bold',
-
         lineHeight: moderateScale(20),
     },
     headerTitle: {
         fontSize: moderateScale(18),
         fontFamily: 'Coiny-Regular',
-        color: '#333',
         lineHeight: moderateScale(26),
     },
     listContent: {
@@ -220,7 +249,6 @@ const styles = StyleSheet.create({
     itemContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
         padding: scale(15),
         borderRadius: scale(15),
         marginBottom: verticalScale(10),
@@ -237,7 +265,6 @@ const styles = StyleSheet.create({
         width: scale(40),
         height: scale(40),
         borderRadius: scale(20),
-        backgroundColor: '#E0F7FA',
     },
     infoContainer: {
         flex: 1,
@@ -245,18 +272,15 @@ const styles = StyleSheet.create({
     categoryName: {
         fontSize: moderateScale(16),
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#333',
         lineHeight: moderateScale(24),
     },
     budgetLimit: {
         fontSize: moderateScale(13),
         fontFamily: 'BeVietnamPro-Regular',
-        color: '#666',
         marginTop: verticalScale(4),
         lineHeight: moderateScale(18),
     },
     editButton: {
-        color: '#04D1C1',
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(14),
         lineHeight: moderateScale(20),
@@ -264,7 +288,6 @@ const styles = StyleSheet.create({
     emptyText: {
         textAlign: 'center',
         marginTop: verticalScale(20),
-        color: '#999',
         fontFamily: 'BeVietnamPro-Regular',
         lineHeight: moderateScale(22),
     },
@@ -276,7 +299,6 @@ const styles = StyleSheet.create({
         padding: scale(20),
     },
     modalContent: {
-        backgroundColor: '#FFF',
         borderRadius: scale(20),
         padding: scale(20),
         width: '100%',
@@ -288,17 +310,14 @@ const styles = StyleSheet.create({
         fontFamily: 'BeVietnamPro-Bold',
         marginBottom: verticalScale(20),
         textAlign: 'center',
-        color: '#333',
         lineHeight: moderateScale(26),
     },
     input: {
         borderBottomWidth: 1,
-        borderBottomColor: '#CCC',
         paddingVertical: verticalScale(10),
         fontSize: moderateScale(16),
         marginBottom: verticalScale(25),
         fontFamily: 'BeVietnamPro-Regular',
-        color: '#333',
         lineHeight: moderateScale(24),
     },
     modalButtons: {
@@ -312,15 +331,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     cancelButton: {
-        backgroundColor: '#F5F5F5',
         marginRight: scale(10),
     },
     saveButton: {
-        backgroundColor: '#04D1C1',
         marginLeft: scale(10),
     },
     cancelButtonText: {
-        color: '#666',
         fontFamily: 'BeVietnamPro-Bold',
         lineHeight: moderateScale(20),
     },

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { scale } from '../../utils/scaling';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../context/ThemeContext';
 
 const screenTitles: { [key: string]: string } = {
     Home: 'Trang chủ',
@@ -19,6 +20,7 @@ interface HeaderProps {
 }
 
 const Header = ({ activeTab, onNotificationPress }: HeaderProps) => {
+    const { colors, isDarkMode } = useTheme();
     const title = screenTitles[activeTab] || 'Trang chủ';
     const insets = useSafeAreaInsets();
 
@@ -29,12 +31,14 @@ const Header = ({ activeTab, onNotificationPress }: HeaderProps) => {
                 {
                     height: scale(60) + insets.top,
                     paddingTop: insets.top,
+
+                    backgroundColor: colors.card,
                 },
             ]}>
             <View style={styles.placeholder} />
             <View style={styles.titleContainer}>
                 <Text
-                    style={styles.headerTitle}
+                    style={[styles.headerTitle, { color: colors.primary }]}
                     numberOfLines={1}
                     adjustsFontSizeToFit={true}
                     minimumFontScale={0.5}>
@@ -43,9 +47,18 @@ const Header = ({ activeTab, onNotificationPress }: HeaderProps) => {
             </View>
             <View style={styles.rightIconContainer}>
                 <TouchableOpacity
-                    style={styles.iconWrapper}
+                    style={[
+                        styles.iconWrapper,
+                        {
+                            backgroundColor: isDarkMode ? colors.background : '#FFFFFF',
+
+                            shadowColor: '#000',
+                            shadowOpacity: 0.1,
+                        },
+                    ]}
                     onPress={onNotificationPress}
                     activeOpacity={0.7}>
+                    {}
                     <Image source={require('./notification-icon.png')} style={styles.icon} />
                 </TouchableOpacity>
             </View>
@@ -58,7 +71,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#FFFF',
         paddingHorizontal: scale(10),
     },
     placeholder: {
@@ -74,7 +86,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Coiny-Regular',
         textAlign: 'center',
         fontSize: scale(30),
-        color: '#04D1C1',
         lineHeight: scale(40),
     },
     rightIconContainer: {
@@ -82,18 +93,16 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
     },
     iconWrapper: {
-        backgroundColor: '#FFFFFF',
         borderRadius: scale(12),
         padding: scale(10),
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: scale(4) },
-        shadowOpacity: 0.1,
         shadowRadius: scale(5),
         elevation: scale(5),
     },
     icon: {
         width: scale(24),
         height: scale(24),
+        resizeMode: 'contain',
     },
 });
 

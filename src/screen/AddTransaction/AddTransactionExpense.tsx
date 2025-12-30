@@ -22,8 +22,11 @@ import { NotificationManager } from '../../utils/NotificationManager';
 import apiClient from '../../api/apiClient';
 import { format } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
+import { useTheme } from '../../context/ThemeContext';
 
 const AddTransactionExpense = () => {
+    const { colors, isDarkMode } = useTheme();
+
     const {
         categories,
         selectedCategory,
@@ -175,19 +178,24 @@ const AddTransactionExpense = () => {
     const isLoading = hookLoading || localLoading || isScanning;
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
             <ScrollView
                 style={styles.container}
                 contentContainerStyle={{ paddingBottom: verticalScale(150) }}
                 showsVerticalScrollIndicator={false}>
                 <TouchableOpacity
-                    style={styles.scanButton}
+                    style={[
+                        styles.scanButton,
+                        { backgroundColor: colors.card, borderColor: colors.primary },
+                    ]}
                     onPress={pickAndScanImage}
                     disabled={isLoading}>
                     {isScanning ? (
-                        <ActivityIndicator size="small" color="#04D1C1" />
+                        <ActivityIndicator size="small" color={colors.primary} />
                     ) : (
-                        <Text style={styles.scanButtonText}>📸 Quét Hóa Đơn</Text>
+                        <Text style={[styles.scanButtonText, { color: colors.primary }]}>
+                            📸 Quét Hóa Đơn
+                        </Text>
                     )}
                 </TouchableOpacity>
 
@@ -200,24 +208,37 @@ const AddTransactionExpense = () => {
                     onNoteChange={setNote}
                 />
 
-                <View style={styles.recurringContainer}>
+                <View
+                    style={[
+                        styles.recurringContainer,
+                        { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                    ]}>
                     <View style={styles.row}>
-                        <Text style={styles.label}>Lặp lại hàng tháng</Text>
+                        <Text style={[styles.label, { color: colors.primary }]}>
+                            Lặp lại hàng tháng
+                        </Text>
                         <Switch
-                            trackColor={{ false: '#767577', true: '#04D1C1' }}
+                            trackColor={{ false: '#767577', true: colors.primary }}
+                            thumbColor={isDarkMode ? '#fff' : '#f4f3f4'}
                             value={isRecurring}
                             onValueChange={setIsRecurring}
                         />
                     </View>
                     {isRecurring ? (
-                        <Text style={styles.hint}>
+                        <Text style={[styles.hint, { color: colors.textSecondary }]}>
                             Giao dịch sẽ tự động tạo vào ngày {date.getDate()} hàng tháng.
                         </Text>
                     ) : null}
                 </View>
 
-                <View style={styles.shadowbox}>
-                    <Text style={styles.categoryTitle}>Chọn danh mục</Text>
+                <View
+                    style={[
+                        styles.shadowbox,
+                        { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                    ]}>
+                    <Text style={[styles.categoryTitle, { color: colors.text }]}>
+                        Chọn danh mục
+                    </Text>
                 </View>
 
                 <CategoryPicker
@@ -234,7 +255,7 @@ const AddTransactionExpense = () => {
 
             <View style={styles.saveButtonContainer}>
                 <TouchableOpacity
-                    style={styles.saveButton}
+                    style={[styles.saveButton, { backgroundColor: colors.primary }]}
                     onPress={handleCustomSave}
                     disabled={isLoading}>
                     {isLoading ? (
@@ -254,7 +275,6 @@ const AddTransactionExpense = () => {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: 'transparent',
     },
     container: {
         flex: 1,
@@ -265,18 +285,14 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingVertical: verticalScale(8),
         paddingHorizontal: moderateScale(15),
-        backgroundColor: '#fff',
         borderRadius: scale(20),
         marginBottom: verticalScale(10),
         borderWidth: 1,
-        borderColor: '#04D1C1',
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         elevation: 2,
     },
     scanButtonText: {
-        color: '#04D1C1',
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(14),
         lineHeight: moderateScale(20),
@@ -285,10 +301,8 @@ const styles = StyleSheet.create({
         width: '50%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFFF',
         borderRadius: scale(20),
         padding: scale(5),
-        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
@@ -302,7 +316,6 @@ const styles = StyleSheet.create({
     categoryTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(17),
-        color: '#000000ff',
         lineHeight: moderateScale(24),
     },
     saveButtonContainer: {
@@ -313,7 +326,6 @@ const styles = StyleSheet.create({
         zIndex: 100,
     },
     saveButton: {
-        backgroundColor: '#04D1C1',
         borderRadius: moderateScale(30),
         paddingVertical: verticalScale(8),
         alignItems: 'center',
@@ -331,11 +343,9 @@ const styles = StyleSheet.create({
     },
     recurringContainer: {
         marginTop: verticalScale(15),
-        backgroundColor: '#fff',
         padding: scale(15),
         borderRadius: scale(20),
         elevation: 3,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
     },
@@ -347,12 +357,10 @@ const styles = StyleSheet.create({
     label: {
         fontSize: moderateScale(16),
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#04D1C1',
         lineHeight: moderateScale(24),
     },
     hint: {
         fontSize: moderateScale(12),
-        color: '#888',
         fontStyle: 'italic',
         marginTop: 5,
         fontFamily: 'BeVietnamPro-Regular',

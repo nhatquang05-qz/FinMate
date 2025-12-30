@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { scale, verticalScale, moderateScale } from '../../utils/scaling';
 import CustomDatePickerModal from '../../components/CustomDatePickerModal';
+import { useTheme } from '../../context/ThemeContext';
 
 type DetailProps = {
     date: Date;
@@ -20,6 +21,7 @@ const Detail = ({
     note,
     onNoteChange,
 }: DetailProps) => {
+    const { colors, isDarkMode } = useTheme();
     const [isPickerVisible, setPickerVisible] = useState(false);
 
     const handleConfirmDate = (newDate: Date) => {
@@ -27,32 +29,43 @@ const Detail = ({
     };
 
     return (
-        <View style={styles.boxContainer}>
+        <View
+            style={[
+                styles.boxContainer,
+                { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+            ]}>
+            {}
             <TouchableOpacity style={styles.row} onPress={() => setPickerVisible(true)}>
-                <Text style={styles.label}>Ngày</Text>
-                <Text style={styles.valueText}>{date.toLocaleDateString('vi-VN')}</Text>
+                <Text style={[styles.label, { color: colors.text }]}>Ngày</Text>
+                <Text style={[styles.valueText, { color: colors.textSecondary }]}>
+                    {date.toLocaleDateString('vi-VN')}
+                </Text>
             </TouchableOpacity>
 
-            <View style={styles.separator} />
+            <View style={[styles.separator, { backgroundColor: colors.border }]} />
+
+            {}
             <View style={styles.row}>
-                <Text style={styles.label}>Số tiền</Text>
+                <Text style={[styles.label, { color: colors.text }]}>Số tiền</Text>
                 <TextInput
-                    style={styles.valueText}
+                    style={[styles.valueText, { color: colors.text }]}
                     placeholder="đ 0"
-                    placeholderTextColor="#c0c0c0"
+                    placeholderTextColor={colors.textSecondary}
                     keyboardType="numeric"
                     value={amount}
                     onChangeText={onAmountChange}
                 />
             </View>
 
-            <View style={styles.separator} />
+            <View style={[styles.separator, { backgroundColor: colors.border }]} />
+
+            {}
             <View style={styles.row}>
-                <Text style={styles.label}>Ghi chú</Text>
+                <Text style={[styles.label, { color: colors.text }]}>Ghi chú</Text>
                 <TextInput
-                    style={styles.valueText}
+                    style={[styles.valueText, { color: colors.text }]}
                     placeholder="Thêm ghi chú"
-                    placeholderTextColor="#c0c0c0"
+                    placeholderTextColor={colors.textSecondary}
                     value={note}
                     onChangeText={onNoteChange}
                 />
@@ -71,10 +84,8 @@ const Detail = ({
 
 const styles = StyleSheet.create({
     boxContainer: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(15),
-        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
@@ -91,20 +102,19 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: moderateScale(17),
-        color: '#182033ff',
         fontFamily: 'Coiny-Regular',
         lineHeight: scale(30),
     },
     valueText: {
         fontSize: moderateScale(16),
-        color: '#64748B',
         textAlign: 'right',
         flex: 1,
         marginLeft: scale(10),
+        fontFamily: 'BeVietnamPro-Regular',
     },
     separator: {
         height: 1,
-        backgroundColor: '#F1F5F9',
+        marginVertical: verticalScale(5),
     },
 });
 

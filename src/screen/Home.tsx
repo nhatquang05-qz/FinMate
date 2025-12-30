@@ -15,14 +15,19 @@ import { Transaction, SummaryData, PieChartData } from '../types/data';
 import TransactionItem from '../components/TransactionItem';
 import { PieChart } from 'react-native-gifted-charts';
 import FinPetButton from '../components/FinPetButton';
+import { useTheme } from '../context/ThemeContext';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
-const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
+const PieChartComponent = ({ data, textColor }: { data: PieChartData[]; textColor: string }) => {
     if (!data || data.length === 0) {
-        return <Text style={styles.noDataText}>Không có dữ liệu chi tiêu cho tháng này</Text>;
+        return (
+            <Text style={[styles.noDataText, { color: textColor }]}>
+                Không có dữ liệu chi tiêu cho tháng này
+            </Text>
+        );
     }
 
     const total = data.reduce((acc, item) => acc + item.totalAmount, 0);
@@ -43,7 +48,7 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
                 data={pieData}
                 donut
                 showText
-                textColor="black"
+                textColor={textColor}
                 radius={scale(80)}
                 innerRadius={scale(40)}
                 textSize={scale(14)}
@@ -58,7 +63,7 @@ const PieChartComponent = ({ data }: { data: PieChartData[] }) => {
                                 { backgroundColor: chartColors[index % chartColors.length] },
                             ]}
                         />
-                        <Text style={styles.legendText}>
+                        <Text style={[styles.legendText, { color: textColor }]}>
                             {item.categoryName} ({pieData[index].text})
                         </Text>
                     </View>
@@ -76,6 +81,7 @@ type HomeScreenProps = {
 };
 
 const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
+    const { colors, isDarkMode } = useTheme();
     const [isLoading, setIsLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [summary, setSummary] = useState<SummaryData | null>(null);
@@ -179,12 +185,14 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
     const monthYearString = `Tháng ${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.scrollViewContent}>
                     <View style={styles.sectionContainer}>
-                        <Text style={styles.sectionTitle}>Quản lý</Text>
-                        <View style={styles.card}>
+                        <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+                            Quản lý
+                        </Text>
+                        <View style={[styles.card, { backgroundColor: colors.card }]}>
                             <View style={styles.managementIconsContainer}>
                                 <TouchableOpacity onPress={() => navigateTo('Money')}>
                                     <Image
@@ -221,26 +229,46 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                     </View>
 
                     {isLoading ? (
-                        <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} />
+                        <ActivityIndicator
+                            size="large"
+                            color={colors.primary}
+                            style={{ marginTop: 20 }}
+                        />
                     ) : (
                         <>
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionTitle}>Tổng quan {monthYearString}</Text>
-                                <View style={styles.card}>
-                                    <View style={styles.summaryRow}>
-                                        <Text style={styles.summaryLabel}>Tổng Thu</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+                                    Tổng quan {monthYearString}
+                                </Text>
+                                <View style={[styles.card, { backgroundColor: colors.card }]}>
+                                    <View
+                                        style={[
+                                            styles.summaryRow,
+                                            { borderBottomColor: colors.border },
+                                        ]}>
+                                        <Text style={[styles.summaryLabel, { color: colors.text }]}>
+                                            Tổng Thu
+                                        </Text>
                                         <Text style={styles.summaryAmountIncome}>
                                             {formatCurrency(summary?.totalIncome || 0)}
                                         </Text>
                                     </View>
-                                    <View style={styles.summaryRow}>
-                                        <Text style={styles.summaryLabel}>Tổng Chi</Text>
+                                    <View
+                                        style={[
+                                            styles.summaryRow,
+                                            { borderBottomColor: colors.border },
+                                        ]}>
+                                        <Text style={[styles.summaryLabel, { color: colors.text }]}>
+                                            Tổng Chi
+                                        </Text>
                                         <Text style={styles.summaryAmountExpense}>
                                             {formatCurrency(summary?.totalExpense || 0)}
                                         </Text>
                                     </View>
                                     <View style={[styles.summaryRow, { borderBottomWidth: 0 }]}>
-                                        <Text style={styles.summaryLabel}>Số dư</Text>
+                                        <Text style={[styles.summaryLabel, { color: colors.text }]}>
+                                            Số dư
+                                        </Text>
                                         <Text style={styles.summaryAmountBalance}>
                                             {formatCurrency(summary?.balance || 0)}
                                         </Text>
@@ -249,7 +277,9 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                             </View>
 
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionTitle}>Biểu đồ chi tiêu</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+                                    Biểu đồ chi tiêu
+                                </Text>
                                 <View style={styles.monthSelector}>
                                     <TouchableOpacity
                                         onPress={() => changeMonth(-1)}
@@ -258,13 +288,16 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                         <Text
                                             style={[
                                                 styles.arrow,
+                                                { color: colors.primary },
                                                 isPrevDisabled() && styles.arrowDisabled,
                                             ]}>
                                             {'<'}
                                         </Text>
                                     </TouchableOpacity>
 
-                                    <Text style={styles.monthYearText}>{monthYearString}</Text>
+                                    <Text style={[styles.monthYearText, { color: colors.primary }]}>
+                                        {monthYearString}
+                                    </Text>
 
                                     <TouchableOpacity
                                         onPress={() => changeMonth(1)}
@@ -273,20 +306,32 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                         <Text
                                             style={[
                                                 styles.arrow,
+                                                { color: colors.primary },
                                                 isNextDisabled() && styles.arrowDisabled,
                                             ]}>
                                             {'>'}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={[styles.card, styles.chartCard]}>
-                                    <PieChartComponent data={pieData} />
+                                <View
+                                    style={[
+                                        styles.card,
+                                        styles.chartCard,
+                                        { backgroundColor: colors.card },
+                                    ]}>
+                                    <PieChartComponent data={pieData} textColor={colors.text} />
                                 </View>
                             </View>
 
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionTitle}>Giao dịch gần đây</Text>
-                                <View style={[styles.card, { paddingTop: 0 }]}>
+                                <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+                                    Giao dịch gần đây
+                                </Text>
+                                <View
+                                    style={[
+                                        styles.card,
+                                        { paddingTop: 0, backgroundColor: colors.card },
+                                    ]}>
                                     {recentTransactions.length > 0 ? (
                                         <>
                                             {recentTransactions.map(item => (
@@ -295,11 +340,23 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
                                             <TouchableOpacity
                                                 style={styles.viewMoreButton}
                                                 onPress={() => navigateTo('History')}>
-                                                <Text style={styles.viewMoreText}>Xem thêm</Text>
+                                                <Text
+                                                    style={[
+                                                        styles.viewMoreText,
+                                                        { color: colors.primary },
+                                                    ]}>
+                                                    Xem thêm
+                                                </Text>
                                             </TouchableOpacity>
                                         </>
                                     ) : (
-                                        <Text style={styles.noDataText}>Chưa có giao dịch nào</Text>
+                                        <Text
+                                            style={[
+                                                styles.noDataText,
+                                                { color: colors.textSecondary },
+                                            ]}>
+                                            Chưa có giao dịch nào
+                                        </Text>
                                     )}
                                 </View>
                             </View>
@@ -316,17 +373,9 @@ const HomeScreen = ({ navigateTo }: HomeScreenProps) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-    backgroundImage: {
-        flex: 1,
-        resizeMode: 'cover',
-    },
     container: {
         flex: 1,
-        backgroundColor: 'transparent',
         position: 'relative',
-    },
-    scrollView: {
-        flex: 1,
     },
     scrollViewContent: {
         paddingHorizontal: scale(20),
@@ -339,13 +388,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: scale(20),
         fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
         marginBottom: scale(10),
         marginLeft: scale(5),
         lineHeight: scale(25),
     },
     card: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(15),
         shadowColor: '#000',
@@ -367,35 +414,6 @@ const styles = StyleSheet.create({
         height: scale(55),
         resizeMode: 'contain',
     },
-    statisticCard: {
-        backgroundColor: '#E6FFFD',
-        borderRadius: scale(15),
-        padding: scale(15),
-        marginRight: scale(15),
-        flexDirection: 'row',
-        alignItems: 'center',
-        minWidth: scale(180),
-    },
-    statisticIcon: {
-        width: scale(40),
-        height: scale(40),
-        resizeMode: 'contain',
-        marginRight: scale(10),
-    },
-    statisticTextContainer: {
-        flexDirection: 'column',
-    },
-    statisticCategory: {
-        fontSize: scale(14),
-        fontFamily: 'Coiny-Regular',
-        color: '#333',
-        lineHeight: scale(20),
-    },
-    statisticAmount: {
-        fontSize: scale(16),
-        fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
-    },
     chartCard: {
         minHeight: scale(200),
         justifyContent: 'center',
@@ -411,7 +429,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: scale(10),
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     summaryLabel: {
         fontFamily: 'BeVietnamPro-Bold',
@@ -442,7 +459,6 @@ const styles = StyleSheet.create({
     arrow: {
         fontSize: scale(24),
         fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
         paddingHorizontal: scale(10),
     },
     chartContainer: {
@@ -478,7 +494,6 @@ const styles = StyleSheet.create({
     },
     viewMoreText: {
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#04D1C1',
         fontSize: scale(14),
     },
     arrowDisabled: {
@@ -487,6 +502,5 @@ const styles = StyleSheet.create({
     monthYearText: {
         fontSize: scale(18),
         fontFamily: 'Coiny-Regular',
-        color: '#04D1C1',
     },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
-import { scale, verticalScale, moderateScale } from '../../src/utils/scaling';
+import { scale, verticalScale, moderateScale } from '../utils/scaling';
+import { useTheme } from '../context/ThemeContext';
 
 interface Category {
     id: number;
@@ -19,34 +20,53 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
     selectedCategory,
     onSelectCategory,
 }) => {
+    const { colors, isDarkMode } = useTheme();
+
     return (
         <View>
-            <View style={[styles.shadowBox]}>
+            <View
+                style={[
+                    styles.shadowBox,
+                    { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                ]}>
                 <View style={styles.categoryGrid}>
-                    {categories.map(cat => (
-                        <TouchableOpacity
-                            key={cat.id}
-                            style={[
-                                styles.categoryItem,
-                                selectedCategory?.id === cat.id && styles.selectedCategoryItem,
-                            ]}
-                            onPress={() => onSelectCategory(cat)}>
-                            <Image
-                                source={cat.icon}
+                    {categories.map(cat => {
+                        const isSelected = selectedCategory?.id === cat.id;
+
+                        const itemBackgroundColor = isSelected
+                            ? colors.primary
+                            : isDarkMode
+                              ? '#2C2C2C'
+                              : '#b4e2deff';
+
+                        return (
+                            <TouchableOpacity
+                                key={cat.id}
                                 style={[
-                                    styles.categoryIcon,
-                                    selectedCategory?.id === cat.id && styles.selectedCategoryIcon,
+                                    styles.categoryItem,
+                                    {
+                                        backgroundColor: itemBackgroundColor,
+                                        borderColor: isSelected ? colors.primary : 'transparent',
+                                    },
                                 ]}
-                            />
-                            <Text
-                                style={[
-                                    styles.categoryName,
-                                    selectedCategory?.id === cat.id && styles.selectedCategoryName,
-                                ]}>
-                                {cat.name}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
+                                onPress={() => onSelectCategory(cat)}>
+                                <Image
+                                    source={cat.icon}
+                                    style={[
+                                        styles.categoryIcon,
+                                        isSelected && styles.selectedCategoryIcon,
+                                    ]}
+                                />
+                                <Text
+                                    style={[
+                                        styles.categoryName,
+                                        { color: isSelected ? '#FFFFFF' : colors.text },
+                                    ]}>
+                                    {cat.name}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </View>
             </View>
         </View>
@@ -55,10 +75,9 @@ const CategoryPicker: React.FC<CategoryPickerProps> = ({
 
 const styles = StyleSheet.create({
     shadowBox: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(15),
-        shadowColor: '#000',
+
         shadowOffset: {
             width: 0,
             height: 2,
@@ -70,7 +89,6 @@ const styles = StyleSheet.create({
     titleText: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(18),
-        color: '#000000ff',
         textAlign: 'center',
     },
     categoryGrid: {
@@ -84,14 +102,13 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#b4e2deff',
         borderRadius: moderateScale(16),
         marginBottom: verticalScale(15),
+        borderWidth: 1,
+        borderColor: 'transparent',
     },
-    selectedCategoryItem: {
-        backgroundColor: '#4cc9beff',
-        borderColor: '#179ad6ff',
-    },
+
+    selectedCategoryItem: {},
     categoryIcon: {
         width: scale(32),
         height: scale(32),
@@ -102,7 +119,6 @@ const styles = StyleSheet.create({
     categoryName: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(14),
-        color: '#000000ff',
     },
     selectedCategoryName: {
         color: '#FFFFFF',

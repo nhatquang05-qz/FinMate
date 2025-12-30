@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { scale } from '../../utils/scaling';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../context/ThemeContext';
 
 const moneyIcon = require('./money.png');
 const calendarIcon = require('./calendar.png');
@@ -16,32 +17,48 @@ type NavbarProps = {
 
 const Navbar = ({ activeTab, onTabPress }: NavbarProps) => {
     const insets = useSafeAreaInsets();
+    const { isDarkMode, colors } = useTheme();
 
     return (
         <View style={[styles.containerWrapper, { bottom: insets.bottom + scale(20) }]}>
-            <View style={styles.container}>
+            <View
+                style={[
+                    styles.container,
+
+                    { backgroundColor: isDarkMode ? colors.card : '#ffffffff' },
+                ]}>
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={[
                         styles.centerButtonContainer,
+
+                        {
+                            backgroundColor: isDarkMode ? colors.card : '#ffffff',
+                            borderColor: isDarkMode ? '#333' : '#E0E0E0',
+                        },
                         activeTab === 'Home' && styles.activeHomeBorder,
                     ]}
                     onPress={() => onTabPress('Home')}>
                     <Image source={homeIcon} style={styles.homeIcon} />
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('Money')}>
                     <Image source={moneyIcon} style={styles.tabIcon} />
                     {activeTab === 'Money' && <View style={styles.underline} />}
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('Calendar')}>
                     <Image source={calendarIcon} style={styles.tabIcon} />
                     {activeTab === 'Calendar' && <View style={styles.underline} />}
                 </TouchableOpacity>
+
                 <View style={styles.centerPlaceholder} />
+
                 <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('Chart')}>
                     <Image source={chartIcon} style={styles.tabIcon} />
                     {activeTab === 'Chart' && <View style={styles.underline} />}
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.tabButton} onPress={() => onTabPress('User')}>
                     <Image source={userIcon} style={styles.tabIcon} />
                     {activeTab === 'User' && <View style={styles.underline} />}
@@ -61,7 +78,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        backgroundColor: '#ffffffff',
+
         width: '90%',
         height: scale(65),
         borderRadius: scale(40),
@@ -101,10 +118,8 @@ const styles = StyleSheet.create({
         borderRadius: scale(35),
         top: scale(-15),
         marginLeft: -(scale(70) / 2),
-        backgroundColor: '#ffffff',
 
         borderWidth: scale(5),
-        borderColor: '#E0E0E0',
     },
     homeIcon: {
         width: scale(40),

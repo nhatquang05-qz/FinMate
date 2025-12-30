@@ -11,12 +11,14 @@ import {
 import { scale, verticalScale, moderateScale } from '../utils/scaling';
 import { NotificationManager, NotificationItem } from '../utils/NotificationManager';
 import { format } from 'date-fns';
+import { useTheme } from '../context/ThemeContext';
 
 interface NotificationScreenProps {
     onNavigateToReport: () => void;
 }
 
 const NotificationScreen = ({ onNavigateToReport }: NotificationScreenProps) => {
+    const { colors, isDarkMode } = useTheme();
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -43,10 +45,14 @@ const NotificationScreen = ({ onNavigateToReport }: NotificationScreenProps) => 
 
     const renderItem = ({ item }: { item: NotificationItem }) => (
         <TouchableOpacity
-            style={styles.itemContainer}
+            style={[styles.itemContainer, { backgroundColor: colors.card }]}
             onPress={() => handlePressItem(item)}
             activeOpacity={0.7}>
-            <View style={styles.iconContainer}>
+            <View
+                style={[
+                    styles.iconContainer,
+                    { backgroundColor: isDarkMode ? '#333' : '#E0F7FA' },
+                ]}>
                 <Image
                     source={
                         item.type === 'success'
@@ -58,18 +64,22 @@ const NotificationScreen = ({ onNavigateToReport }: NotificationScreenProps) => 
                 />
             </View>
             <View style={styles.contentContainer}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.message}>{item.message}</Text>
-                <Text style={styles.date}>{format(new Date(item.date), 'HH:mm dd/MM/yyyy')}</Text>
+                <Text style={[styles.title, { color: colors.primary }]}>{item.title}</Text>
+                <Text style={[styles.message, { color: colors.text }]}>{item.message}</Text>
+                <Text style={[styles.date, { color: colors.textSecondary }]}>
+                    {format(new Date(item.date), 'HH:mm dd/MM/yyyy')}
+                </Text>
             </View>
         </TouchableOpacity>
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {notifications.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Chưa có thông báo nào</Text>
+                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                        Chưa có thông báo nào
+                    </Text>
                 </View>
             ) : (
                 <FlatList
@@ -79,7 +89,11 @@ const NotificationScreen = ({ onNavigateToReport }: NotificationScreenProps) => 
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.primary}
+                        />
                     }
                 />
             )}
@@ -90,7 +104,6 @@ const NotificationScreen = ({ onNavigateToReport }: NotificationScreenProps) => 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
     },
     listContent: {
         padding: scale(15),
@@ -98,7 +111,6 @@ const styles = StyleSheet.create({
     },
     itemContainer: {
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
         borderRadius: scale(15),
         padding: scale(15),
         marginBottom: verticalScale(10),
@@ -113,7 +125,6 @@ const styles = StyleSheet.create({
         width: scale(40),
         height: scale(40),
         borderRadius: scale(20),
-        backgroundColor: '#E0F7FA',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: scale(15),
@@ -128,18 +139,15 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(14),
-        color: '#04D1C1',
         marginBottom: verticalScale(2),
     },
     message: {
         fontSize: moderateScale(13),
-        color: '#333333',
         marginBottom: verticalScale(5),
         lineHeight: verticalScale(18),
     },
     date: {
         fontSize: moderateScale(10),
-        color: '#999999',
         textAlign: 'right',
     },
     emptyContainer: {
@@ -150,7 +158,6 @@ const styles = StyleSheet.create({
     emptyText: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(16),
-        color: '#999',
     },
 });
 

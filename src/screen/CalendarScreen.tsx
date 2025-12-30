@@ -15,6 +15,7 @@ import apiClient from '../api/apiClient';
 import { Transaction } from '../types/data';
 import TransactionItem from '../components/TransactionItem';
 import { format, addMonths, subMonths, isSameMonth, isAfter } from 'date-fns';
+import { useTheme } from '../context/ThemeContext';
 
 LocaleConfig.locales['vi'] = {
     monthNames: [
@@ -59,6 +60,8 @@ const formatCurrency = (amount: number, short = false) => {
 };
 
 const CalendarScreen = () => {
+    const { colors, isDarkMode } = useTheme();
+
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -106,9 +109,11 @@ const CalendarScreen = () => {
 
         const isSelected = selectedDate === date.dateString;
         const amount = day ? formatCurrency(day.netAmount, true) : '';
-        const color = day ? (day.netAmount < 0 ? '#D9435E' : '#28A745') : '#999';
+
+        const color = day ? (day.netAmount < 0 ? '#D9435E' : '#28A745') : colors.textSecondary;
 
         const disabled = isFuture || isOtherMonth;
+        const disabledColor = isDarkMode ? '#444' : '#ccc';
 
         return (
             <TouchableOpacity
@@ -116,15 +121,22 @@ const CalendarScreen = () => {
                 activeOpacity={disabled ? 1 : 0.7}
                 style={[
                     styles.dayContainer,
-                    isSelected && styles.daySelectedOutline,
-                    !isSelected && isToday && styles.todayOutline,
+                    isSelected && [
+                        styles.daySelectedOutline,
+                        { borderColor: colors.primary, backgroundColor: colors.primary + '20' },
+                    ],
+                    !isSelected && isToday && [styles.todayOutline, { borderColor: colors.border }],
                     disabled && styles.dayDisabled,
                 ]}>
                 <Text
                     style={[
                         styles.dayText,
                         {
-                            color: disabled ? '#ccc' : isSelected ? '#04D1C1' : '#000',
+                            color: disabled
+                                ? disabledColor
+                                : isSelected
+                                  ? colors.primary
+                                  : colors.text,
                             fontFamily: isSelected ? 'BeVietnamPro-Bold' : 'BeVietnamPro-Regular',
                         },
                     ]}>
@@ -136,7 +148,13 @@ const CalendarScreen = () => {
                         <Text
                             style={[
                                 styles.amountText,
-                                { color: disabled ? '#ccc' : isSelected ? '#04D1C1' : color },
+                                {
+                                    color: disabled
+                                        ? disabledColor
+                                        : isSelected
+                                          ? colors.primary
+                                          : color,
+                                },
                             ]}>
                             {amount}
                         </Text>
@@ -259,16 +277,15 @@ const CalendarScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: scale(150) }}>
-                {}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={handlePrevMonth}>
-                        <Text style={styles.arrow}>{'<'}</Text>
+                        <Text style={[styles.arrow, { color: colors.primary }]}>{'<'}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>
+                    <Text style={[styles.headerTitle, { color: colors.primary }]}>
                         {`Tháng ${currentMonth.getMonth() + 1}\\${currentMonth.getFullYear()}`}
                     </Text>
                     <TouchableOpacity
@@ -281,6 +298,7 @@ const CalendarScreen = () => {
                         <Text
                             style={[
                                 styles.arrow,
+                                { color: colors.primary },
                                 currentMonth.getFullYear() > today.getFullYear() ||
                                 (currentMonth.getFullYear() === today.getFullYear() &&
                                     currentMonth.getMonth() >= today.getMonth())
@@ -293,26 +311,48 @@ const CalendarScreen = () => {
                 </View>
 
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 50 }} />
+                    <ActivityIndicator
+                        size="large"
+                        color={colors.primary}
+                        style={{ marginTop: 50 }}
+                    />
                 ) : (
                     calendarData && (
                         <>
-                            {}
-                            <View style={styles.summaryContainer}>
+                            <View
+                                style={[styles.summaryContainer, { backgroundColor: colors.card }]}>
                                 <View style={styles.summaryItem}>
-                                    <Text style={styles.summaryLabel}>Tổng Thu</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Tổng Thu
+                                    </Text>
                                     <Text style={[styles.summaryAmount, styles.income]}>
                                         {formatCurrency(displayedSummary.totalIncome)}
                                     </Text>
                                 </View>
                                 <View style={styles.summaryItem}>
-                                    <Text style={styles.summaryLabel}>Tổng Chi</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Tổng Chi
+                                    </Text>
                                     <Text style={[styles.summaryAmount, styles.expense]}>
                                         {formatCurrency(displayedSummary.totalExpense)}
                                     </Text>
                                 </View>
                                 <View style={styles.summaryItem}>
-                                    <Text style={styles.summaryLabel}>Chênh lệch</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Chênh lệch
+                                    </Text>
                                     <Text
                                         style={[
                                             styles.summaryAmount,
@@ -325,24 +365,27 @@ const CalendarScreen = () => {
                                 </View>
                             </View>
 
-                            {}
                             <Calendar
+                                key={isDarkMode ? 'dark' : 'light'}
                                 current={format(currentMonth, 'yyyy-MM-dd')}
                                 onMonthChange={month => setCurrentMonth(new Date(month.timestamp))}
                                 dayComponent={dayComponent}
                                 markingType="custom"
                                 theme={{
-                                    arrowColor: '#04D1C1',
-                                    todayTextColor: '#04D1C1',
+                                    calendarBackground: colors.background,
+                                    arrowColor: colors.primary,
+                                    todayTextColor: colors.primary,
                                     textDayFontFamily: 'BeVietnamPro-Regular',
                                     textMonthFontFamily: 'Coiny-Regular',
                                     textDayHeaderFontFamily: 'BeVietnamPro-Bold',
                                     textDayHeaderFontWeight: 'bold',
+                                    textSectionTitleColor: colors.text,
+                                    dayTextColor: colors.text,
+                                    monthTextColor: colors.text,
                                 }}
                             />
 
-                            {}
-                            <Text style={styles.listTitle}>
+                            <Text style={[styles.listTitle, { color: colors.text }]}>
                                 {selectedDate
                                     ? `Giao dịch ngày ${format(new Date(selectedDate), 'dd/MM/yyyy')}`
                                     : 'Tất cả giao dịch trong tháng'}
@@ -354,7 +397,10 @@ const CalendarScreen = () => {
                                 keyExtractor={item => item.id.toString()}
                                 scrollEnabled={false}
                                 ListEmptyComponent={() => (
-                                    <Text style={styles.emptyText}>Không có giao dịch.</Text>
+                                    <Text
+                                        style={[styles.emptyText, { color: colors.textSecondary }]}>
+                                        Không có giao dịch.
+                                    </Text>
                                 )}
                                 style={{ marginHorizontal: scale(15) }}
                             />
@@ -367,7 +413,7 @@ const CalendarScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F9FAFB' },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -377,28 +423,27 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(22),
-        color: '#04D1C1',
     },
     arrow: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(24),
-        color: '#04D1C1',
     },
     summaryContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         padding: scale(10),
-        backgroundColor: '#fff',
         marginHorizontal: scale(15),
         borderRadius: scale(10),
         elevation: 2,
         marginBottom: scale(10),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
     },
     summaryItem: { alignItems: 'center' },
     summaryLabel: {
         fontFamily: 'BeVietnamPro-Regular',
         fontSize: scale(12),
-        color: '#888',
     },
     summaryAmount: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(14) },
     income: { color: '#28A745' },
@@ -407,7 +452,6 @@ const styles = StyleSheet.create({
     listTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(18),
-        color: '#333',
         marginTop: scale(20),
         marginBottom: scale(10),
         marginHorizontal: scale(15),
@@ -416,7 +460,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'BeVietnamPro-Regular',
         marginTop: scale(20),
-        color: '#888',
     },
     dayContainer: {
         alignItems: 'center',
@@ -426,27 +469,19 @@ const styles = StyleSheet.create({
         height: scale(58),
         marginVertical: scale(2),
     },
-
     daySelectedOutline: {
         borderWidth: 2,
-        borderColor: '#04D1C1',
-        backgroundColor: '#04D1C120',
     },
-
     todayOutline: {
         borderWidth: 1.5,
-        borderColor: '#ccc',
     },
-
     dayDisabled: {
         opacity: 0.3,
     },
-
     dayText: {
         fontFamily: 'BeVietnamPro-Regular',
         fontSize: scale(13),
     },
-
     amountText: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(10),

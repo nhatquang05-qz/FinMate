@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     SafeAreaView,
     View,
-    ImageBackground,
     ScrollView,
     Image,
     Text,
@@ -11,6 +10,7 @@ import {
     StyleSheet,
     Platform,
     ActivityIndicator,
+    useColorScheme,
 } from 'react-native';
 import axios from 'axios';
 import { scale } from '../utils/scaling';
@@ -20,7 +20,6 @@ import PopupPassNotMatch from '../components/popups/PopupPassNotMatch';
 import PopupNotEnoughInfo from '../components/popups/PopupNotEnoughInfo';
 import apiClient from '../api/apiClient';
 
-const backgroundImage = require('../assets/images/background.png');
 const logoImage = require('../assets/images/logo.png');
 
 type RegisterScreenProps = {
@@ -28,6 +27,12 @@ type RegisterScreenProps = {
 };
 
 const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
+    const theme = useColorScheme();
+    const isDarkMode = theme === 'dark';
+    const backgroundColor = isDarkMode ? '#121212' : '#FFFFFF';
+    const textColor = isDarkMode ? '#FFFFFF' : '#333333';
+    const containerColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
+
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [fullName, setFullName] = useState('');
@@ -81,123 +86,149 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ImageBackground
-                source={backgroundImage}
-                resizeMode="cover"
-                style={styles.backgroundImage}>
-                <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                    <View style={styles.mainContent}>
-                        <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
-                        <View style={styles.formContainer}>
-                            <Text style={styles.title}>{'Đăng kí'}</Text>
+        <SafeAreaView style={[styles.container, { backgroundColor }]}>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <View style={styles.mainContent}>
+                    <Image source={logoImage} resizeMode={'contain'} style={styles.logo} />
+                    <View
+                        style={[
+                            styles.formContainer,
+                            {
+                                backgroundColor: containerColor,
+                                borderColor: isDarkMode ? '#333' : '#E0E0E0',
+                            },
+                        ]}>
+                        <Text style={styles.title}>{'Đăng kí'}</Text>
 
-                            <Text style={styles.label}>{'Tài khoản'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={username}
-                                    onChangeText={setUsername}
-                                    placeholder="Nhập tài khoản của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                />
-                            </View>
+                        <Text style={styles.label}>{'Tài khoản'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={username}
+                                onChangeText={setUsername}
+                                placeholder="Nhập tài khoản của bạn"
+                                placeholderTextColor="#BDBDBD"
+                            />
+                        </View>
 
-                            <Text style={styles.label}>{'Email'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    placeholder="Nhập email của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                    keyboardType="email-address"
-                                />
-                            </View>
+                        <Text style={styles.label}>{'Email'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder="Nhập email của bạn"
+                                placeholderTextColor="#BDBDBD"
+                                keyboardType="email-address"
+                            />
+                        </View>
 
-                            <Text style={styles.label}>{'Họ và tên'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={fullName}
-                                    onChangeText={setFullName}
-                                    placeholder="Nhập họ và tên đầy đủ"
-                                    placeholderTextColor="#BDBDBD"
-                                />
-                            </View>
+                        <Text style={styles.label}>{'Họ và tên'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={fullName}
+                                onChangeText={setFullName}
+                                placeholder="Nhập họ và tên đầy đủ"
+                                placeholderTextColor="#BDBDBD"
+                            />
+                        </View>
 
-                            <Text style={styles.label}>{'Ngày sinh'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={dateOfBirth}
-                                    onChangeText={setDateOfBirth}
-                                    placeholder="YYYY-MM-DD"
-                                    placeholderTextColor="#BDBDBD"
-                                />
-                            </View>
-                            <Text style={styles.label}>{'Mật khẩu'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    placeholder="Nhập mật khẩu của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                    secureTextEntry={true}
-                                />
-                            </View>
+                        <Text style={styles.label}>{'Ngày sinh'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={dateOfBirth}
+                                onChangeText={setDateOfBirth}
+                                placeholder="YYYY-MM-DD"
+                                placeholderTextColor="#BDBDBD"
+                            />
+                        </View>
+                        <Text style={styles.label}>{'Mật khẩu'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="Nhập mật khẩu của bạn"
+                                placeholderTextColor="#BDBDBD"
+                                secureTextEntry={true}
+                            />
+                        </View>
 
-                            <Text style={styles.label}>{'Nhập lại mật khẩu'}</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    value={confirmPassword}
-                                    onChangeText={setConfirmPassword}
-                                    placeholder="Nhập lại mật khẩu của bạn"
-                                    placeholderTextColor="#BDBDBD"
-                                    secureTextEntry={true}
-                                />
-                            </View>
+                        <Text style={styles.label}>{'Nhập lại mật khẩu'}</Text>
+                        <View
+                            style={[
+                                styles.inputContainer,
+                                { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' },
+                            ]}>
+                            <TextInput
+                                style={[styles.input, { color: textColor }]}
+                                value={confirmPassword}
+                                onChangeText={setConfirmPassword}
+                                placeholder="Nhập lại mật khẩu của bạn"
+                                placeholderTextColor="#BDBDBD"
+                                secureTextEntry={true}
+                            />
+                        </View>
 
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={handleRegister}
-                                disabled={isLoading}>
-                                {isLoading ? (
-                                    <ActivityIndicator size="small" color="#FFFFFF" />
-                                ) : (
-                                    <Text style={styles.buttonText}>{'Đăng kí'}</Text>
-                                )}
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={handleRegister}
+                            disabled={isLoading}>
+                            {isLoading ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                <Text style={styles.buttonText}>{'Đăng kí'}</Text>
+                            )}
+                        </TouchableOpacity>
+                        <View style={styles.footer}>
+                            <TouchableOpacity onPress={onNavigateToLogin}>
+                                <Text style={styles.footerText}>{'Đăng nhập'}</Text>
                             </TouchableOpacity>
-                            <View style={styles.footer}>
-                                <TouchableOpacity onPress={onNavigateToLogin}>
-                                    <Text style={styles.footerText}>{'Đăng nhập'}</Text>
-                                </TouchableOpacity>
-                            </View>
                         </View>
                     </View>
-                </ScrollView>
-                <PopupRegisterSuccess
-                    visible={showRegisterSuccessPopup}
-                    onClose={() => {
-                        setShowRegisterSuccessPopup(false);
-                        onNavigateToLogin();
-                    }}
-                />
-                <PopupAccountExisted
-                    visible={showAccountExistedPopup}
-                    onClose={() => setShowAccountExistedPopup(false)}
-                />
-                <PopupPassNotMatch
-                    visible={showPassNotMatchPopup}
-                    onClose={() => setShowPassNotMatchPopup(false)}
-                />
-                <PopupNotEnoughInfo
-                    visible={showNotEnoughInfoPopup}
-                    onClose={() => setShowNotEnoughInfoPopup(false)}
-                />
-            </ImageBackground>
+                </View>
+            </ScrollView>
+            <PopupRegisterSuccess
+                visible={showRegisterSuccessPopup}
+                onClose={() => {
+                    setShowRegisterSuccessPopup(false);
+                    onNavigateToLogin();
+                }}
+            />
+            <PopupAccountExisted
+                visible={showAccountExistedPopup}
+                onClose={() => setShowAccountExistedPopup(false)}
+            />
+            <PopupPassNotMatch
+                visible={showPassNotMatchPopup}
+                onClose={() => setShowPassNotMatchPopup(false)}
+            />
+            <PopupNotEnoughInfo
+                visible={showNotEnoughInfoPopup}
+                onClose={() => setShowNotEnoughInfoPopup(false)}
+            />
         </SafeAreaView>
     );
 };
@@ -205,11 +236,8 @@ const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
     },
-    backgroundImage: {
-        flex: 1,
-    },
+
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'center',
@@ -226,9 +254,9 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         width: '100%',
-        backgroundColor: '#FFFF',
+
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+
         borderRadius: scale(25),
         paddingHorizontal: scale(24),
         paddingVertical: scale(35),
@@ -257,7 +285,6 @@ const styles = StyleSheet.create({
         fontFamily: 'BeVietnamPro-Bold',
     },
     inputContainer: {
-        backgroundColor: '#FFFFFF',
         borderRadius: scale(57),
         marginBottom: scale(15),
         paddingHorizontal: scale(20),
@@ -274,7 +301,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontSize: scale(16),
-        color: '#333',
+
         fontFamily: 'BeVietnamPro-Regular',
     },
     button: {

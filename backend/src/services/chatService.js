@@ -10,7 +10,7 @@ if (!process.env.GROQ_API_KEY) {
     console.error('LỖI: Chưa có GROQ_API_KEY trong file .env');
 }
 
-const MODEL_NAME = 'openai/gpt-oss-120b'; 
+const MODEL_NAME = 'openai/gpt-oss-120b';
 
 const askFinpetService = async (userId, message, history) => {
     if (!userId) {
@@ -21,13 +21,11 @@ const askFinpetService = async (userId, message, history) => {
     }
 
     try {
-        
         let financialContext = '';
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
 
         try {
-            
             const [summaryRows] = await db.execute(
                 `SELECT 
                     SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as totalIncome,
@@ -45,7 +43,6 @@ const askFinpetService = async (userId, message, history) => {
             financialContext += `- Chi: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(summary.totalExpense || 0)}\n`;
             financialContext += `- Số dư: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance)}\n`;
 
-            
             const [recentRows] = await db.execute(
                 `SELECT t.amount, t.type, t.transaction_date, c.name as category_name, t.note
                 FROM transactions t
@@ -58,14 +55,18 @@ const askFinpetService = async (userId, message, history) => {
 
             if (recentRows.length > 0) {
                 financialContext += '\nGiao dịch gần nhất:\n';
-                financialContext += recentRows.map(t => {
-                    const amount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(t.amount);
-                    const date = new Date(t.transaction_date).toLocaleDateString('vi-VN');
-                    return `- ${date}: ${t.type === 'income' ? 'Thu' : 'Chi'} ${amount} (${t.category_name})`;
-                }).join('\n');
+                financialContext += recentRows
+                    .map(t => {
+                        const amount = new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                        }).format(t.amount);
+                        const date = new Date(t.transaction_date).toLocaleDateString('vi-VN');
+                        return `- ${date}: ${t.type === 'income' ? 'Thu' : 'Chi'} ${amount} (${t.category_name})`;
+                    })
+                    .join('\n');
             }
 
-            
             const [topExpenseRows] = await db.execute(
                 `SELECT c.name, SUM(t.amount) as total
                 FROM transactions t
@@ -79,15 +80,17 @@ const askFinpetService = async (userId, message, history) => {
 
             if (topExpenseRows.length > 0) {
                 financialContext += '\n\nTop chi tiêu:\n';
-                financialContext += topExpenseRows.map(c => 
-                    `- ${c.name}: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(c.total)}`
-                ).join('\n');
+                financialContext += topExpenseRows
+                    .map(
+                        c =>
+                            `- ${c.name}: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(c.total)}`,
+                    )
+                    .join('\n');
             }
         } catch (dbError) {
             console.error('Lỗi lấy dữ liệu tài chính (SQL):', dbError);
         }
 
-        
         const systemPrompt = `
         Bạn là Finpet, một chuyên gia tài chính cá nhân thân thiện, sâu sắc và chuyên nghiệp.
 
@@ -129,11 +132,13 @@ const askFinpetService = async (userId, message, history) => {
         const chatCompletion = await groq.chat.completions.create({
             messages: messages,
             model: MODEL_NAME,
-            temperature: 0.7, 
+            temperature: 0.7,
             max_tokens: 800,
         });
 
-        const reply = chatCompletion.choices[0]?.message?.content || 'Xin lỗi, Finpet đang suy nghĩ một chút, bạn hỏi lại sau nhé!';
+        const reply =
+            chatCompletion.choices[0]?.message?.content ||
+            'Xin lỗi, Finpet đang suy nghĩ một chút, bạn hỏi lại sau nhé!';
 
         return { reply: reply, status: 200 };
     } catch (error) {
@@ -141,7 +146,7 @@ const askFinpetService = async (userId, message, history) => {
         if (error?.error?.code === 'invalid_api_key') {
             return {
                 reply: 'Hệ thống đang bảo trì một chút (Lỗi API Key). Bạn quay lại sau nhé!',
-                status: 200, 
+                status: 200,
             };
         }
         throw { status: 500, error: 'Failed to get response from Finpet.' };

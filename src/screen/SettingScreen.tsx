@@ -12,6 +12,7 @@ import {
 import { scale, moderateScale, verticalScale } from '../utils/scaling';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { exportToExcel } from '../utils/ExcelExporter';
+import { useTheme } from '../context/ThemeContext';
 
 interface SettingScreenProps {
     onNavigateToBudget?: () => void;
@@ -27,6 +28,8 @@ const SettingItem = ({
     isDestructive,
     hideArrow,
     isLoading,
+    colors,
+    isDarkMode,
 }: any) => (
     <TouchableOpacity
         style={styles.itemContainer}
@@ -34,29 +37,43 @@ const SettingItem = ({
         disabled={isSwitch || isLoading}
         activeOpacity={0.7}>
         <View style={styles.leftContent}>
-            <View style={[styles.iconPlaceholder, isDestructive && styles.destructiveIcon]}>
+            <View
+                style={[
+                    styles.iconPlaceholder,
+                    isDestructive
+                        ? styles.destructiveIcon
+                        : { backgroundColor: isDarkMode ? '#333' : '#E0F7FA' },
+                ]}>
                 {}
             </View>
-            <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>{title}</Text>
+            <Text
+                style={[
+                    styles.itemText,
+                    isDestructive ? styles.destructiveText : { color: colors.text },
+                ]}>
+                {title}
+            </Text>
         </View>
 
         {isSwitch ? (
             <Switch
-                trackColor={{ false: '#767577', true: '#04D1C1' }}
-                thumbColor={value ? '#f4f3f4' : '#f4f3f4'}
+                trackColor={{ false: '#767577', true: colors.primary }}
+                thumbColor={isDarkMode ? '#fff' : '#f4f3f4'}
                 ios_backgroundColor="#3e3e3e"
                 onValueChange={onToggle}
                 value={value}
             />
         ) : isLoading ? (
-            <ActivityIndicator size="small" color="#04D1C1" />
+            <ActivityIndicator size="small" color={colors.primary} />
         ) : (
-            !hideArrow && <Text style={styles.arrow}>{'>'}</Text>
+            !hideArrow && <Text style={[styles.arrow, { color: colors.textSecondary }]}>{'>'}</Text>
         )}
     </TouchableOpacity>
 );
 
 const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBack }) => {
+    const { colors, isDarkMode } = useTheme();
+
     const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
     const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -76,8 +93,14 @@ const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBac
     const handleExportData = async () => {
         setIsExporting(true);
         setTimeout(async () => {
-            await exportToExcel();
-            setIsExporting(false);
+            try {
+                await exportToExcel();
+            } catch (e) {
+                console.error(e);
+                Alert.alert('Lỗi', 'Xuất file thất bại');
+            } finally {
+                setIsExporting(false);
+            }
         }, 100);
     };
 
@@ -107,58 +130,81 @@ const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBac
         );
     };
 
+    const itemProps = { colors, isDarkMode };
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}>
                 {onBack && (
                     <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                        <Text style={styles.backButtonText}>‹ Quay lại</Text>
+                        <Text style={[styles.backButtonText, { color: colors.primary }]}>
+                            ‹ Quay lại
+                        </Text>
                     </TouchableOpacity>
                 )}
 
-                <Text style={styles.sectionTitle}>Chung</Text>
-                <View style={styles.sectionContainer}>
-                    <SettingItem title="Hạn mức chi tiêu (Budget)" onToggle={onNavigateToBudget} />
-                    <View style={styles.separator} />
+                {}
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Chung</Text>
+                <View style={[styles.sectionContainer, { backgroundColor: colors.card }]}>
+                    <SettingItem
+                        title="Hạn mức chi tiêu (Budget)"
+                        onToggle={onNavigateToBudget}
+                        {...itemProps}
+                    />
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
                     <SettingItem
                         title="Nhắc nhở nhập liệu hàng ngày"
                         isSwitch={true}
                         value={isNotificationEnabled}
                         onToggle={toggleNotification}
+                        {...itemProps}
                     />
-                    <View style={styles.separator} />
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
                     <SettingItem
                         title="Bảo mật vân tay / FaceID"
                         isSwitch={true}
                         value={isBiometricsEnabled}
                         onToggle={toggleBiometrics}
+                        {...itemProps}
                     />
                 </View>
 
-                <Text style={styles.sectionTitle}>Dữ liệu</Text>
-                <View style={styles.sectionContainer}>
+                {}
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Dữ liệu</Text>
+                <View style={[styles.sectionContainer, { backgroundColor: colors.card }]}>
                     <SettingItem
                         title="Xuất dữ liệu (Excel)"
                         onToggle={handleExportData}
                         isLoading={isExporting}
+                        {...itemProps}
                     />
-                    <View style={styles.separator} />
+                    <View style={[styles.separator, { backgroundColor: colors.border }]} />
                     <SettingItem
                         title="Xóa bộ nhớ đệm"
                         onToggle={handleClearData}
                         isDestructive={true}
                         hideArrow={true}
+                        {...itemProps}
                     />
                 </View>
 
                 {}
-                <Text style={styles.sectionTitle}>Thông tin ứng dụng</Text>
-                <View style={styles.sectionContainer}>
-                    <SettingItem title="Phiên bản" onToggle={() => {}} hideArrow={true} />
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                    Thông tin ứng dụng
+                </Text>
+                <View style={[styles.sectionContainer, { backgroundColor: colors.card }]}>
+                    <SettingItem
+                        title="Phiên bản"
+                        onToggle={() => {}}
+                        hideArrow={true}
+                        {...itemProps}
+                    />
                     <View style={styles.versionContainer}>
-                        <Text style={styles.versionText}>v1.0.0</Text>
+                        <Text style={[styles.versionText, { color: colors.textSecondary }]}>
+                            v1.0.0
+                        </Text>
                     </View>
                 </View>
             </ScrollView>
@@ -169,11 +215,11 @@ const SettingScreen: React.FC<SettingScreenProps> = ({ onNavigateToBudget, onBac
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
     },
     scrollContent: {
         padding: scale(20),
         paddingBottom: verticalScale(100),
+        paddingTop: verticalScale(40),
     },
     backButton: {
         marginBottom: verticalScale(10),
@@ -181,18 +227,15 @@ const styles = StyleSheet.create({
     backButtonText: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(16),
-        color: '#04D1C1',
     },
     sectionTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(16),
-        color: '#999',
         marginBottom: verticalScale(10),
         marginTop: verticalScale(10),
         marginLeft: scale(10),
     },
     sectionContainer: {
-        backgroundColor: '#FFF',
         borderRadius: scale(20),
         padding: scale(5),
         shadowColor: '#000',
@@ -216,7 +259,6 @@ const styles = StyleSheet.create({
         width: scale(30),
         height: scale(30),
         borderRadius: scale(15),
-        backgroundColor: '#E0F7FA',
         marginRight: scale(15),
     },
     destructiveIcon: {
@@ -224,7 +266,6 @@ const styles = StyleSheet.create({
     },
     itemText: {
         fontSize: moderateScale(15),
-        color: '#333',
         fontWeight: '500',
     },
     destructiveText: {
@@ -232,12 +273,10 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: 1,
-        backgroundColor: '#F0F0F0',
         marginLeft: scale(60),
     },
     arrow: {
         fontSize: moderateScale(18),
-        color: '#CCC',
         fontWeight: 'bold',
     },
     versionContainer: {
@@ -248,7 +287,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     versionText: {
-        color: '#999',
         fontSize: moderateScale(14),
     },
 });

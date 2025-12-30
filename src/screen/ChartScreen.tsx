@@ -14,6 +14,7 @@ import { format, startOfWeek, endOfWeek } from 'date-fns';
 import CustomDatePickerModal, { DatePickerMode } from '../components/CustomDatePickerModal';
 import TransactionTypeToggle from '../components/TransactionTypeToggle';
 import { NotificationManager } from '../utils/NotificationManager';
+import { useTheme } from '../context/ThemeContext'; // Import theme
 
 interface CategoryStats {
     categoryId: number;
@@ -36,11 +37,12 @@ const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
 };
 
-const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
+// Component con nhận props nên ta truyền thêm color text vào hoặc wrap nó
+const StatisticsPieChart = ({ data, textColor }: { data: CategoryStats[]; textColor: string }) => {
     if (!data || data.length === 0) {
         return (
             <View style={{ padding: 20 }}>
-                <Text style={styles.noDataText}>Không có dữ liệu</Text>
+                <Text style={[styles.noDataText, { color: textColor }]}>Không có dữ liệu</Text>
             </View>
         );
     }
@@ -48,7 +50,7 @@ const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
     if (total === 0) {
         return (
             <View style={{ padding: 20 }}>
-                <Text style={styles.noDataText}>Không có dữ liệu</Text>
+                <Text style={[styles.noDataText, { color: textColor }]}>Không có dữ liệu</Text>
             </View>
         );
     }
@@ -64,7 +66,7 @@ const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
                 data={pieData}
                 donut
                 showText
-                textColor="white"
+                textColor="white" // Text trong biểu đồ vẫn để trắng cho dễ nhìn
                 fontWeight="bold"
                 radius={scale(70)}
                 innerRadius={scale(35)}
@@ -80,7 +82,7 @@ const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
                                 { backgroundColor: chartColors[index % chartColors.length] },
                             ]}
                         />
-                        <Text style={styles.legendText} numberOfLines={1}>
+                        <Text style={[styles.legendText, { color: textColor }]} numberOfLines={1}>
                             {item.categoryName} ({pieData[index].text})
                         </Text>
                     </View>
@@ -91,6 +93,7 @@ const StatisticsPieChart = ({ data }: { data: CategoryStats[] }) => {
 };
 
 const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
+    const { colors } = useTheme(); // Use Theme
     const [period, setPeriod] = useState<PeriodType>('month');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [stats, setStats] = useState<StatsData | null>(null);
@@ -163,7 +166,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
         else if (budgetPercent >= 80) budgetColor = '#FFC107';
         return (
             <View>
-                <View style={styles.budgetBg}>
+                <View style={[styles.budgetBg, { backgroundColor: colors.border }]}>
                     <View
                         style={[
                             styles.budgetFill,
@@ -174,7 +177,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
                         ]}
                     />
                 </View>
-                <Text style={styles.budgetText}>
+                <Text style={[styles.budgetText, { color: colors.textSecondary }]}>
                     Định mức: {formatCurrency(limit)} ({Math.round(budgetPercent)}%)
                 </Text>
             </View>
@@ -184,7 +187,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
     const renderDetailItem = (item: CategoryStats) => (
         <TouchableOpacity
             key={`detail_${item.categoryId}`}
-            style={styles.detailItem}
+            style={[styles.detailItem, { borderBottomColor: colors.border }]}
             onPress={() =>
                 navigateToHistoryWithFilter({ categoryId: item.categoryId, type: chartType })
             }>
@@ -195,7 +198,9 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
                         justifyContent: 'space-between',
                         marginBottom: 5,
                     }}>
-                    <Text style={styles.detailCategory}>{item.categoryName}</Text>
+                    <Text style={[styles.detailCategory, { color: colors.text }]}>
+                        {item.categoryName}
+                    </Text>
                     <Text style={[styles.detailAmount, detailAmountStyle]}>
                         {formatCurrency(item.totalAmount)}
                     </Text>
@@ -206,21 +211,21 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 contentContainerStyle={styles.scrollViewContent}
                 showsVerticalScrollIndicator={false}>
-                <View style={styles.periodSelector}>
+                <View style={[styles.periodSelector, { backgroundColor: colors.card }]}>
                     <TouchableOpacity
                         style={[
                             styles.periodButton,
-                            period === 'week' ? styles.activePeriod : null,
+                            period === 'week' ? { backgroundColor: colors.primary } : null,
                         ]}
                         onPress={() => setPeriod('week')}>
                         <Text
                             style={[
                                 styles.periodText,
-                                period === 'week' ? styles.activeText : null,
+                                { color: period === 'week' ? '#fff' : colors.text },
                             ]}>
                             Tuần
                         </Text>
@@ -228,13 +233,13 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
                     <TouchableOpacity
                         style={[
                             styles.periodButton,
-                            period === 'month' ? styles.activePeriod : null,
+                            period === 'month' ? { backgroundColor: colors.primary } : null,
                         ]}
                         onPress={() => setPeriod('month')}>
                         <Text
                             style={[
                                 styles.periodText,
-                                period === 'month' ? styles.activeText : null,
+                                { color: period === 'month' ? '#fff' : colors.text },
                             ]}>
                             Tháng
                         </Text>
@@ -242,13 +247,13 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
                     <TouchableOpacity
                         style={[
                             styles.periodButton,
-                            period === 'year' ? styles.activePeriod : null,
+                            period === 'year' ? { backgroundColor: colors.primary } : null,
                         ]}
                         onPress={() => setPeriod('year')}>
                         <Text
                             style={[
                                 styles.periodText,
-                                period === 'year' ? styles.activeText : null,
+                                { color: period === 'year' ? '#fff' : colors.text },
                             ]}>
                             Năm
                         </Text>
@@ -256,45 +261,65 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
                 </View>
 
                 <TouchableOpacity
-                    style={styles.timePickerButton}
+                    style={[styles.timePickerButton, { backgroundColor: colors.card }]}
                     onPress={() => setPickerVisible(true)}>
-                    <Text style={styles.timePickerText}>{renderTimePickerText()}</Text>
+                    <Text style={[styles.timePickerText, { color: colors.primary }]}>
+                        {renderTimePickerText()}
+                    </Text>
                 </TouchableOpacity>
 
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 50 }} />
+                    <ActivityIndicator
+                        size="large"
+                        color={colors.primary}
+                        style={{ marginTop: 50 }}
+                    />
                 ) : stats ? (
                     <View>
-                        <View style={styles.card}>
-                            <View style={styles.summaryRow}>
-                                <Text style={styles.summaryLabel}>Tổng Thu</Text>
+                        <View style={[styles.card, { backgroundColor: colors.card }]}>
+                            <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                                <Text
+                                    style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                                    Tổng Thu
+                                </Text>
                                 <Text style={styles.summaryIncome}>
                                     {formatCurrency(stats.summary.totalIncome)}
                                 </Text>
                             </View>
                             <View style={[styles.summaryRow, { borderBottomWidth: 0 }]}>
-                                <Text style={styles.summaryLabel}>Tổng Chi</Text>
+                                <Text
+                                    style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                                    Tổng Chi
+                                </Text>
                                 <Text style={styles.summaryExpense}>
                                     {formatCurrency(stats.summary.totalExpense)}
                                 </Text>
                             </View>
                         </View>
 
-                        <View style={styles.card}>
+                        <View style={[styles.card, { backgroundColor: colors.card }]}>
                             <TransactionTypeToggle
                                 activeType={chartType}
                                 onSelectionChange={setChartType}
                             />
-                            <StatisticsPieChart data={dataForChart || []} />
+                            <StatisticsPieChart data={dataForChart || []} textColor={colors.text} />
                         </View>
 
-                        <View style={styles.card}>
-                            <Text style={styles.cardTitle}>{detailCardTitle}</Text>
+                        <View style={[styles.card, { backgroundColor: colors.card }]}>
+                            <Text style={[styles.cardTitle, { color: colors.text }]}>
+                                {detailCardTitle}
+                            </Text>
                             {dataForChart && dataForChart.length > 0 ? (
                                 dataForChart.map(renderDetailItem)
                             ) : (
                                 <View style={{ padding: 10 }}>
-                                    <Text style={styles.noDataText}>Không có dữ liệu</Text>
+                                    <Text
+                                        style={[
+                                            styles.noDataText,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Không có dữ liệu
+                                    </Text>
                                 </View>
                             )}
                         </View>
@@ -319,7 +344,7 @@ const ChartScreen = ({ navigateToHistoryWithFilter }: any) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: 'transparent' },
+    container: { flex: 1 },
     scrollViewContent: {
         paddingHorizontal: scale(15),
         paddingBottom: scale(110),
@@ -327,7 +352,6 @@ const styles = StyleSheet.create({
     },
     periodSelector: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
         borderRadius: scale(30),
         alignSelf: 'center',
         elevation: 3,
@@ -340,16 +364,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: scale(20),
         borderRadius: scale(30),
     },
-    activePeriod: { backgroundColor: '#04D1C1' },
     periodText: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(15),
-        color: '#333',
         lineHeight: moderateScale(22),
     },
-    activeText: { color: '#fff' },
     timePickerButton: {
-        backgroundColor: '#fff',
         padding: scale(12),
         borderRadius: scale(10),
         alignItems: 'center',
@@ -363,11 +383,9 @@ const styles = StyleSheet.create({
     timePickerText: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(16),
-        color: '#04D1C1',
         lineHeight: moderateScale(24),
     },
     card: {
-        backgroundColor: 'white',
         borderRadius: scale(20),
         padding: scale(15),
         marginBottom: scale(20),
@@ -379,7 +397,6 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(18),
-        color: '#333',
         marginBottom: scale(10),
         textAlign: 'center',
         lineHeight: moderateScale(26),
@@ -389,12 +406,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: scale(10),
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     summaryLabel: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(15),
-        color: '#555',
         lineHeight: moderateScale(22),
     },
     summaryIncome: {
@@ -413,14 +428,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         padding: scale(20),
         fontFamily: 'BeVietnamPro-Regular',
-        color: '#888',
         lineHeight: moderateScale(22),
     },
-    detailItem: { paddingVertical: scale(12), borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+    detailItem: { paddingVertical: scale(12), borderBottomWidth: 1 },
     detailCategory: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: scale(15),
-        color: '#333',
         lineHeight: moderateScale(22),
     },
     detailAmount: {
@@ -453,7 +466,6 @@ const styles = StyleSheet.create({
     },
     budgetBg: {
         height: 6,
-        backgroundColor: '#E0E0E0',
         borderRadius: 3,
         marginTop: 4,
         width: '100%',
@@ -461,7 +473,6 @@ const styles = StyleSheet.create({
     budgetFill: { height: '100%', borderRadius: 3 },
     budgetText: {
         fontSize: 10,
-        color: '#888',
         marginTop: 2,
         textAlign: 'right',
         fontStyle: 'italic',

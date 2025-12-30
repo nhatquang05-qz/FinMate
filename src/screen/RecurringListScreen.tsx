@@ -15,8 +15,10 @@ import apiClient from '../api/apiClient';
 import { scale, moderateScale, verticalScale } from '../utils/scaling';
 import { iconMap } from '../utils/iconMap';
 import { format } from 'date-fns';
+import { useTheme } from '../context/ThemeContext';
 
 const RecurringListScreen = ({ onBack }: { onBack: () => void }) => {
+    const { colors, isDarkMode } = useTheme();
     const insets = useSafeAreaInsets();
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -46,48 +48,52 @@ const RecurringListScreen = ({ onBack }: { onBack: () => void }) => {
         } catch (error) {
             console.error(error);
             Alert.alert('Lỗi', 'Không thể cập nhật trạng thái');
-            fetchData();
         }
     };
 
-    const deleteItem = (id: number) => {
-        Alert.alert('Xác nhận', 'Bạn có chắc muốn xóa lịch này không?', [
-            { text: 'Hủy', style: 'cancel' },
+    const deleteRecurring = (id: number) => {
+        Alert.alert('Xác nhận', 'Bạn có chắc muốn xoá khoản này?', [
+            { text: 'Huỷ', style: 'cancel' },
             {
-                text: 'Xóa',
+                text: 'Xoá',
                 style: 'destructive',
                 onPress: async () => {
                     try {
                         await apiClient.delete(`/transactions/recurring/${id}`);
-                        setData(data.filter(item => item.id !== id));
+                        setData(data.filter(i => i.id !== id));
                     } catch (error) {
-                        Alert.alert('Lỗi', 'Không thể xóa');
+                        Alert.alert('Lỗi', 'Xoá thất bại');
                     }
                 },
             },
         ]);
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-            amount,
-        );
-    };
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 
     const renderItem = ({ item, index }: { item: any; index: number }) => {
-        const iconSource = iconMap[item.category_icon] || iconMap.default;
-        const nextDate = new Date(item.next_run_date);
+        const iconSource = iconMap[item.category_icon] || require('../assets/images/money.png');
 
         return (
-            <View style={[styles.card, !item.is_active && styles.cardInactive]}>
+            <View
+                style={[
+                    styles.card,
+                    { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' },
+                ]}>
                 <View style={styles.cardHeader}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                        <View style={styles.iconContainer}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View
+                            style={[
+                                styles.iconContainer,
+                                { backgroundColor: isDarkMode ? '#333' : '#E0F7FA' },
+                            ]}>
                             <Image source={iconSource} style={styles.icon} />
                         </View>
-                        <View style={{ flex: 1, paddingRight: 10 }}>
-                            <Text style={styles.categoryName} numberOfLines={1}>
-                                {item.category_name}
+                        <View>
+                            <Text style={[styles.categoryName, { color: colors.text }]}>
+                                {item.category_name ||
+                                    (item.type === 'income' ? 'Thu nhập' : 'Chi tiêu')}
                             </Text>
                             <Text
                                 style={[
@@ -100,53 +106,60 @@ const RecurringListScreen = ({ onBack }: { onBack: () => void }) => {
                         </View>
                     </View>
                     <Switch
-                        value={!!item.is_active}
+                        value={item.is_active}
                         onValueChange={() => toggleStatus(item.id, index)}
-                        trackColor={{ false: '#767577', true: '#04D1C1' }}
+                        trackColor={{ false: '#767577', true: colors.primary }}
+                        thumbColor={isDarkMode ? '#fff' : '#f4f3f4'}
                     />
                 </View>
 
-                <View style={styles.divider} />
+                {item.note && (
+                    <Text style={[styles.note, { color: colors.textSecondary }]}>
+                        Ghi chú: {item.note}
+                    </Text>
+                )}
+
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                 <View style={styles.cardFooter}>
-                    <Text style={styles.dateText}>Kỳ tới: {format(nextDate, 'dd/MM/yyyy')}</Text>
-                    <TouchableOpacity
-                        onPress={() => deleteItem(item.id)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                        <Text style={styles.deleteText}>Xóa</Text>
+                    <Text style={[styles.dateText, { color: colors.textSecondary }]}>
+                        Ngày bắt đầu: {format(new Date(item.start_date), 'dd/MM/yyyy')}
+                    </Text>
+                    <TouchableOpacity onPress={() => deleteRecurring(item.id)}>
+                        <Text style={styles.deleteText}>Xoá</Text>
                     </TouchableOpacity>
                 </View>
-                {item.note ? (
-                    <Text style={styles.note} numberOfLines={2}>
-                        {item.note}
-                    </Text>
-                ) : null}
             </View>
         );
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.header}>
+        <View
+            style={[
+                styles.container,
+                { paddingTop: insets.top, backgroundColor: colors.background },
+            ]}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={onBack} style={styles.backButton}>
-                    <Text style={styles.backText}>{'< Trở về'}</Text>
+                    <Text style={[styles.backText, { color: colors.primary }]}>{'< Quay lại'}</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Quản lý Định kỳ</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Định kỳ</Text>
                 <View style={{ width: 40 }} />
             </View>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} />
+                <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
                     data={data}
                     renderItem={renderItem}
                     keyExtractor={item => item.id.toString()}
-                    contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 80 }]}
+                    contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <Text style={styles.empty}>Chưa có giao dịch định kỳ nào</Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                            Chưa có khoản định kỳ nào
+                        </Text>
                     }
-                    showsVerticalScrollIndicator={false}
                 />
             )}
         </View>
@@ -154,48 +167,33 @@ const RecurringListScreen = ({ onBack }: { onBack: () => void }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F5F5F5' },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
+        alignItems: 'center',
         paddingHorizontal: scale(15),
-        paddingVertical: verticalScale(15),
-        backgroundColor: '#FFF',
-        elevation: 2,
-        zIndex: 10,
+        paddingBottom: verticalScale(10),
+        borderBottomWidth: 1,
     },
-    backButton: { padding: scale(5) },
-    backText: {
-        fontSize: moderateScale(14),
-        color: '#04D1C1',
-        fontFamily: 'BeVietnamPro-Bold',
-        lineHeight: moderateScale(20),
-    },
-    headerTitle: {
-        fontSize: moderateScale(18),
-        fontFamily: 'Coiny-Regular',
-        color: '#333',
-        lineHeight: moderateScale(26),
-    },
-    list: { padding: scale(15), paddingTop: scale(20) },
+    backButton: { padding: 5 },
+    backText: { fontSize: moderateScale(16), fontFamily: 'BeVietnamPro-Bold' },
+    title: { fontSize: moderateScale(20), fontFamily: 'Coiny-Regular' },
+    list: { padding: scale(15) },
     card: {
-        backgroundColor: 'white',
         borderRadius: scale(15),
         padding: scale(15),
         marginBottom: verticalScale(15),
         elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
-    cardInactive: { opacity: 0.6, backgroundColor: '#FAFAFA' },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     iconContainer: {
         width: scale(40),
         height: scale(40),
         borderRadius: scale(20),
-        backgroundColor: '#E0F7FA',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: scale(10),
@@ -204,7 +202,6 @@ const styles = StyleSheet.create({
     categoryName: {
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(16),
-        color: '#333',
         lineHeight: moderateScale(24),
     },
     amount: {
@@ -214,22 +211,16 @@ const styles = StyleSheet.create({
     },
     expense: { color: '#FF5252' },
     income: { color: '#04D1C1' },
-    divider: { height: 1, backgroundColor: '#EEE', marginVertical: verticalScale(10) },
+    divider: { height: 1, marginVertical: verticalScale(10) },
     cardFooter: { flexDirection: 'row', justifyContent: 'space-between' },
-    dateText: { fontFamily: 'BeVietnamPro-Regular', color: '#666', lineHeight: moderateScale(20) },
+    dateText: { fontFamily: 'BeVietnamPro-Regular', lineHeight: moderateScale(20) },
     deleteText: {
         fontFamily: 'BeVietnamPro-Bold',
         color: '#FF5252',
         lineHeight: moderateScale(20),
     },
-    note: { marginTop: 5, fontSize: 12, color: '#999', fontStyle: 'italic', lineHeight: 16 },
-    empty: {
-        textAlign: 'center',
-        marginTop: 50,
-        color: '#999',
-        fontFamily: 'BeVietnamPro-Regular',
-        lineHeight: 20,
-    },
+    note: { marginTop: 5, fontStyle: 'italic', fontSize: 12 },
+    emptyText: { textAlign: 'center', marginTop: 20, fontFamily: 'BeVietnamPro-Regular' },
 });
 
 export default RecurringListScreen;

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { scale } from '../utils/scaling';
 import { Category } from '../types/data';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
     visible: boolean;
@@ -26,6 +27,7 @@ const CategoryFilterModal: React.FC<Props> = ({
     onClose,
     onApply,
 }) => {
+    const { colors, isDarkMode } = useTheme();
     const [tempSelectedIds, setTempSelectedIds] = useState<number[]>(initialSelectedIds);
 
     useEffect(() => {
@@ -53,10 +55,15 @@ const CategoryFilterModal: React.FC<Props> = ({
         const isSelected = tempSelectedIds.includes(item.id);
         return (
             <TouchableOpacity style={styles.itemContainer} onPress={() => toggleCategory(item.id)}>
-                <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                <View
+                    style={[
+                        styles.checkbox,
+                        { borderColor: colors.primary },
+                        isSelected && { backgroundColor: colors.primary },
+                    ]}>
                     {isSelected && <Text style={styles.checkmark}>✓</Text>}
                 </View>
-                <Text style={styles.itemText}>{item.name}</Text>
+                <Text style={[styles.itemText, { color: colors.text }]}>{item.name}</Text>
             </TouchableOpacity>
         );
     };
@@ -64,8 +71,8 @@ const CategoryFilterModal: React.FC<Props> = ({
     return (
         <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
             <SafeAreaView style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.title}>Lọc theo danh mục</Text>
+                <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                    <Text style={[styles.title, { color: colors.primary }]}>Lọc theo danh mục</Text>
                     <FlatList
                         data={categories}
                         renderItem={renderItem}
@@ -74,12 +81,23 @@ const CategoryFilterModal: React.FC<Props> = ({
                     />
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.clearButton]}
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: isDarkMode ? '#333' : '#F0F0F0',
+                                    marginRight: scale(10),
+                                },
+                            ]}
                             onPress={handleClear}>
-                            <Text style={styles.clearButtonText}>Bỏ chọn</Text>
+                            <Text style={[styles.clearButtonText, { color: colors.textSecondary }]}>
+                                Bỏ chọn
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.button, styles.applyButton]}
+                            style={[
+                                styles.button,
+                                { backgroundColor: colors.primary, marginLeft: scale(10) },
+                            ]}
                             onPress={handleApply}>
                             <Text style={styles.applyButtonText}>Áp dụng</Text>
                         </TouchableOpacity>
@@ -93,7 +111,6 @@ const CategoryFilterModal: React.FC<Props> = ({
 const styles = StyleSheet.create({
     modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
     modalContent: {
-        backgroundColor: 'white',
         height: '60%',
         borderTopLeftRadius: scale(20),
         borderTopRightRadius: scale(20),
@@ -102,7 +119,7 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'Coiny-Regular',
         fontSize: scale(22),
-        color: '#04D1C1',
+
         textAlign: 'center',
         marginBottom: scale(20),
     },
@@ -112,23 +129,28 @@ const styles = StyleSheet.create({
         width: scale(24),
         height: scale(24),
         borderWidth: 2,
-        borderColor: '#04D1C1',
+
         borderRadius: scale(4),
         justifyContent: 'center',
         alignItems: 'center',
     },
-    checkboxSelected: { backgroundColor: '#04D1C1' },
+
     checkmark: { color: 'white', fontWeight: 'bold' },
-    itemText: { fontFamily: 'BeVietnamPro-Bold', fontSize: scale(16), marginLeft: scale(15) },
+    itemText: {
+        fontFamily: 'BeVietnamPro-Bold',
+        fontSize: scale(16),
+        marginLeft: scale(15),
+    },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingTop: scale(15),
     },
     button: { flex: 1, padding: scale(15), borderRadius: scale(15), alignItems: 'center' },
-    clearButton: { backgroundColor: '#F0F0F0', marginRight: scale(10) },
-    applyButton: { backgroundColor: '#04D1C1', marginLeft: scale(10) },
-    clearButtonText: { fontFamily: 'BeVietnamPro-Bold', color: '#333' },
+
+    clearButtonText: {
+        fontFamily: 'BeVietnamPro-Bold',
+    },
     applyButtonText: { fontFamily: 'BeVietnamPro-Bold', color: 'white' },
 });
 

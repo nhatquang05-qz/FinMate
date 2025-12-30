@@ -15,8 +15,10 @@ import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
 import { iconMap } from '../utils/iconMap';
 import { Image } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const CalendarScreen = () => {
+    const { colors, isDarkMode } = useTheme();
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [year, setYear] = useState(new Date().getFullYear());
@@ -65,7 +67,7 @@ const CalendarScreen = () => {
         marked[selectedDate] = {
             ...marked[selectedDate],
             selected: true,
-            selectedColor: '#04D1C1',
+            selectedColor: colors.primary,
         };
         return marked;
     };
@@ -78,19 +80,24 @@ const CalendarScreen = () => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}>
-                <View style={styles.calendarContainer}>
+                <View style={[styles.calendarContainer, { backgroundColor: colors.card }]}>
                     <Calendar
+                        key={isDarkMode ? 'dark' : 'light'}
                         current={selectedDate}
                         onDayPress={(day: any) => setSelectedDate(day.dateString)}
                         onMonthChange={onMonthChange}
                         markedDates={getMarkedDates()}
                         theme={{
-                            todayTextColor: '#04D1C1',
-                            arrowColor: '#04D1C1',
+                            calendarBackground: colors.card,
+                            textSectionTitleColor: colors.text,
+                            dayTextColor: colors.text,
+                            todayTextColor: colors.primary,
+                            monthTextColor: colors.text,
+                            arrowColor: colors.primary,
                             textDayFontFamily: 'BeVietnamPro-Regular',
                             textMonthFontFamily: 'BeVietnamPro-Bold',
                             textDayHeaderFontFamily: 'BeVietnamPro-Bold',
@@ -99,15 +106,22 @@ const CalendarScreen = () => {
                 </View>
 
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#04D1C1" style={{ marginTop: 20 }} />
+                    <ActivityIndicator
+                        size="large"
+                        color={colors.primary}
+                        style={{ marginTop: 20 }}
+                    />
                 ) : (
                     <View style={styles.detailsContainer}>
-                        <View style={styles.summaryCard}>
-                            <Text style={styles.dateTitle}>
+                        <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
+                            <Text style={[styles.dateTitle, { color: colors.text }]}>
                                 Ngày {format(new Date(selectedDate), 'dd/MM/yyyy')}
                             </Text>
                             <View style={styles.summaryRow}>
-                                <Text style={styles.summaryLabel}>Tổng kết ngày:</Text>
+                                <Text
+                                    style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                                    Tổng kết ngày:
+                                </Text>
                                 <Text
                                     style={[
                                         styles.summaryValue,
@@ -123,11 +137,20 @@ const CalendarScreen = () => {
                             </View>
                         </View>
 
-                        <Text style={styles.sectionTitle}>Giao dịch</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                            Giao dịch
+                        </Text>
                         {selectedDayTransactions && selectedDayTransactions.length > 0 ? (
                             selectedDayTransactions.map((t: any) => (
-                                <View key={t.id} style={styles.transactionItem}>
-                                    <Text style={styles.transCategory}>{t.category_name}</Text>
+                                <View
+                                    key={t.id}
+                                    style={[
+                                        styles.transactionItem,
+                                        { backgroundColor: colors.card },
+                                    ]}>
+                                    <Text style={[styles.transCategory, { color: colors.text }]}>
+                                        {t.category_name}
+                                    </Text>
                                     <Text
                                         style={[
                                             styles.transAmount,
@@ -139,7 +162,9 @@ const CalendarScreen = () => {
                                 </View>
                             ))
                         ) : (
-                            <Text style={styles.emptyText}>Không có giao dịch nào</Text>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                                Không có giao dịch nào
+                            </Text>
                         )}
                     </View>
                 )}
@@ -149,10 +174,9 @@ const CalendarScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: 'transparent' },
+    container: { flex: 1 },
     scrollContent: { paddingBottom: scale(100) },
     calendarContainer: {
-        backgroundColor: 'white',
         borderRadius: scale(15),
         margin: scale(15),
         elevation: 3,
@@ -163,7 +187,6 @@ const styles = StyleSheet.create({
     },
     detailsContainer: { paddingHorizontal: scale(15) },
     summaryCard: {
-        backgroundColor: 'white',
         padding: scale(15),
         borderRadius: scale(15),
         marginBottom: scale(15),
@@ -172,7 +195,6 @@ const styles = StyleSheet.create({
     dateTitle: {
         fontFamily: 'Coiny-Regular',
         fontSize: moderateScale(16),
-        color: '#333',
         marginBottom: 5,
         lineHeight: moderateScale(24),
     },
@@ -191,11 +213,9 @@ const styles = StyleSheet.create({
         fontFamily: 'BeVietnamPro-Bold',
         fontSize: moderateScale(16),
         marginBottom: 10,
-        color: '#555',
         lineHeight: moderateScale(24),
     },
     transactionItem: {
-        backgroundColor: 'white',
         padding: scale(15),
         borderRadius: scale(10),
         marginBottom: 10,
@@ -205,7 +225,6 @@ const styles = StyleSheet.create({
     },
     transCategory: {
         fontFamily: 'BeVietnamPro-Bold',
-        color: '#333',
         lineHeight: moderateScale(20),
     },
     transAmount: { fontFamily: 'BeVietnamPro-Bold', lineHeight: moderateScale(20) },
@@ -213,7 +232,6 @@ const styles = StyleSheet.create({
     income: { color: '#28A745' },
     emptyText: {
         textAlign: 'center',
-        color: '#999',
         marginTop: 10,
         fontFamily: 'BeVietnamPro-Regular',
         lineHeight: moderateScale(20),

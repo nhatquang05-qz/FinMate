@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import WheelPicker from './WheelPicker';
+import { useTheme } from '../context/ThemeContext';
 
 const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const createRange = (start: number, end: number) =>
@@ -61,6 +62,7 @@ const CustomDatePickerModal = ({
     mode = 'day',
     useNativeModal = true,
 }: CustomDatePickerModalProps) => {
+    const { colors, isDarkMode } = useTheme();
     const [date, setDate] = useState(initialDate);
 
     useEffect(() => {
@@ -150,7 +152,7 @@ const CustomDatePickerModal = ({
     }, [mode]);
 
     const isWeekMode = mode === 'week';
-    const commonWidth = isWeekMode ? 80 : 100; 
+    const commonWidth = isWeekMode ? 80 : 100;
     const commonFontSize = isWeekMode ? 15 : 22;
     const commonSelectedFontSize = isWeekMode ? 18 : 26;
 
@@ -158,11 +160,13 @@ const CustomDatePickerModal = ({
         <SafeAreaView
             style={[styles.modalContainer, !useNativeModal && styles.nestedContainer]}
             onTouchEnd={useNativeModal ? onClose : undefined}>
-            <View style={styles.pickerContainer} onTouchEnd={e => e.stopPropagation()}>
+            <View
+                style={[styles.pickerContainer, { backgroundColor: colors.card }]}
+                onTouchEnd={e => e.stopPropagation()}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>{headerTitle}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>{headerTitle}</Text>
                 </View>
-                <View style={styles.headerSeparator} />
+                <View style={[styles.headerSeparator, { backgroundColor: colors.border }]} />
 
                 <View style={styles.wheelsContainer}>
                     {mode === 'day' && (
@@ -172,7 +176,9 @@ const CustomDatePickerModal = ({
                                 selectedValue={String(day)}
                                 onValueChange={newDay => updateDate({ day: Number(newDay) })}
                             />
-                            <View style={styles.columnSeparator} />
+                            <View
+                                style={[styles.columnSeparator, { backgroundColor: colors.border }]}
+                            />
                         </>
                     )}
 
@@ -186,7 +192,9 @@ const CustomDatePickerModal = ({
                                 fontSize={commonFontSize}
                                 selectedFontSize={commonSelectedFontSize}
                             />
-                            <View style={styles.columnSeparator} />
+                            <View
+                                style={[styles.columnSeparator, { backgroundColor: colors.border }]}
+                            />
                         </>
                     )}
 
@@ -201,7 +209,9 @@ const CustomDatePickerModal = ({
 
                     {mode === 'week' && (
                         <>
-                            <View style={styles.columnSeparator} />
+                            <View
+                                style={[styles.columnSeparator, { backgroundColor: colors.border }]}
+                            />
                             <View style={{ flex: 2 }}>
                                 <WheelPicker
                                     data={WEEKS.map(w => w.label)}
@@ -216,12 +226,23 @@ const CustomDatePickerModal = ({
                     )}
                 </View>
 
-                <View style={styles.buttonsContainer}>
-                    <TouchableOpacity style={styles.button} onPress={onClose}>
-                        <Text style={styles.buttonText}>Huỷ</Text>
+                <View style={[styles.buttonsContainer, { borderTopColor: colors.border }]}>
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            { backgroundColor: isDarkMode ? '#333' : '#F5F5F5' },
+                        ]}
+                        onPress={onClose}>
+                        <Text style={[styles.buttonText, { color: isDarkMode ? '#AAA' : '#555' }]}>
+                            Huỷ
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, styles.confirmButton]}
+                        style={[
+                            styles.button,
+                            styles.confirmButton,
+                            { backgroundColor: colors.primary },
+                        ]}
                         onPress={handleConfirm}>
                         <Text style={[styles.buttonText, styles.confirmButtonText]}>Xác nhận</Text>
                     </TouchableOpacity>

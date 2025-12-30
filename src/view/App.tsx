@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, ImageBackground } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCustomFonts } from '../hooks/useCustomFonts';
 import SplashScreen from '../screen/SplashScreen';
@@ -26,6 +26,8 @@ import GoalScreen from '../screen/GoalScreen';
 import BudgetScreen from '../screen/BudgetScreen';
 import RecurringListScreen from '../screen/RecurringListScreen';
 
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
+
 ExpoSplashScreen.preventAutoHideAsync();
 
 interface MainAppProps {
@@ -37,7 +39,8 @@ type HistoryFilter = {
     type: 'income' | 'expense';
 };
 
-const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
+const MainAppContent: React.FC<MainAppProps> = ({ onLogout }) => {
+    const { colors, isDarkMode } = useTheme();
     const [activeScreen, setActiveScreen] = useState('Home');
     const [currentUserScreen, setCurrentUserScreen] = useState('UserRoot');
     const [initialHistoryFilter, setInitialHistoryFilter] = useState<HistoryFilter | null>(null);
@@ -111,21 +114,20 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
     };
 
     const isUserSubScreen = activeScreen === 'User' && currentUserScreen !== 'UserRoot';
-
     const shouldShowHeader =
         activeScreen !== 'Finpet' && activeScreen !== 'Budget' && !isUserSubScreen;
-
     const shouldShowNavbar = activeScreen !== 'Finpet' && activeScreen !== 'Budget';
 
     return (
-        <View style={styles.container}>
-            <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-            {activeScreen !== 'Finpet' && (
-                <ImageBackground
-                    source={require('../assets/images/background.png')}
-                    style={StyleSheet.absoluteFillObject}
-                />
-            )}
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                translucent
+                backgroundColor="transparent"
+            />
+            {}
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.background }]} />
+
             <View style={styles.safeArea}>
                 {shouldShowHeader && (
                     <Header
@@ -200,7 +202,7 @@ const App = () => {
 
     const renderContent = () => {
         if (isLoggedIn) {
-            return <MainApp onLogout={handleLogout} />;
+            return <MainAppContent onLogout={handleLogout} />;
         }
 
         if (currentAuthScreen === 'Login') {
@@ -217,9 +219,12 @@ const App = () => {
 
     return (
         <SafeAreaProvider>
-            <View style={styles.container} onLayout={onLayoutRootView}>
-                {renderContent()}
-            </View>
+            {}
+            <ThemeProvider>
+                <View style={styles.container} onLayout={onLayoutRootView}>
+                    {renderContent()}
+                </View>
+            </ThemeProvider>
         </SafeAreaProvider>
     );
 };
@@ -231,15 +236,6 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: 'transparent',
-    },
-    placeholderContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    placeholderText: {
-        fontSize: scale(24),
-        fontWeight: 'bold',
     },
 });
 

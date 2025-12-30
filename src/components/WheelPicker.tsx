@@ -6,7 +6,7 @@ import {
     StyleSheet,
     NativeSyntheticEvent,
     NativeScrollEvent,
-    DimensionValue, 
+    DimensionValue,
 } from 'react-native';
 
 const ITEM_HEIGHT = 50;
@@ -16,18 +16,18 @@ type WheelPickerProps = {
     data: string[];
     selectedValue: string;
     onValueChange: (value: string) => void;
-    width?: DimensionValue; 
+    width?: DimensionValue;
     fontSize?: number;
     selectedFontSize?: number;
 };
 
-const WheelPicker = ({ 
-    data, 
-    selectedValue, 
+const WheelPicker = ({
+    data,
+    selectedValue,
     onValueChange,
     width = 100,
     fontSize = 22,
-    selectedFontSize = 26
+    selectedFontSize = 26,
 }: WheelPickerProps) => {
     const flatListRef = useRef<FlatList>(null);
     const PADDING = ((VISIBLE_ITEMS - 1) / 2) * ITEM_HEIGHT;
@@ -54,11 +54,12 @@ const WheelPicker = ({
         const isSelected = item === selectedValue;
         return (
             <View style={styles.itemContainer}>
-                <Text style={[
-                    styles.itemText, 
-                    { fontSize },
-                    isSelected && { color: '#04D1C1', fontSize: selectedFontSize }
-                ]}>
+                <Text
+                    style={[
+                        styles.itemText,
+                        { fontSize },
+                        isSelected && { color: '#04D1C1', fontSize: selectedFontSize },
+                    ]}>
                     {item}
                 </Text>
             </View>
