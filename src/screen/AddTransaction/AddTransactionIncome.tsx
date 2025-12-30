@@ -21,6 +21,7 @@ import { Category } from '../../types/data';
 import { NotificationManager } from '../../utils/NotificationManager';
 import apiClient from '../../api/apiClient';
 import { format } from 'date-fns';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../context/ThemeContext';
 
 const AddTransactionIncome = () => {
@@ -46,6 +47,7 @@ const AddTransactionIncome = () => {
 
     const [isRecurring, setIsRecurring] = useState(false);
     const [localLoading, setLocalLoading] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     useEffect(() => {
         if (isSuccessVisible) {
@@ -57,6 +59,92 @@ const AddTransactionIncome = () => {
             );
         }
     }, [isSuccessVisible]);
+
+    const pickAndScanImage = async () => {
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permissionResult.granted === false) {
+                Alert.alert(
+                    'Cần quyền truy cập',
+                    'Vui lòng cấp quyền truy cập thư viện ảnh để quét hóa đơn.',
+                );
+                return;
+            }
+
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                quality: 0.8,
+            });
+
+            if (pickerResult.canceled) {
+                return;
+            }
+
+            setIsScanning(true);
+            const imageUri = pickerResult.assets[0].uri;
+
+            const formData = new FormData();
+            formData.append('file', {
+                uri: imageUri,
+                type: 'image/jpeg',
+                name: 'receipt.jpg',
+            } as any);
+
+            const scanRes = await apiClient.post('/receipts/scan', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            if (scanRes.data.success) {
+                const text = scanRes.data.data;
+                processScannedText(text);
+                Alert.alert('Thành công', 'Đã quét thông tin từ hóa đơn!');
+            } else {
+                Alert.alert('Lỗi', 'Không thể đọc nội dung hóa đơn.');
+            }
+        } catch (error) {
+            console.error('Scan error:', error);
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi quét hóa đơn.');
+        } finally {
+            setIsScanning(false);
+        }
+    };
+
+    const processScannedText = (text: string) => {
+        const moneyRegex = /\d{1,3}(?:[.,]\d{3})+(?:\.\d+)?/g;
+        const potentialAmounts = text.match(moneyRegex);
+
+        if (potentialAmounts && potentialAmounts.length > 0) {
+            const validAmounts = potentialAmounts.map(s => {
+                const cleanStr = s.replace(/[^\d]/g, '');
+                return parseInt(cleanStr, 10);
+            });
+
+            const maxAmount = Math.max(...validAmounts);
+
+            if (maxAmount > 0) {
+                const formattedAmount = maxAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                setAmount(formattedAmount);
+            }
+        }
+
+        const dateRegex = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})\b/;
+        const dateMatch = text.match(dateRegex);
+
+        if (dateMatch) {
+            const day = parseInt(dateMatch[1], 10);
+            const month = parseInt(dateMatch[2], 10);
+            const year = parseInt(dateMatch[3], 10);
+
+            const newDate = new Date(year, month - 1, day);
+
+            if (!isNaN(newDate.getTime())) {
+                setDate(newDate);
+            }
+        }
+
+        setNote('Hóa đơn quét tự động');
+    };
 
     const handleCustomSave = async () => {
         if (isRecurring) {
@@ -101,7 +189,7 @@ const AddTransactionIncome = () => {
     const formattedSelectedCategory =
         formattedCategories.find(c => c.id === selectedCategory?.id) || null;
 
-    const isLoading = hookLoading || localLoading;
+    const isLoading = hookLoading || localLoading || isScanning;
 
     return (
         <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -109,6 +197,22 @@ const AddTransactionIncome = () => {
                 style={styles.container}
                 contentContainerStyle={{ paddingBottom: verticalScale(200) }}
                 showsVerticalScrollIndicator={false}>
+                <TouchableOpacity
+                    style={[
+                        styles.scanButton,
+                        { backgroundColor: colors.card, borderColor: colors.primary },
+                    ]}
+                    onPress={pickAndScanImage}
+                    disabled={isLoading}>
+                    {isScanning ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                        <Text style={[styles.scanButtonText, { color: colors.primary }]}>
+                            📸 Quét Hóa Đơn
+                        </Text>
+                    )}
+                </TouchableOpacity>
+
                 <Detail
                     date={date}
                     onDateChange={setDate}

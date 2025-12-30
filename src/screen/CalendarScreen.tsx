@@ -15,7 +15,7 @@ import apiClient from '../api/apiClient';
 import { Transaction } from '../types/data';
 import TransactionItem from '../components/TransactionItem';
 import { format, addMonths, subMonths, isSameMonth, isAfter } from 'date-fns';
-import { useTheme } from '../context/ThemeContext'; 
+import { useTheme } from '../context/ThemeContext';
 
 LocaleConfig.locales['vi'] = {
     monthNames: [
@@ -60,7 +60,6 @@ const formatCurrency = (amount: number, short = false) => {
 };
 
 const CalendarScreen = () => {
-    
     const { colors, isDarkMode } = useTheme();
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -121,7 +120,10 @@ const CalendarScreen = () => {
                 activeOpacity={disabled ? 1 : 0.7}
                 style={[
                     styles.dayContainer,
-                    isSelected && [styles.daySelectedOutline, { borderColor: colors.primary, backgroundColor: colors.primary + '20' }],
+                    isSelected && [
+                        styles.daySelectedOutline,
+                        { borderColor: colors.primary, backgroundColor: colors.primary + '20' },
+                    ],
                     !isSelected && isToday && [styles.todayOutline, { borderColor: colors.border }],
                     disabled && styles.dayDisabled,
                 ]}>
@@ -129,11 +131,11 @@ const CalendarScreen = () => {
                     style={[
                         styles.dayText,
                         {
-                            color: disabled 
-                                ? disabledColor 
-                                : isSelected 
-                                    ? colors.primary 
-                                    : colors.text,
+                            color: disabled
+                                ? disabledColor
+                                : isSelected
+                                  ? colors.primary
+                                  : colors.text,
                             fontFamily: isSelected ? 'BeVietnamPro-Bold' : 'BeVietnamPro-Regular',
                         },
                     ]}>
@@ -145,12 +147,12 @@ const CalendarScreen = () => {
                         <Text
                             style={[
                                 styles.amountText,
-                                { 
-                                    color: disabled 
-                                        ? disabledColor 
-                                        : isSelected 
-                                            ? colors.primary 
-                                            : color 
+                                {
+                                    color: disabled
+                                        ? disabledColor
+                                        : isSelected
+                                          ? colors.primary
+                                          : color,
                                 },
                             ]}>
                             {amount}
@@ -274,14 +276,12 @@ const CalendarScreen = () => {
     };
 
     return (
-        <SafeAreaView 
+        <SafeAreaView
             edges={['bottom', 'left', 'right']}
-            style={[styles.container, { backgroundColor: colors.background }]}
-        >
+            style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: scale(150) }}>
-                
                 <View style={styles.header}>
                     <TouchableOpacity onPress={handlePrevMonth}>
                         <Text style={[styles.arrow, { color: colors.primary }]}>{'<'}</Text>
@@ -312,25 +312,48 @@ const CalendarScreen = () => {
                 </View>
 
                 {isLoading ? (
-                    <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 50 }} />
+                    <ActivityIndicator
+                        size="large"
+                        color={colors.primary}
+                        style={{ marginTop: 50 }}
+                    />
                 ) : (
                     calendarData && (
                         <>
-                            <View style={[styles.summaryContainer, { backgroundColor: colors.card }]}>
+                            <View
+                                style={[styles.summaryContainer, { backgroundColor: colors.card }]}>
                                 <View style={styles.summaryItem}>
-                                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tổng Thu</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Tổng Thu
+                                    </Text>
                                     <Text style={[styles.summaryAmount, styles.income]}>
                                         {formatCurrency(displayedSummary.totalIncome)}
                                     </Text>
                                 </View>
                                 <View style={styles.summaryItem}>
-                                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tổng Chi</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Tổng Chi
+                                    </Text>
                                     <Text style={[styles.summaryAmount, styles.expense]}>
                                         {formatCurrency(displayedSummary.totalExpense)}
                                     </Text>
                                 </View>
                                 <View style={styles.summaryItem}>
-                                    <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Chênh lệch</Text>
+                                    <Text
+                                        style={[
+                                            styles.summaryLabel,
+                                            { color: colors.textSecondary },
+                                        ]}>
+                                        Chênh lệch
+                                    </Text>
                                     <Text
                                         style={[
                                             styles.summaryAmount,
@@ -344,7 +367,7 @@ const CalendarScreen = () => {
                             </View>
 
                             <Calendar
-                                key={isDarkMode ? 'dark' : 'light'} 
+                                key={isDarkMode ? 'dark' : 'light'}
                                 current={format(currentMonth, 'yyyy-MM-dd')}
                                 onMonthChange={month => setCurrentMonth(new Date(month.timestamp))}
                                 dayComponent={dayComponent}
@@ -375,7 +398,10 @@ const CalendarScreen = () => {
                                 keyExtractor={item => item.id.toString()}
                                 scrollEnabled={false}
                                 ListEmptyComponent={() => (
-                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Không có giao dịch.</Text>
+                                    <Text
+                                        style={[styles.emptyText, { color: colors.textSecondary }]}>
+                                        Không có giao dịch.
+                                    </Text>
                                 )}
                                 style={{ marginHorizontal: scale(15) }}
                             />
@@ -393,7 +419,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: scale(10), 
+        marginTop: scale(10),
         paddingVertical: scale(5),
         paddingHorizontal: scale(15),
     },

@@ -136,6 +136,21 @@ const AddTransactionExpense = () => {
             }
         }
 
+        const dateRegex = /\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})\b/;
+        const dateMatch = text.match(dateRegex);
+
+        if (dateMatch) {
+            const day = parseInt(dateMatch[1], 10);
+            const month = parseInt(dateMatch[2], 10);
+            const year = parseInt(dateMatch[3], 10);
+
+            const newDate = new Date(year, month - 1, day);
+
+            if (!isNaN(newDate.getTime())) {
+                setDate(newDate);
+            }
+        }
+
         setNote('Hóa đơn quét tự động');
     };
 
