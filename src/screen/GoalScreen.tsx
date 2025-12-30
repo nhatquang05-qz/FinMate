@@ -9,6 +9,10 @@ import {
     TextInput,
     Alert,
     ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scale } from '../utils/scaling';
@@ -16,7 +20,7 @@ import apiClient from '../api/apiClient';
 import CustomDatePickerModal from '../components/CustomDatePickerModal';
 import { format, differenceInDays } from 'date-fns';
 import { NotificationManager } from '../utils/NotificationManager';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext'; 
 
 interface Goal {
     id: number;
@@ -28,7 +32,9 @@ interface Goal {
 }
 
 const GoalScreen = () => {
+    
     const { colors, isDarkMode } = useTheme();
+
     const [goals, setGoals] = useState<Goal[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -194,16 +200,19 @@ const GoalScreen = () => {
         const isCompleted = item.current_amount >= item.target_amount;
         const daysLeft = differenceInDays(new Date(item.deadline), new Date());
 
-        const cardBg = isCompleted ? (isDarkMode ? '#332b00' : '#FFFBE6') : colors.card;
+        const cardBg = isCompleted 
+            ? (isDarkMode ? '#3E3400' : '#FFFBE6') 
+            : colors.card;
+        
+        const titleColor = isCompleted 
+            ? '#B8860B' 
+            : colors.text;
+
         const borderColor = isCompleted ? '#FFD700' : 'transparent';
-        const titleColor = isCompleted ? '#B8860B' : colors.text;
 
         return (
             <TouchableOpacity
-                style={[
-                    styles.baseCard,
-                    { backgroundColor: cardBg, borderColor, borderWidth: isCompleted ? 2 : 0 },
-                ]}
+                style={[styles.card, { backgroundColor: cardBg, borderColor, borderWidth: isCompleted ? 2 : 0 }]}
                 onPress={() => openAddMoneyModal(item.id)}
                 onLongPress={() => openEditModal(item)}>
                 <View style={styles.cardHeader}>
@@ -230,12 +239,8 @@ const GoalScreen = () => {
                 </View>
 
                 <View style={styles.amountRow}>
-                    <Text style={[styles.amountText, { color: colors.primary }]}>
-                        {formatCurrency(item.current_amount)}
-                    </Text>
-                    <Text style={[styles.targetText, { color: colors.textSecondary }]}>
-                        / {formatCurrency(item.target_amount)}
-                    </Text>
+                    <Text style={[styles.amountText, { color: colors.primary }]}>{formatCurrency(item.current_amount)}</Text>
+                    <Text style={[styles.targetText, { color: colors.textSecondary }]}>/ {formatCurrency(item.target_amount)}</Text>
                 </View>
 
                 <View style={[styles.progressBarBg, { backgroundColor: colors.border }]}>
@@ -244,18 +249,14 @@ const GoalScreen = () => {
                             styles.progressBarFill,
                             {
                                 width: `${progress}%`,
-                                backgroundColor: isCompleted
-                                    ? '#FFD700'
-                                    : item.color || colors.primary,
+                                backgroundColor: isCompleted ? '#FFD700' : item.color || colors.primary,
                             },
                         ]}
                     />
                 </View>
 
                 <View style={styles.cardFooter}>
-                    <Text style={[styles.percentText, { color: colors.textSecondary }]}>
-                        {Math.round(progress)}%
-                    </Text>
+                    <Text style={[styles.percentText, { color: colors.textSecondary }]}>{Math.round(progress)}%</Text>
                     <Text style={[styles.hintText, { color: colors.textSecondary }]}>
                         {isCompleted ? 'Đã hoàn thành xuất sắc!' : 'Chạm để nạp thêm'}
                     </Text>
@@ -265,7 +266,10 @@ const GoalScreen = () => {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView 
+            edges={['bottom', 'left', 'right']} 
+            style={[styles.container, { backgroundColor: colors.background }]}
+        >
             <View style={styles.headerContainer}>
                 <Text style={[styles.headerTitle, { color: colors.primary }]}>Hũ Tiết Kiệm</Text>
             </View>
@@ -279,164 +283,146 @@ const GoalScreen = () => {
                     keyExtractor={item => item.id.toString()}
                     contentContainerStyle={{ padding: scale(20), paddingBottom: scale(100) }}
                     ListEmptyComponent={
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                            Bạn chưa có mục tiêu nào.
-                        </Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Bạn chưa có mục tiêu nào.</Text>
                     }
                 />
             )}
 
-            <TouchableOpacity
-                style={[styles.fab, { backgroundColor: colors.primary }]}
-                onPress={openCreateModal}>
+            <TouchableOpacity style={[styles.fab, { backgroundColor: colors.primary }]} onPress={openCreateModal}>
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
 
             <Modal visible={modalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>
-                            {isEditing ? 'Chỉnh sửa mục tiêu' : 'Mục tiêu mới'}
-                        </Text>
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.modalOverlay}
+                >
+                    <TouchableOpacity 
+                        style={{flex: 1, justifyContent: 'center'}} 
+                        activeOpacity={1} 
+                        onPress={() => setModalVisible(false)}
+                    >
+                        <View style={{flex: 1, justifyContent: 'center', padding: scale(20)}}>
+                            <TouchableWithoutFeedback onPress={() => {}}>
+                                <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                                    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                                        <Text style={[styles.modalTitle, { color: colors.text }]}>
+                                            {isEditing ? 'Chỉnh sửa mục tiêu' : 'Mục tiêu mới'}
+                                        </Text>
 
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
-                            Tên mục tiêu
-                        </Text>
-                        <TextInput
-                            placeholder="VD: Mua xe, Du lịch..."
-                            placeholderTextColor={colors.textSecondary}
-                            style={[
-                                styles.input,
-                                { borderColor: colors.border, color: colors.text },
-                            ]}
-                            value={goalName}
-                            onChangeText={setGoalName}
-                        />
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>Tên mục tiêu</Text>
+                                        <TextInput
+                                            placeholder="VD: Mua xe, Du lịch..."
+                                            placeholderTextColor={colors.textSecondary}
+                                            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                                            value={goalName}
+                                            onChangeText={setGoalName}
+                                        />
 
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
-                            Số tiền cần (VNĐ)
-                        </Text>
-                        <TextInput
-                            placeholder="0"
-                            placeholderTextColor={colors.textSecondary}
-                            style={[
-                                styles.input,
-                                { borderColor: colors.border, color: colors.text },
-                            ]}
-                            keyboardType="numeric"
-                            value={goalAmount}
-                            onChangeText={setGoalAmount}
-                        />
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>Số tiền cần (VNĐ)</Text>
+                                        <TextInput
+                                            placeholder="0"
+                                            placeholderTextColor={colors.textSecondary}
+                                            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                                            keyboardType="numeric"
+                                            value={goalAmount}
+                                            onChangeText={setGoalAmount}
+                                        />
 
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>
-                            Ngày kết thúc
-                        </Text>
-                        <TouchableOpacity
-                            style={[styles.dateInput, { borderColor: colors.border }]}
-                            onPress={() => setShowDatePicker(true)}>
-                            <Text
-                                style={{
-                                    fontSize: 16,
-                                    fontFamily: 'BeVietnamPro-Regular',
-                                    color: colors.text,
-                                }}>
-                                {format(goalDeadline, 'dd/MM/yyyy')}
-                            </Text>
-                            <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-                                (Còn {differenceInDays(goalDeadline, new Date())} ngày)
-                            </Text>
-                        </TouchableOpacity>
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>Ngày kết thúc</Text>
+                                        <TouchableOpacity
+                                            style={[styles.dateInput, { borderColor: colors.border }]}
+                                            onPress={() => setShowDatePicker(true)}>
+                                            <Text style={{ fontSize: 16, fontFamily: 'BeVietnamPro-Regular', color: colors.text }}>
+                                                {format(goalDeadline, 'dd/MM/yyyy')}
+                                            </Text>
+                                            <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                                                (Còn {differenceInDays(goalDeadline, new Date())} ngày)
+                                            </Text>
+                                        </TouchableOpacity>
 
-                        <View style={styles.modalButtons}>
-                            {isEditing && (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        if (editingId) handleDelete(editingId);
-                                    }}
-                                    style={styles.deleteButton}>
-                                    <Text style={styles.deleteButtonText}>Xóa</Text>
-                                </TouchableOpacity>
-                            )}
+                                        <View style={styles.modalButtons}>
+                                            {isEditing && (
+                                                <TouchableOpacity
+                                                    onPress={() => {
+                                                        if (editingId) handleDelete(editingId);
+                                                    }}
+                                                    style={styles.deleteButton}>
+                                                    <Text style={styles.deleteButtonText}>Xóa</Text>
+                                                </TouchableOpacity>
+                                            )}
 
-                            <TouchableOpacity
-                                onPress={() => setModalVisible(false)}
-                                style={[
-                                    styles.cancelButton,
-                                    { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' },
-                                ]}>
-                                <Text
-                                    style={[
-                                        styles.cancelButtonText,
-                                        { color: isDarkMode ? '#AAA' : '#666' },
-                                    ]}>
-                                    Hủy
-                                </Text>
-                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() => setModalVisible(false)}
+                                                style={[styles.cancelButton, { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' }]}>
+                                                <Text style={[styles.cancelButtonText, { color: isDarkMode ? '#AAA' : '#666' }]}>Hủy</Text>
+                                            </TouchableOpacity>
 
-                            <TouchableOpacity
-                                onPress={handleSaveGoal}
-                                style={[styles.saveButton, { backgroundColor: colors.primary }]}>
-                                <Text style={styles.saveButtonText}>Lưu</Text>
-                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={handleSaveGoal} style={[styles.saveButton, { backgroundColor: colors.primary }]}>
+                                                <Text style={styles.saveButtonText}>Lưu</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </ScrollView>
+                                </View>
+                            </TouchableWithoutFeedback>
                         </View>
-                    </View>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
 
-                    <CustomDatePickerModal
-                        visible={showDatePicker}
-                        initialDate={goalDeadline}
-                        minimumDate={new Date()}
-                        onConfirm={date => {
-                            setGoalDeadline(date);
-                            setShowDatePicker(false);
-                        }}
-                        onClose={() => setShowDatePicker(false)}
-                        mode="day"
-                        useNativeModal={false}
-                    />
-                </View>
+                <CustomDatePickerModal
+                    visible={showDatePicker}
+                    initialDate={goalDeadline}
+                    minimumDate={new Date()}
+                    onConfirm={date => {
+                        setGoalDeadline(date);
+                        setShowDatePicker(false);
+                    }}
+                    onClose={() => setShowDatePicker(false)}
+                    mode="day"
+                    useNativeModal={false}
+                />
             </Modal>
 
             <Modal visible={addMoneyModalVisible} transparent animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>
-                            Nạp thêm tiền
-                        </Text>
-                        <TextInput
-                            placeholder="Số tiền (VNĐ)"
-                            placeholderTextColor={colors.textSecondary}
-                            style={[
-                                styles.input,
-                                { borderColor: colors.border, color: colors.text },
-                            ]}
-                            keyboardType="numeric"
-                            value={addMoneyAmount}
-                            onChangeText={setAddMoneyAmount}
-                            autoFocus={true}
-                        />
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity
-                                onPress={() => setAddMoneyModalVisible(false)}
-                                style={[
-                                    styles.cancelButton,
-                                    { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' },
-                                ]}>
-                                <Text
-                                    style={[
-                                        styles.cancelButtonText,
-                                        { color: isDarkMode ? '#AAA' : '#666' },
-                                    ]}>
-                                    Hủy
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={handleAddMoney}
-                                style={[styles.saveButton, { backgroundColor: colors.primary }]}>
-                                <Text style={styles.saveButtonText}>Nạp ngay</Text>
-                            </TouchableOpacity>
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.modalOverlay}
+                >
+                    <TouchableOpacity 
+                        style={{flex: 1, justifyContent: 'center'}} 
+                        activeOpacity={1} 
+                        onPress={() => setAddMoneyModalVisible(false)}
+                    >
+                        <View style={{flex: 1, justifyContent: 'center', padding: scale(20)}}>
+                            <TouchableWithoutFeedback onPress={() => {}}>
+                                <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                                    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                                        <Text style={[styles.modalTitle, { color: colors.text }]}>Nạp thêm tiền</Text>
+                                        <TextInput
+                                            placeholder="Số tiền (VNĐ)"
+                                            placeholderTextColor={colors.textSecondary}
+                                            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                                            keyboardType="numeric"
+                                            value={addMoneyAmount}
+                                            onChangeText={setAddMoneyAmount}
+                                            autoFocus={true}
+                                        />
+                                        <View style={styles.modalButtons}>
+                                            <TouchableOpacity
+                                                onPress={() => setAddMoneyModalVisible(false)}
+                                                style={[styles.cancelButton, { backgroundColor: isDarkMode ? '#333' : '#F0F0F0' }]}>
+                                                <Text style={[styles.cancelButtonText, { color: isDarkMode ? '#AAA' : '#666' }]}>Hủy</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={handleAddMoney} style={[styles.saveButton, { backgroundColor: colors.primary }]}>
+                                                <Text style={styles.saveButtonText}>Nạp ngay</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </ScrollView>
+                                </View>
+                            </TouchableWithoutFeedback>
                         </View>
-                    </View>
-                </View>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
             </Modal>
         </SafeAreaView>
     );
@@ -444,14 +430,20 @@ const GoalScreen = () => {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    headerContainer: { marginTop: scale(10), marginBottom: scale(5) },
+    headerContainer: { 
+        marginTop: scale(10), 
+        paddingBottom: scale(5),
+        alignItems: 'center',
+    },
     headerTitle: {
         fontSize: scale(24),
         fontFamily: 'Coiny-Regular',
         textAlign: 'center',
+        lineHeight: scale(36), 
+        paddingVertical: scale(5), 
     },
 
-    baseCard: {
+    card: {
         borderRadius: scale(15),
         padding: scale(15),
         marginBottom: scale(15),
@@ -508,8 +500,6 @@ const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        padding: scale(20),
     },
     modalContent: {
         borderRadius: scale(20),
